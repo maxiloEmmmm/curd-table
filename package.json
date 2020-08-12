@@ -1,0 +1,31 @@
+{
+  "name": "vue-tool",
+  "version": "1.0.0",
+  "description": "vue antd tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxiloEmmmm/vue-tool.git"
+  },
+  "keywords": [
+    "antd",
+    "ant",
+    "vue"
+  ],
+  "author": "maxilozoz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/maxiloEmmmm/vue-tool/issues"
+  },
+  "homepage": "https://github.com/maxiloEmmmm/vue-tool#readme",
+  "dependencies": {
+    "ant-design-vue": "^1.6.4",
+    "codemirror": "^5.56.0",
+    "dayjs": "^1.8.33",
+    "js-beautify": "^1.11.0",
+    "vee-validate": "^3.3.9"
+  }
+}

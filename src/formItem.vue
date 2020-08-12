@@ -1,0 +1,183 @@
+<template>
+    <div style="width:100%; text-align: left">
+        <template v-if="editing">
+            <component :is="_option.textarea ? 'a-textarea' : 'a-input'" style="width:100%" size="small" v-if="type == 'string'" :value="value" :disabled="disabled" @change="onChange" ref="input"></component>
+            <tool-select size="small" :value="value" @change="onChange" 
+                :options="_option.selectOptions" v-else-if="type == 'select'" 
+                :disabled="disabled" 
+                ref="input"
+                style="width:100%"
+                :style="{minWidth: _option.minSelectWidth}" 
+                :filterOption="_option.selectFilter"></tool-select>
+            <a-switch :checked-children="_option.checkText" :un-checked-children="_option.unCheckText" :disabled="disabled" ref="input" size="small" v-else-if="type == 'switch'" :checked="value" @change="onChange"></a-switch>
+            <a-input-number style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'number'" :value="value" @change="onChange"></a-input-number>
+            <emotion :disabled="disabled" v-else-if="type == 'component'" style="width:100%" @click="lanuchComponent"> 请选择</emotion>
+            <tool-code :language="_option.language" style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'code'" :value="value" @change="onChange"></tool-code>
+            <span v-else>
+                {{ _label }}
+            </span>
+        </template>
+        <template v-else>
+            <span v-if="_normal_view">{{ _label }}</span>
+            <emotion v-else-if="_switch_view" :type="value ? 'info' : 'danger'">{{ value ?  _option.checkText : _option.unCheckText }}</emotion>
+            <span v-else-if="_param_view">
+                <ysz-list :no-line="true">
+                    <ysz-list-item v-for="v in value" :key="v.key" :left-item-end="true">
+                        <emotion slot="left">{{ v.key }}</emotion>{{ v.value }}
+                    </ysz-list-item>
+                </ysz-list>
+            </span>
+            <span v-else-if="_file_view">
+                <ysz-list :no-line="true">
+                    <ysz-list-item v-for="(v, index) in value" :key="index" :left-item-end="true">
+                        <emotion>{{ v }}</emotion>
+                    </ysz-list-item>
+                </ysz-list>
+            </span>
+        </template>
+    </div>
+</template>
+
+<script>
+import utils from "./utils"
+export default {
+    name: 'toolFormItem',
+    props: {
+        type: {
+            type: String,
+            default: 'string',
+            validator(value){
+                return ['string', 'select', 'number', 'switch', 'code'].includes(value)
+            }
+        },
+        value: {
+            default: '',
+        },
+        option: {
+            type: Object,
+            default: function () {
+                return {}
+            }
+        },
+        editing: {
+            type: Boolean,
+            default: false
+        },
+        disabled: {
+            type: Boolean,
+            default: false
+        },
+    },
+    watch: {
+        editing: {
+            handler(){
+                if(this.editing) {
+                    this.$nextTick(() => {
+                        this.$refs.input.focus()
+                        switch(this.type) {
+                            case 'string': {
+                                this.$refs.input.$el.select()
+                            }break;
+                            case 'number': {
+                                this.$refs.input.$el.querySelector('input').select()
+                            }break
+                        }
+                    })
+                }
+            },
+        }
+    },
+    computed: {
+        _option(){
+            const option = {...this.option}
+            switch (this.type) {
+                case 'code': {
+                    if(!option.language) {
+                        option.language = "javascript"
+                    }
+                }break;
+                case 'select': {
+                    if(option.selectOptions === undefined || !Array.isArray(option.selectOptions)) {
+                        option.selectOptions = utils.getType(option.selectOptions) == 'Function'
+                                ? option.selectOptions() : []
+                    }
+
+                    if(option.selectFilter === undefined || utils.getType(option.selectFilter) != 'Function') {
+                        option.selectFilter = null
+                    }
+                    if(utils.getType(option.selectLabel) == 'Function') {
+                        option.selectOptions = option.selectOptions.map(r => {
+                            const x = {...r}
+                            x.__COL_TRUE_LABEL__ = x.label
+                            x.label = option.selectLabel(x)
+                            return x
+                        })
+                    }
+
+
+                    option.minSelectWidth = utils.getType(option.minSelectWidth) != 'String' || option.minSelectWidth.indexOf('px') == -1 ? '120px' : option.minSelectWidth
+                }break;
+                case 'switch': {
+                    if(option.checkText === undefined) {
+                        option.checkText = '开'
+                    }
+
+                    if(option.unCheckText === undefined) {
+                        option.unCheckText = '关'
+                    }
+                }break;
+                default: {
+                }
+            }
+            return option
+        },
+        _normal_view(){
+            return ['string', 'date', 'check', 'radio', 'number', 'select'].includes(this.type)
+        },
+        _select_view(){
+            return this.type == 'select'
+        },
+        _switch_view(){
+            return this.type == 'switch'
+        },
+        _param_view(){
+            return this.type == 'param'
+        },
+        _file_view(){
+            return this.type == 'file'
+        },
+        _label(){
+            switch (this.type) {
+                case 'select': {
+                    let option = this._option.selectOptions.filter(r => r.value == this.value)[0]
+                    if(!option) {
+                        return ''
+                    }
+
+                    return this._option.selectLabel
+                        ? option.__COL_TRUE_LABEL__ ? option.__COL_TRUE_LABEL__ : ''
+                        : option.label
+                }break;
+                default: {
+                    return this.value
+                }
+            }
+        }
+    },
+    methods: {
+        onChange(value){
+            switch (this.type) {
+                case 'string': {
+                    value = value.target.value
+                }break;
+                default: {
+                }
+            }
+            this.$emit('change', value)
+        },
+        getLabel(){
+            return this._label
+        }
+    }
+}
+</script>
