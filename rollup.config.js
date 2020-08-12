@@ -1,13 +1,12 @@
-import resolve from 'rollup-plugin-node-resolve';
+import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import flow from 'rollup-plugin-flow-no-whitespace';
 import babel from 'rollup-plugin-babel';
-import {uglify} from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
 import VuePlugin from 'rollup-plugin-vue'
-import jsx from 'acorn-jsx';
 import postcss from 'rollup-plugin-postcss';
 import cssnano from 'cssnano';
+import alias from '@rollup/plugin-alias';
 
 export default {
     input: "index.js",
@@ -18,8 +17,13 @@ export default {
     },
     extensions: ['.js', '.vue'],
     plugins: [
+        alias({
+            entries: [
+                { find: 'vue', replacement: 'vue/dist/vue.js' },
+            ]
+        }),
         flow(),
-        resolve({browser: true,}),
+        resolve(),
         VuePlugin({
             compileTemplate: true,
             css: false,
