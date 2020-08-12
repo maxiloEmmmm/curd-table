@@ -20,7 +20,6 @@ export default {
     install: function(vue){
         vue.use(Button)
         vue.use(ConfigProvider)
-        vue.use(Card)
         vue.use(Input)
         vue.use(InputNumber)
         vue.use(Spin)

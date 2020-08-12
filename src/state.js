@@ -23,7 +23,6 @@ const newState = function(p, {title = "", response = null, message = null, failO
 const newFailState = (p, {title = "", response = null, message = null}) => {
     newState(p, {title, response, message, failOnly: true})
 }
-
 export default {
     newState,
     newFailState

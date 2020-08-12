@@ -16,11 +16,10 @@ export default {
         format: 'umd',
         name: 'maxiloVueTool',
     },
-    acornInjectPlugins: [
-        jsx()
-    ],
+    extensions: ['.js', '.vue'],
     plugins: [
         flow(),
+        resolve({browser: true,}),
         VuePlugin({
             compileTemplate: true,
             css: false,
@@ -34,7 +33,6 @@ export default {
         replace({
             'process.env.NODE_ENV': JSON.stringify('production')
         }),
-        resolve(),
         commonjs(), 
         postcss({
             plugins: [cssnano],

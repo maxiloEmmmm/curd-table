@@ -6,7 +6,7 @@ export default {
         const {$scopedSlots} = this
         
         return <ysz-module-card>
-                <tool-form vOn:done={this.opearDone} vOn:opearFinish={this.opearFinish} show={this.show} {...{on: {"update:show": v => this.show = v}}} ref="ywSettingBase"></tool-form>
+                <tool-form vOn:done={this.opearDone} vOn:opearFinish={this.opearFinish} show={this.show} on={{"update:show": v => this.show = v}} ref="ywSettingBase"></tool-form>
                 {this.title || $scopedSlots.title ? <span slot="title">{ this.title ? this.title : $scopedSlots.title()   }</span> : null}
                 {$scopedSlots.top && $scopedSlots.top() }
                 {this.fetchUrl 
