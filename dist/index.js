@@ -1,10 +1,8 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('indexof')) :
-	typeof define === 'function' && define.amd ? define(['indexof'], factory) :
-	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.maxiloVueTool = factory(global.indexof));
-}(this, (function (indexof) { 'use strict';
-
-	indexof = indexof && Object.prototype.hasOwnProperty.call(indexof, 'default') ? indexof['default'] : indexof;
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.maxiloVueTool = factory());
+}(this, (function () { 'use strict';
 
 	var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -37216,6 +37214,16 @@
 	      removeEventListener(node, endEvent, eventListener);
 	    });
 	  }
+	};
+
+	var indexOf$4 = [].indexOf;
+
+	var indexof = function(arr, obj){
+	  if (indexOf$4) return arr.indexOf(obj);
+	  for (var i = 0; i < arr.length; ++i) {
+	    if (arr[i] === obj) return i;
+	  }
+	  return -1;
 	};
 
 	var componentIndexof = function(arr, obj){

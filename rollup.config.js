@@ -15,7 +15,6 @@ export default {
         format: 'umd',
         name: 'maxiloVueTool',
     },
-    extensions: ['.js', '.vue'],
     plugins: [
         alias({
             entries: [
