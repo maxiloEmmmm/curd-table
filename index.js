@@ -1,7 +1,7 @@
 import components from './src'
-import './src/sass/index.scss'
 import ant from "./src/ant"
 import state from "./src/state"
+import http from "./src/http"
 
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 
@@ -20,5 +20,6 @@ if (window.Vue) {
 }
 
 export default {
-    install
+    install,
+    http
 }

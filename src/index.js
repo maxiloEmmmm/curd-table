@@ -3,8 +3,8 @@ import form from "./form.vue"
 import formItem from "./formItem.vue"
 import state from "./state.vue"
 
-import select from "./widgets/select"
-import code from "./widgets/code"
+import select from "./widgets/select.vue"
+import code from "./widgets/code.vue"
 export default [
     curd,
     formItem,
