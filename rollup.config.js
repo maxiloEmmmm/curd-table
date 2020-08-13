@@ -3,39 +3,42 @@ import commonjs from '@rollup/plugin-commonjs';
 import flow from 'rollup-plugin-flow-no-whitespace';
 import babel from 'rollup-plugin-babel';
 import replace from 'rollup-plugin-replace';
-import VuePlugin from 'rollup-plugin-vue'
+import VuePlugin from 'rollup-plugin-vue2'
 import postcss from 'rollup-plugin-postcss';
 import cssnano from 'cssnano';
-import alias from '@rollup/plugin-alias';
-
+import json from "@rollup/plugin-json"
+import alias from "@rollup/plugin-alias"
 export default {
     input: "index.js",
     output: {
         file: "dist/index.js",
-        format: 'umd',
+        format: 'esm',
         name: 'maxiloVueTool',
     },
+    external(id) {
+        return ["core-js-pure", "@babel/runtime-corejs3", "vue", "ant-design-vue", "codemirror", "dayjs", "js-beautify", "vee-validate"].filter(m => {
+            return (new RegExp(`^${m}/*(.+)?`)).test(id)
+        }).length > 0
+    },
     plugins: [
+        replace({
+            'process.env.NODE_ENV': JSON.stringify('production')
+        }),
         alias({
-            entries: [
-                { find: 'vue', replacement: 'vue/dist/vue.js' },
-            ]
+            entries: {
+                'vue': "vue/dist/vue.js"
+            }
         }),
+        json(),
         flow(),
-        resolve(),
-        VuePlugin({
-            compileTemplate: true,
-            css: false,
-            normalizer : '~vue-runtime-helpers/dist/normalize-component.js'
-        }),
+        resolve({}),
+        VuePlugin(),
         babel({
             exclude: 'node_modules/**',
             runtimeHelpers: true,
             extensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.vue']
         }), 
-        replace({
-            'process.env.NODE_ENV': JSON.stringify('production')
-        }),
+        
         commonjs(), 
         postcss({
             plugins: [cssnano],

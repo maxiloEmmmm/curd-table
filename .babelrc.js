@@ -6,8 +6,10 @@ module.exports = {
     ],
     plugins: [["@babel/plugin-transform-runtime", {
       corejs: 3
-    }], [
+    }], 
+    [
       "import",
       { libraryName: "ant-design-vue", libraryDirectory: "es", style: true }
-    ]],
+    ]
+  ],
   }

@@ -1,7 +1,6 @@
 <script>
 import CodeMirror from 'codemirror'
 
-// import 'codemirror/mode/yaml/yaml'
 import 'codemirror/addon/hint/show-hint'
 import 'codemirror/addon/hint/anyword-hint'
 import 'codemirror/addon/edit/matchbrackets'
@@ -37,7 +36,6 @@ export default {
         }
     },
     async mounted(){
-        await require(`codemirror/mode/${this.language}/${this.language}`)
         this.handler = CodeMirror(this.$refs.code, {
             lineNumbers:true,
             theme:"seti",

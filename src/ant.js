@@ -8,8 +8,8 @@ import {
     Modal,
     Select,
     Icon,
-    Message,
-    Notification,
+    message,
+    notification,
     DatePicker,
     Switch,
     Pagination,
@@ -32,8 +32,8 @@ export default {
         vue.use(Pagination)
         vue.use(Badge)
         vue.use(function(Vue){
-            Vue.prototype.$message = Message
-            Vue.prototype.$notification = Notification
+            Vue.prototype.$message = message
+            Vue.prototype.$notification = notification
             Vue.prototype.$info = Modal.info
             Vue.prototype.$success = Modal.success
             Vue.prototype.$error = Modal.error
