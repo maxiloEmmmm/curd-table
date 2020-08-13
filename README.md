@@ -1,5 +1,9 @@
+```bash
+yarn add antd-vue-tool
+```
+
 ```javascript
-import httpConfig from "vue-tool/src/http"
+import httpConfig from "antd-vue-tool/src/http"
 httpConfig.engine = yoursHttpEngineLikeAxiosInstance
 httpConfig.errorMsgAdapter = r => {
     return "format 「r」"
