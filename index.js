@@ -2,11 +2,14 @@ import components from './src'
 import ant from "./src/ant"
 import state from "./src/state"
 import http from "./src/http"
+import mvyu from "maxilo-vue-ysz-ui"
+import "maxilo-vue-ysz-ui/lib/ysz-ui.css"
 
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 
 const install = function(vue){
     ant.install(vue)
+    mvyu.install(vue)
     components.map(component => {
         vue.component(component.name, component)
     })

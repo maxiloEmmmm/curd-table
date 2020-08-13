@@ -16,7 +16,7 @@ export default {
         name: 'maxiloVueTool',
     },
     external(id) {
-        return ["core-js-pure", "@babel/runtime-corejs3", "vue", "ant-design-vue", "codemirror", "dayjs", "js-beautify", "vee-validate"].filter(m => {
+        return ["maxilo-vue-ysz-ui", "core-js-pure", "@babel/runtime-corejs3", "vue", "ant-design-vue", "codemirror", "dayjs", "js-beautify", "vee-validate"].filter(m => {
             return (new RegExp(`^${m}/*(.+)?`)).test(id)
         }).length > 0
     },
