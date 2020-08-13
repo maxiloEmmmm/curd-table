@@ -50,3 +50,9 @@ export default {
     }
 }
 </script>
+
+<style lang="scss">
+    @import '~codemirror/theme/seti.css';
+    @import '~codemirror/lib/codemirror.css';
+    @import '~codemirror/addon/hint/show-hint.css';
+</style>
