@@ -1,20 +1,21 @@
 <template>
     <a-modal
         width="80%"
+        :closable="false"
         :visible="show">
         <span slot="title">{{ _model_title }}</span>
         <a-spin :spinning="loading">
             <ValidationObserver ref="ob">
                 <ysz-list :no-line="false" :row="true" :group="_model_layout_group">
-                    <ValidationProvider :key="field.field" v-for="(field) in _fields" :name="field.title" :rules="field.validate" v-slot="{ errors, validate }">
+                    <ValidationProvider style="width:100%" :key="field.field" v-for="(field) in _fields" :name="field.title" :rules="field.validate" v-slot="{ errors, validate }">
                         <ysz-list-item-top>
                             <ysz-list-item slot="top">
                                 <span slot="left">{{ `${field.title}${field.type == 'code' ? `(${field.option.language})` : ''}` }}</span>
                                 <a-badge v-show="errors.length" status="warning" :text="errors[0]" />
                             </ysz-list-item>
                             <ysz-list-item-top>
-                                <tool-form-item slot="top" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="true" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key)}"></tool-form-item>
-                                <tw-alert mini left v-if="field.help_msg" :title="field.help_msg" type="info" show-icon />
+                                <tool-form-item slot="top" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="true" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key)}" :item="dataform"></tool-form-item>
+                                <tw-alert style="text-align:left" mini left v-if="field.help_msg" :title="field.help_msg" type="info" show-icon />
                             </ysz-list-item-top>
                         </ysz-list-item-top>
                     </ValidationProvider>
@@ -58,7 +59,12 @@ export default {
             default(){
                 return []
             }
-        }
+        },
+        paramTransform: {
+            type: Function,
+            default: r => r
+        },
+        httpKey: {type: String, default: 'default'},
     },
     computed: {
         _has_option_remote_load(){
@@ -105,24 +111,27 @@ export default {
             }
         },
         _model_data(){
+            // 只有汇集数据时根据form_key生成具体包含路径的数据
+            // dataform 只存储path => value
+            // _model_data: {a: {b: 1}}
+            // dataform: {'a.b': 1}
             if(this._hasModel) {
                 if(Array.isArray(this._current_model.pick) && this._current_model.pick.length != 0) {
                     let keys = utils.getArrayFunction(this._current_model.pick, [this._current_model, this.dataform])
                     let tmp = {}
-                    Object.keys(this.dataform).forEach(v => {
-                        let field = this.getFieldByDataKey(v)
+                    this.store.fields.forEach(field => {
                         if(keys.includes(field.form_key)) {
-                            tmp[field.form_key] = this.dataform[field.form_value_key]
+                            utils.set(tmp, field.form_key, this.dataform[field.form_key])
                         }
                     })
                     return tmp
                 }else {
                     let omit = utils.getArrayFunction(this._current_model.omit, [this._current_model, this.dataform])
                     let tmp = {}
-                    Object.keys(this.dataform).forEach(v => {
-                        let field = this.getFieldByDataKey(v)
+                    
+                    this.store.fields.forEach(field => {
                         if(!omit.includes(field.form_key)) {
-                            tmp[field.form_key] = this.dataform[field.form_value_key]
+                            utils.set(tmp, field.form_key, this.dataform[field.form_key])
                         }
                     })
                     return tmp
@@ -145,7 +154,7 @@ export default {
         _key() {
             let ks = this.store.fields.filter(field => field.key)
 
-            return ks.length > 0 ? ks[0].field : ''
+            return ks.length > 0 ? ks[0].form_key : ''
         },
         _fields(){
             return this.store.fields.filter(v => v.field && !this._model_hide.includes(v.form_key))
@@ -188,8 +197,8 @@ export default {
                     option.titleKey = option.titleKey ? option.titleKey : 'label'
                 }
 
-                let _default = utils.getTypeDefault(type, v.default, option)
                 let fk = v.form_key ? v.form_key : v.field
+                let _default = utils.getTypeDefault(type, v.default, option)
                 this.$set(this.dataform, fk, _default)
 
                 tmp.push({
@@ -203,7 +212,7 @@ export default {
                     key: v.key === undefined ? false : v.key,
                     meta: v,
                     form_key: fk,
-                    form_value_key: v.form_value_key ? v.form_value_key : fk
+                    form_value_key: v.form_value_key ? v.form_value_key : v.field
                 })
             });
 
@@ -253,19 +262,15 @@ export default {
                 this.store.model = model
             }
         },
-        getFieldByDataKey(key){
-            return this.store.fields.filter(f => f.field == key || f.form_key == key)[0]
-        },
         setData(data){
-            Object.keys(data).forEach(v => {
-                let field = this.getFieldByDataKey(v)
-                if(field) {
-                    this.$set(this.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.form_value_key), field.option))
-                }
+            this.store.fields.forEach(field => {
+                // 只根据field.field获取数据
+                // dataform key 根据_mode_data 注释设置
+                this.$set(this.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.field), field.option))
             })
         },
         filterType(type){
-            return ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code'].includes(type) ? type : 'string'
+            return ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer'].includes(type) ? type : 'string'
         },
         getNotifyEngine(type) {
             switch(type) {
@@ -289,7 +294,9 @@ export default {
 
             try {
                 let sub = ''
-                if(['put', 'delete', 'patch'].includes(this._current_model.xhr.method)) {
+                // put not include
+                // put include key to body
+                if(['delete', 'patch'].includes(this._current_model.xhr.method)) {
                     let ks = this.store.fields.filter(field => field.key)
 
                     if(ks.length > 0) {
@@ -297,8 +304,9 @@ export default {
                     }
                 }
                 this.loading = true
-                let response = await httpConfig.engine[this._current_model.xhr.method](
-                    this._current_model.xhr.url + sub, this.transform(param))
+                let hkObj = httpConfig.getEngine(this._current_model.xhr.httpKey ? this._current_model.xhr.httpKey : this.httpKey)
+                let response = await hkObj.engine[this._current_model.xhr.method](
+                    this._current_model.xhr.url + sub, this.paramTransform(this.transform(param)))
                 this.loading = false
 
                 if(utils.http.responseOk(response)) {
@@ -308,7 +316,7 @@ export default {
                         this.close()
                     }
                 }else {
-                    this.getNotifyEngine(this._current_model.xhr.notifyEngine).info(httpConfig.errorMsgAdapter({response}))
+                    this.getNotifyEngine(this._current_model.xhr.notifyEngine).info(hkObj.errorMsgAdapter({response}))
                 }
                 return response
             } catch (error) {
@@ -359,6 +367,12 @@ export default {
         },
         getEmpty(type){
             switch(type){
+                case 'tag': {
+                    return []
+                }break;
+                case 'map': {
+                    return {}
+                }break;
                 case 'date': {
                     return dayjs()
                 }break;
@@ -384,9 +398,8 @@ export default {
             }
         },
         clean(){
-            Object.keys(this.dataform).forEach(v => {
-                let field = this.getFieldByDataKey(v)
-                this.$set(this.dataform, field.form_key, utils.getTypeDefault(field.type, field.default, field.option))
+            this.store.fields.forEach(field => {
+                this.$set(this.dataform, field.form_key, field.default)
             })
         }
     }

@@ -351,6 +351,11 @@ var http = {
 
 var getTypeDefault = function getTypeDefault(type, _d, optiom) {
   switch (type) {
+    case 'map':
+      {
+        return getType(_d) == 'Object' ? _d : {};
+      }
+
     case 'date':
       {
         return _d === undefined ? dayjs() : dayjs(_d);
@@ -380,6 +385,7 @@ var getTypeDefault = function getTypeDefault(type, _d, optiom) {
         }
       }
 
+    case 'tag':
     case 'check':
       {
         return _Array$isArray(_d) ? _d : [];
@@ -595,7 +601,8 @@ var curd = {
     var $scopedSlots = this.$scopedSlots;
     return h("ysz-module-card", [h("tool-form", helper([{
       "attrs": {
-        "show": this.show
+        "show": this.show,
+        "paramTransform": this.paramTransform
       }
     }, {
       "on": {
@@ -639,9 +646,10 @@ var curd = {
         "row": true
       }
     }, [_mapInstanceProperty(_context2 = this._filter).call(_context2, function (filter) {
-      return h("ysz-list-item", {
+      return h("ysz-list-item-top", [h("ysz-list-item", {
         "key": filter.filterKey,
-        "class": "h-full"
+        "class": "h-full",
+        "slot": "top"
       }, [h("span", {
         "slot": "left"
       }, [filter.label]), h("tool-form-item", {
@@ -656,7 +664,16 @@ var curd = {
             return _this.onFilter(value, filter.filterKey);
           }
         }
-      })]);
+      })]), filter.help_msg ? h("tw-alert", {
+        "style": "text-align:left",
+        "attrs": {
+          "mini": true,
+          "left": true,
+          "title": filter.help_msg,
+          "type": "info",
+          "show-icon": true
+        }
+      }) : null]);
     }), h("ysz-list-item", [h("emotion", {
       "attrs": {
         "size": "small",
@@ -737,6 +754,12 @@ var curd = {
       },
       type: Function
     },
+    paramTransform: {
+      default: function _default(r) {
+        return r;
+      },
+      type: Function
+    },
     pageSize: {
       type: Number,
       default: 10
@@ -803,7 +826,9 @@ var curd = {
         return _objectSpread$1(_objectSpread$1({
           label: f.title
         }, f), {}, {
-          filterKey: f.filterKey ? f.filterKey : f.field
+          filterKey: f.filterKey ? f.filterKey : f.field,
+          type: f.filterType ? f.filterType : f.type,
+          help_msg: f.filter_help_msg
         });
       });
     },
@@ -925,6 +950,7 @@ var curd = {
         c.edit = _Object$assign({
           enable: false
         }, c.edit);
+        c.dataIndex = c.field;
         c.customRender = c.customRender ? c.customRender : function (text, item, index, a) {
           var _context19;
 
@@ -1002,9 +1028,6 @@ var curd = {
                 "directives": [{
                   name: "show",
                   value: !_filterInstanceProperty(row) || _filterInstanceProperty(row).call(row, item)
-                }, {
-                  name: "for",
-                  value: "(action, _i) in _dispatchRow"
                 }],
                 "key": _i,
                 "class": {
@@ -1032,6 +1055,14 @@ var curd = {
           _this5 = this;
 
       return _mapInstanceProperty(_context23 = this.models).call(_context23, function (f) {
+        if (f.type === undefined) {
+          f.type = 'action';
+        }
+
+        if (f.type == 'action' && f.key === undefined) {
+          f.key = utils.random("action_key-");
+        }
+
         if (f.xhr) {
           f.xhr.url = f.xhr.url ? f.xhr.url : _this5.fetchUrl;
           f.xhr.okMsg = f.xhr.okMsg ? f.xhr.okMsg : 'ok~';
@@ -1724,6 +1755,7 @@ var form = {
     return _c('a-modal', {
       attrs: {
         "width": "80%",
+        "closable": false,
         "visible": _vm.show
       }
     }, [_c('span', {
@@ -1746,6 +1778,9 @@ var form = {
     }, _vm._l(_vm._fields, function (field) {
       return _c('ValidationProvider', {
         key: field.field,
+        staticStyle: {
+          "width": "100%"
+        },
         attrs: {
           "name": field.title,
           "rules": field.validate
@@ -1796,6 +1831,9 @@ var form = {
               },
               slot: "top"
             }), _vm._v(" "), field.help_msg ? _c('tw-alert', {
+              staticStyle: {
+                "text-align": "left"
+              },
               attrs: {
                 "mini": "",
                 "left": "",
@@ -1851,6 +1889,12 @@ var form = {
       type: Array,
       default: function _default() {
         return [];
+      }
+    },
+    paramTransform: {
+      type: Function,
+      default: function _default(r) {
+        return r;
       }
     }
   },
@@ -1968,7 +2012,7 @@ var form = {
         return field.key;
       });
 
-      return ks.length > 0 ? ks[0].field : '';
+      return ks.length > 0 ? ks[0].form_key : '';
     },
     _fields: function _fields() {
       var _context9,
@@ -2076,7 +2120,7 @@ var form = {
           key: v.key === undefined ? false : v.key,
           meta: v,
           form_key: fk,
-          form_value_key: v.form_value_key ? v.form_value_key : fk
+          form_value_key: v.form_value_key ? v.form_value_key : v.field
         });
       });
 
@@ -2181,7 +2225,7 @@ var form = {
     filterType: function filterType(type) {
       var _context18;
 
-      return _includesInstanceProperty(_context18 = ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code']).call(_context18, type) ? type : 'string';
+      return _includesInstanceProperty(_context18 = ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag']).call(_context18, type) ? type : 'string';
     },
     getNotifyEngine: function getNotifyEngine(type) {
       switch (type) {
@@ -2237,7 +2281,7 @@ var form = {
 
                 _this8.loading = true;
                 _context22.next = 7;
-                return Http.engine[_this8._current_model.xhr.method](_this8._current_model.xhr.url + sub, _this8.transform(param));
+                return Http.engine[_this8._current_model.xhr.method](_this8._current_model.xhr.url + sub, _this8.paramTransform(_this8.transform(param)));
 
               case 7:
                 response = _context22.sent;
@@ -2363,6 +2407,16 @@ var form = {
     },
     getEmpty: function getEmpty(type) {
       switch (type) {
+        case 'tag':
+          {
+            return [];
+          }
+
+        case 'map':
+          {
+            return {};
+          }
+
         case 'date':
           {
             return dayjs();
@@ -2415,9 +2469,11 @@ var form = {
 
 function ownKeys$3(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = _filterInstanceProperty(symbols).call(symbols, function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context6; _forEachInstanceProperty(_context6 = ownKeys$3(Object(source), true)).call(_context6, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context7; _forEachInstanceProperty(_context7 = ownKeys$3(Object(source))).call(_context7, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context8; _forEachInstanceProperty(_context8 = ownKeys$3(Object(source), true)).call(_context8, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context9; _forEachInstanceProperty(_context9 = ownKeys$3(Object(source))).call(_context9, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var formItem = {
   render: function render() {
+    var _context, _context2;
+
     var _vm = this;
 
     var _h = _vm.$createElement;
@@ -2510,6 +2566,32 @@ var formItem = {
       on: {
         "change": _vm.onChange
       }
+    }) : _vm.type == 'map' ? _c('tool-map', {
+      ref: "input",
+      staticStyle: {
+        "width": "100%"
+      },
+      attrs: {
+        "disabled": _vm.disabled,
+        "size": "small",
+        "value": _vm.value
+      },
+      on: {
+        "change": _vm.onChange
+      }
+    }) : _vm.type == 'tag' ? _c('tool-tag', {
+      ref: "input",
+      staticStyle: {
+        "width": "100%"
+      },
+      attrs: {
+        "disabled": _vm.disabled,
+        "size": "small",
+        "value": _vm.value
+      },
+      on: {
+        "change": _vm.onChange
+      }
     }) : _c('span', [_vm._v("\n            " + _vm._s(_vm._label) + "\n        ")])] : [_vm._normal_view ? _c('span', [_vm._v(_vm._s(_vm._label))]) : _vm._switch_view ? _c('emotion', {
       attrs: {
         "type": _vm.value ? 'info' : 'danger'
@@ -2541,7 +2623,30 @@ var formItem = {
           "left-item-end": true
         }
       }, [_c('emotion', [_vm._v(_vm._s(v))])], 1);
-    }), 1)], 1) : _vm._e()]], 2);
+    }), 1)], 1) : _vm._map_view ? _c('span', [_c('tw-list-item2', {
+      attrs: {
+        "fit": "",
+        "index": "",
+        "indexBorder": "",
+        "items": _mapInstanceProperty(_context = _Object$keys(_vm.value)).call(_context, function (item) {
+          return {
+            title: item,
+            desc: _vm.value[item]
+          };
+        })
+      }
+    })], 1) : _vm._tag_view ? _c('span', [_c('tw-list-item1', {
+      attrs: {
+        "fit": "",
+        "index": "",
+        "indexBorder": "",
+        "items": _mapInstanceProperty(_context2 = _vm.value).call(_context2, function (v) {
+          return {
+            title: v
+          };
+        })
+      }
+    })], 1) : _vm._e()]], 2);
   },
   staticRenderFns: [],
   name: 'toolFormItem',
@@ -2550,9 +2655,9 @@ var formItem = {
       type: String,
       default: 'string',
       validator: function validator(value) {
-        var _context;
+        var _context3;
 
-        return _includesInstanceProperty(_context = ['string', 'select', 'number', 'switch', 'code']).call(_context, value);
+        return _includesInstanceProperty(_context3 = ['string', 'select', 'number', 'switch', 'code', 'map', 'tag']).call(_context3, value);
       }
     },
     value: {
@@ -2615,7 +2720,7 @@ var formItem = {
 
         case 'select':
           {
-            var _context3;
+            var _context5;
 
             if (option.selectOptions === undefined || !_Array$isArray(option.selectOptions)) {
               option.selectOptions = utils.getType(option.selectOptions) == 'Function' ? option.selectOptions() : [];
@@ -2626,9 +2731,9 @@ var formItem = {
             }
 
             if (utils.getType(option.selectLabel) == 'Function') {
-              var _context2;
+              var _context4;
 
-              option.selectOptions = _mapInstanceProperty(_context2 = option.selectOptions).call(_context2, function (r) {
+              option.selectOptions = _mapInstanceProperty(_context4 = option.selectOptions).call(_context4, function (r) {
                 var x = _objectSpread$3({}, r);
 
                 x.__COL_TRUE_LABEL__ = x.label;
@@ -2637,7 +2742,7 @@ var formItem = {
               });
             }
 
-            option.minSelectWidth = utils.getType(option.minSelectWidth) != 'String' || _indexOfInstanceProperty(_context3 = option.minSelectWidth).call(_context3, 'px') == -1 ? '120px' : option.minSelectWidth;
+            option.minSelectWidth = utils.getType(option.minSelectWidth) != 'String' || _indexOfInstanceProperty(_context5 = option.minSelectWidth).call(_context5, 'px') == -1 ? '120px' : option.minSelectWidth;
           }
           break;
 
@@ -2657,12 +2762,15 @@ var formItem = {
       return option;
     },
     _normal_view: function _normal_view() {
-      var _context4;
+      var _context6;
 
-      return _includesInstanceProperty(_context4 = ['string', 'date', 'check', 'radio', 'number', 'select']).call(_context4, this.type);
+      return _includesInstanceProperty(_context6 = ['string', 'date', 'check', 'radio', 'number', 'select']).call(_context6, this.type);
     },
     _select_view: function _select_view() {
       return this.type == 'select';
+    },
+    _map_view: function _map_view() {
+      return this.type == 'map';
     },
     _switch_view: function _switch_view() {
       return this.type == 'switch';
@@ -2673,15 +2781,18 @@ var formItem = {
     _file_view: function _file_view() {
       return this.type == 'file';
     },
+    _tag_view: function _tag_view() {
+      return this.type == 'tag';
+    },
     _label: function _label() {
       var _this2 = this;
 
       switch (this.type) {
         case 'select':
           {
-            var _context5;
+            var _context7;
 
-            var option = _filterInstanceProperty(_context5 = this._option.selectOptions).call(_context5, function (r) {
+            var option = _filterInstanceProperty(_context7 = this._option.selectOptions).call(_context7, function (r) {
               return r.value == _this2.value;
             })[0];
 
@@ -2958,7 +3069,231 @@ var code = {
   }
 };
 
-var components = [curd, formItem, select, state, form, code];
+var map = {
+  name: "tool-map",
+  render: function render() {
+    var _context,
+        _context2,
+        _this = this;
+
+    var h = arguments[0];
+    return h("tw-list-item2", {
+      "attrs": {
+        "fit": true,
+        "index": true,
+        "indexStart": true,
+        "indexBorder": true,
+        "items": _concatInstanceProperty(_context = []).call(_context, _toConsumableArray(_mapInstanceProperty(_context2 = _Object$keys(this.dataset)).call(_context2, function (item) {
+          return {
+            title: item,
+            desc: h("a-input", {
+              "attrs": {
+                "size": _this.size,
+                "disabled": _this.disabled,
+                "value": _this.dataset[item]
+              },
+              "on": {
+                "change": function change(e) {
+                  return _this.onChange(item, e.target.value);
+                }
+              }
+            })
+          };
+        })), [{
+          title: h("a-button", {
+            "attrs": {
+              "size": this.size,
+              "disabled": this.disabled
+            },
+            "on": {
+              "click": this.onNew
+            }
+          }, ["\u65B0\u589E"])
+        }])
+      }
+    });
+  },
+  props: {
+    value: {
+      type: Object,
+      default: function _default() {
+        return {};
+      }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    size: {
+      type: String,
+      default: "small"
+    }
+  },
+  methods: {
+    focus: function focus() {},
+    onChange: function onChange(k, v) {
+      this.dataset[k] = v;
+      this.$emit("change", this.dataset);
+    },
+    onNew: function onNew() {
+      var _this2 = this;
+
+      var h = this.$createElement;
+      this.newKey = '';
+      this.$confirm({
+        title: '请键入新key',
+        content: function content(h) {
+          return h("a-input", {
+            "attrs": {
+              "size": _this2.size,
+              "disabled": _this2.disabled
+            },
+            "on": {
+              "change": function change(e) {
+                return _this2.newKey = e.target.value;
+              }
+            }
+          });
+        },
+        onOk: function onOk() {
+          if (!_this2.newKey || _this2.dataset[_this2.newKey] !== undefined) {
+            _this2.$message.info('key存在或为空');
+
+            return;
+          }
+
+          _this2.$set(_this2.dataset, _this2.newKey, '');
+        },
+        onCancel: function onCancel() {}
+      });
+    }
+  },
+  data: function data() {
+    return {
+      newKey: '',
+      dataset: _Object$assign({}, this.value)
+    };
+  }
+};
+
+var tag = {
+  name: "tool-tag",
+  render: function render() {
+    var _context,
+        _context2,
+        _this = this;
+
+    var h = arguments[0];
+    return h("tw-list-item1", {
+      "attrs": {
+        "fit": true,
+        "index": true,
+        "indexBorder": true,
+        "items": _concatInstanceProperty(_context = []).call(_context, _toConsumableArray(_mapInstanceProperty(_context2 = this.dataset).call(_context2, function (item) {
+          return {
+            title: h("a-tag", {
+              "attrs": {
+                "color": "#108ee9",
+                "closable": true
+              },
+              "on": {
+                "close": function close(e) {
+                  return _this.onRemove(item);
+                }
+              }
+            }, [item])
+          };
+        })), [{
+          title: h("a-button", {
+            "attrs": {
+              "size": this.size,
+              "disabled": this.disabled
+            },
+            "on": {
+              "click": this.onNew
+            }
+          }, ["\u65B0\u589E"])
+        }])
+      }
+    });
+  },
+  props: {
+    value: {
+      type: Array,
+      default: function _default() {
+        return [];
+      }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    size: {
+      type: String,
+      default: "small"
+    }
+  },
+  methods: {
+    focus: function focus() {},
+    onRemove: function onRemove(v) {
+      var _context3;
+
+      this.dataset = _filterInstanceProperty(_context3 = this.dataset).call(_context3, function (val) {
+        return val != v;
+      });
+      this.onChange();
+    },
+    onChange: function onChange() {
+      this.$emit("change", this.dataset);
+    },
+    onNew: function onNew() {
+      var _this2 = this;
+
+      var h = this.$createElement;
+      this.newTag = '';
+      this.$confirm({
+        title: '请键入新标签',
+        content: function content(h) {
+          return h("a-input", {
+            "attrs": {
+              "size": _this2.size,
+              "disabled": _this2.disabled
+            },
+            "on": {
+              "change": function change(e) {
+                return _this2.newTag = e.target.value;
+              }
+            }
+          });
+        },
+        onOk: function onOk() {
+          var _context4;
+
+          if (!_this2.newTag || _filterInstanceProperty(_context4 = _this2.dataset).call(_context4, function (val) {
+            return val == _this2.newTag;
+          }).length > 0) {
+            _this2.$message.info('标签存在或为空');
+
+            return;
+          }
+
+          _this2.dataset.push(_this2.newTag);
+
+          _this2.onChange();
+        },
+        onCancel: function onCancel() {}
+      });
+    }
+  },
+  data: function data() {
+    return {
+      newTag: '',
+      dataset: _Object$assign([], this.value)
+    };
+  }
+};
+
+var components = [curd, formItem, select, state, form, code, map, tag];
 
 var ant = {
   install: function install(vue) {

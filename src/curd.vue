@@ -1,27 +1,31 @@
 <script>
 import utils from './utils'
+import httpConfig from "./http"
 export default {
     name: 'toolCurd',
     render(){
         const {$scopedSlots} = this
         
         return <ysz-module-card>
-                <tool-form vOn:done={this.opearDone} vOn:opearFinish={this.opearFinish} show={this.show} on={{"update:show": v => this.show = v}} ref="ywSettingBase"></tool-form>
+                <tool-form httpKey={this.httpKey} vOn:done={this.opearDone} vOn:opearFinish={this.opearFinish} show={this.show} paramTransform={this.paramTransform} on={{"update:show": v => this.show = v}} ref="ywSettingBase"></tool-form>
                 {this.title || $scopedSlots.title ? <span slot="title">{ this.title ? this.title : $scopedSlots.title()   }</span> : null}
                 {$scopedSlots.top && $scopedSlots.top() }
-                {this.fetchUrl 
-                    ? <emotion size="small" class="action-btn action-btn__top" vOn:click={e => this.refresh()}>刷新</emotion>
+                {this.fetchUrl && !this.preview
+                    ? <tw-emotion size="small" class="action-btn action-btn__top" vOn:click={e => this.refresh()}>刷新</tw-emotion>
                     : null}
-                {this._dispatchTop.map((action, index) => <emotion size="small" class="action-btn action-btn__top" vOn:click={ e => this.onTopAction(action)} key={index}>{ action.title }</emotion>)}
+                {this._dispatchTop.map((action, index) => <tw-emotion size="small" class="action-btn action-btn__top" vOn:click={ e => this.onTopAction(action)} key={index}>{ action.title }</tw-emotion>)}
                 {this._has_filter 
                     ? <ysz-list row>
                         {this._filter.map((filter) => 
-                            <ysz-list-item key={filter.filterKey} class="h-full">
-                                <span slot="left">{ filter.label }</span>
-                                <tool-form-item value={this.store.filter[filter.filterKey]} editing type={filter.type} vOn:change={value => this.onFilter(value, filter.filterKey)} option={filter.option}></tool-form-item>
-                            </ysz-list-item>
+                            <ysz-list-item-top>
+                                <ysz-list-item key={filter.filterKey} class="h-full" slot="top">
+                                    <span slot="left">{ filter.label }</span>
+                                    <tool-form-item value={this.store.filter[filter.filterKey]} editing type={filter.type} vOn:change={value => this.onFilter(value, filter.filterKey)} option={filter.option}></tool-form-item>
+                                </ysz-list-item>
+                                {filter.help_msg ? <tw-alert style="text-align:left" mini left title={filter.help_msg} type="info" show-icon /> : null}
+                            </ysz-list-item-top>
                         )}
-                        <ysz-list-item><emotion size="small" vOn:click={e => this.refresh()} type="primary"> 搜索</emotion></ysz-list-item>
+                        <ysz-list-item><tw-emotion size="small" vOn:click={e => this.refresh()} type="primary"> 搜索</tw-emotion></ysz-list-item>
                     </ysz-list>
                     : null}
                 
@@ -30,14 +34,18 @@ export default {
                         ? <div style="flex: 0 0 auto">{$scopedSlots.left()}</div>
                         : null}
                     <div style="flex: 1 1 auto">
-                        <ysz-fetch-wrap engine={this.$http} ref="datawrap" url={this._fetchUrl} errHandler={this.fetchErr} handler={this.render} page={this.store.page} pageKey="page" size={this.store.page_size}>
-                            <a-table rowKey={this.store.rowKey} size="small" vOn:change={(page, sorter, filter) => this.pageRender(page, sorter, filter)} dataSource={this._tdata} columns={this._columns} bordered={true} pagination={this.pagination}></a-table>
+                        <ysz-fetch-wrap engine={this._httpEngine} ref="datawrap" url={this._fetchUrl} errHandler={this.fetchErr} handler={this.render} page={this.store.page} pageKey="page" size={this.store.page_size}>
+                            <a-table class="curd-core-table" rowKey={this.store.rowKey} size="small" vOn:change={(page, sorter, filter) => this.pageRender(page, sorter, filter)} dataSource={this._tdata} columns={this._columns} bordered={true} pagination={this.pagination}></a-table>
                         </ysz-fetch-wrap>
                     </div>
                     {this._has_right_view
                         ? <div style="flex: 0 0 auto">{$scopedSlots.right()}</div>
                         : null}
                 </div>
+
+                {this._has_footer_view
+                    ? <div style="flex: 0 0 auto">{$scopedSlots.footer()}</div>
+                    : null}
             </ysz-module-card>
     },
     props: {
@@ -48,12 +56,19 @@ export default {
         actionNewRow: {type: Boolean, default: false},
         actionEditRow: {type: Boolean, default: false},
         actionEditFilter:{default(r){return r},type: Function },
+        paramTransform:{default(r){return r},type: Function },
         pageSize: {type: Number, default: 10},
         fetchTransform: {default(r){return r},type: Function },
-        dataSource: {type: Array, default: () => []}
+        dataSource: {type: Array, default: () => []},
+        httpKey: {type: String, default: 'default'},
+        preview: {type: Boolean, default: false},
     },
     data(){
-        let userdata = Array.isArray(this.$props.dataSource) ? this.$props.dataSource : []
+        this.$nextTick(() => {
+            let userdata = Array.isArray(this.$props.dataSource) ? this.$props.dataSource : []
+            this.store.tableData = [...this.store.tableData, ...userdata.map(this.transformData)]
+            this.store.page_count = this.store.tableData.length
+        })
         return {
             show: false,
             store: {
@@ -65,9 +80,9 @@ export default {
                     ing: false
                 },
                 page: 1,
-                page_count: userdata.length,
+                page_count: 0,
                 page_size: this.$props.pageSize,
-                tableData: userdata,
+                tableData: [],
                 relations: [],
                 editKey: -1,
                 editModelKey: '__EDIT__',
@@ -79,6 +94,9 @@ export default {
         }
     },
     computed: {
+        _httpEngine(){
+            return httpConfig.getEngine(this.httpKey).engine
+        },
         _tdata(){
             if(this.fetchUrl) {
                 return this.store.tableData
@@ -92,7 +110,9 @@ export default {
                 return {
                     label: f.title,
                     ...f,
-                    filterKey: f.filterKey ? f.filterKey : f.field
+                    filterKey: f.filterKey ? f.filterKey : f.field,
+                    type: f.filterType ? f.filterType : f.type,
+                    help_msg: f.filter_help_msg
                 }
             })
         },
@@ -120,7 +140,7 @@ export default {
             return path + "?" + Object.keys(querys).map(query => `${query}=${querys[query]}`).join("&")
         },
         pagination(){
-            return {
+            return this.preview ? false : {
                 current: this.store.page,
                 total: this.store.page_count,
                 pageSize: this.store.page_size,
@@ -159,6 +179,7 @@ export default {
             return this.columns.map(c => {
                 c.option = c.option ? c.option : {}
                 c.edit = Object.assign({enable: false}, c.edit)
+                c.dataIndex = c.field
                 c.customRender = c.customRender ? c.customRender : (text, item, index, a) => {
                     const h = this.$createElement
                     return {
@@ -168,7 +189,8 @@ export default {
                                 value: utils.get(item, c.field), 
                                 option: c.option, 
                                 type: c.type,
-                                autoSet: this._auto_set
+                                autoSet: this._auto_set,
+                                item
                             },
                             ref: `edit-ref-${index}-${c.field}`,
                             on: {
@@ -214,8 +236,7 @@ export default {
                                     'action-btn': true,
                                     'action-btn__row-relation': row.type == 'relation'
                                 }}
-                                vOn:click={e => this.onRowAction(row, item, index)}
-                                v-for="(action, _i) in _dispatchRow">
+                                vOn:click={e => this.onRowAction(row, item, index)}>
                                 {row.title}</a-button>
                     ),
                 })
@@ -228,6 +249,13 @@ export default {
         },
         _format_models(){
             return this.models.map(f => {
+                if(f.type === undefined) {
+                    f.type = 'action'
+                }
+
+                if(f.type == 'action' && f.key === undefined) {
+                    f.key = utils.random("action_key-")
+                }
                 if(f.xhr) {
                     f.xhr.url = f.xhr.url ? f.xhr.url : this.fetchUrl
                     f.xhr.okMsg = f.xhr.okMsg ? f.xhr.okMsg : 'ok~'
@@ -254,6 +282,9 @@ export default {
         },
         _has_right_view(){
             return !!this.$slots.right
+        },
+        _has_footer_view(){
+            return !!this.$slots.footer
         },
         _auto_set(){
             return this._format_columns.filter(c => c.type == 'select' && c.option.labelKey)
@@ -360,13 +391,15 @@ export default {
             const cdata = [...this.store.tableData]
             const item = cdata.filter(item => key === this.getRowKey(item))[0]
             item[field] = value
+            //old Object.assign(item, this.editFilter(key, item))
+            let fi = this._format_columns.filter(r => r.field == field)[0]
+            //old this.change(this.store.tableData)
+            if(fi.edit.cellHandler) {
+                fi.edit.cellHandler(key, item)
+            }
             Object.assign(item, this.editFilter(key, item))
             this.store.tableData = cdata
-            let fi = this._format_columns.filter(r => r.field == field)[0]
             this.change(this.store.tableData)
-            if(fi.edit.cellHandler) {
-                fi.edit.cellHandler(key, this)
-            }
         },
         cancleEdit(field, key){
             this.saveCell(field, key, this.store.tmpeditcellvalue)
@@ -382,7 +415,7 @@ export default {
         },
         async refresh(){
             this.store.tableData = []
-            this.store.page_count
+            this.store.page_count = 0
             await this.$nextTick()
             this.$refs.datawrap.fetch();
         },
@@ -400,11 +433,12 @@ export default {
             await this.$nextTick()
             this.$refs.datawrap.fetch()
         },
-        render(response){
+        async render(response){
             if(utils.http.responseOk(response)) {
-                response = this.fetchTransform(response)
+                response = await this.fetchTransform(response)
                 this.store.tableData = response.data.data.map(this.transformData)
                 this.store.page_count = response.data.total
+                this.change(this.store.tableData)
             }else {
                 this.$message.warn(response.data.msg)
             }
@@ -448,11 +482,17 @@ export default {
                             this.onAction({key: this.store.editModelKey}, item)
                         }break;
                         case 'event': {
-                            this.$emit(action.key, {item, key: this.getRowKey(item), table: this})
+                            this.$emit(action.key, {item, rawItem: this.getRaw(item), key: this.getRowKey(item), table: this})
                         }
                     }
                 }
             }
+        },
+        getRaw(item){
+            let obj = {...item}
+            delete obj[this.store.colEditKey]
+            delete obj[this.store.rowKey]
+            return obj
         },
         autoSet(key, item){
             let tmp = {...item}
@@ -495,6 +535,7 @@ export default {
             let index = this.store.tableData.findIndex(r => this.getRowKey(r) === key)
             index = index < 0 ? this.store.tableData.length : index
             index = index+1
+            console.log(index)
             for(let k = 0; k < num; k++) {
                 this.store.tableData.splice(index+k, 0, this.transformData({...cs}))
             }
@@ -534,7 +575,9 @@ export default {
             }
         },
         transform(cb){
-            this.store.tableData = this.store.tableData.map((v, i, arr) => cb(v, i, arr))
+            this.store.tableData = this.store.tableData.map((v, i, arr) => {
+                return this.editFilter(this.getRowKey(v), cb(v, i, arr))
+            })
             this.change(this.store.tableData)
         },
         transformData(data) {
@@ -547,6 +590,7 @@ export default {
             if(data[this.store.rowKey] === undefined) {
                 data[this.store.rowKey] = utils.random('rowkey-')
             }
+            data = this.editFilter(data[this.store.rowKey], data)
             return data
         },
         clear(){
@@ -617,4 +661,11 @@ export default {
 
         &.action-btn__row-relation {background-color: #10ddc2; color: #fff}
     }
+</style>
+
+<style lang="scss">
+  .mini-tool-curd {
+    .ant-table {line-height: 1.5; font-size:14px}
+    .ant-table tbody td {padding-top: 4px !important; padding-bottom: 4px!important;}
+  }
 </style>

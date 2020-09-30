@@ -13,6 +13,9 @@
             <a-input-number style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'number'" :value="value" @change="onChange"></a-input-number>
             <emotion :disabled="disabled" v-else-if="type == 'component'" style="width:100%" @click="lanuchComponent"> 请选择</emotion>
             <tool-code :language="_option.language" style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'code'" :value="value" @change="onChange"></tool-code>
+            <tool-map style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'map'" :value="value" @change="onChange"></tool-map>
+            <tool-tag style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'tag'" :value="value" @change="onChange"></tool-tag>
+            <component style="width:100%" :option="_option" :is="_option.customer_form" :disabled="disabled" ref="input" size="small" v-else-if="type == 'customer'" :value="value" @change="onChange"></component>
             <span v-else>
                 {{ _label }}
             </span>
@@ -34,6 +37,21 @@
                     </ysz-list-item>
                 </ysz-list>
             </span>
+            <span v-else-if="_map_view">
+                <tw-list-item2 fit index indexBorder :items="Object.keys(value).map(item => {
+                    return {
+                        title: item,
+                        desc: value[item]
+                    }
+                })">
+                </tw-list-item2>
+            </span>
+            <span v-else-if="_tag_view">
+                <tw-list-item1 fit index indexBorder :items="value.map(v => {
+                    return {
+                        title: v
+                    }})"></tw-list-item1>
+            </span>
         </template>
     </div>
 </template>
@@ -47,7 +65,7 @@ export default {
             type: String,
             default: 'string',
             validator(value){
-                return ['string', 'select', 'number', 'switch', 'code'].includes(value)
+                return ['string', 'select', 'number', 'switch', 'code', 'map', 'tag', 'customer'].includes(value)
             }
         },
         value: {
@@ -67,6 +85,12 @@ export default {
             type: Boolean,
             default: false
         },
+        item: {
+            type: Object,
+            default(){
+                return {}
+            }
+        }
     },
     watch: {
         editing: {
@@ -99,7 +123,7 @@ export default {
                 case 'select': {
                     if(option.selectOptions === undefined || !Array.isArray(option.selectOptions)) {
                         option.selectOptions = utils.getType(option.selectOptions) == 'Function'
-                                ? option.selectOptions() : []
+                                ? option.selectOptions(this.item) : []
                     }
 
                     if(option.selectFilter === undefined || utils.getType(option.selectFilter) != 'Function') {
@@ -137,6 +161,9 @@ export default {
         _select_view(){
             return this.type == 'select'
         },
+        _map_view(){
+            return this.type == 'map'
+        },
         _switch_view(){
             return this.type == 'switch'
         },
@@ -145,6 +172,12 @@ export default {
         },
         _file_view(){
             return this.type == 'file'
+        },
+        _tag_view(){
+            return this.type == 'tag'
+        },
+        _customer_view(){
+            return this.type == 'customer'
         },
         _label(){
             switch (this.type) {

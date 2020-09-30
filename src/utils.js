@@ -232,6 +232,12 @@ const http = {
 import dayjs from "dayjs"
 const getTypeDefault = function(type, _d, optiom) {
     switch(type){
+        case 'customer': {
+            return _d
+        }break;
+        case 'map': {
+            return getType(_d) == 'Object' ? _d : {}
+        }break;
         case 'date': {
             return _d === undefined ? dayjs() : dayjs(_d)
         }break;
@@ -251,6 +257,7 @@ const getTypeDefault = function(type, _d, optiom) {
                 return ''
             }
         }break;
+        case 'tag':
         case 'check': {
             return Array.isArray(_d) ? _d : []
         }break;
