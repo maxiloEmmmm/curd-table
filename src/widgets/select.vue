@@ -36,7 +36,7 @@ export default {
             default(){
                 return null
             },
-        }
+        },
     },
     model: {
         prop: 'value',
@@ -62,8 +62,6 @@ export default {
         },
         focus(){
             this.$refs.core.focus()
-
-
             if(this.filterOption) {
                 this.$refs.core.$children[0].setOpenState(true)
             }

@@ -268,7 +268,7 @@ const getTypeDefault = function(type, _d, optiom) {
             return Array.isArray(_d) ? _d : (getType(_d) == 'String' && !!_d ? [_d] : [])
         }break;
         case 'number': {
-            return _d ? number(_d) : ''
+            return _d ? number(_d) : 0
         }break;
         case 'select': {
             return _d === undefined || _d === null ? '' : _d

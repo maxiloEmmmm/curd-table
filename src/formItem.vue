@@ -9,6 +9,15 @@
                 style="width:100%"
                 :style="{minWidth: _option.minSelectWidth}" 
                 :filterOption="_option.selectFilter"></tool-select>
+            <tool-pick size="small" :value="value" @change="onChange" 
+                :options="_option.pickOptions" v-else-if="type == 'pick'" 
+                :disabled="disabled" 
+                ref="input"
+                :searchKey="_option.searchKey"
+                style="width:100%"
+                :style="{minWidth: _option.minpickWidth}">
+                <a-button size="small">{{_label}}</a-button>
+            </tool-pick>
             <a-switch :checked-children="_option.checkText" :un-checked-children="_option.unCheckText" :disabled="disabled" ref="input" size="small" v-else-if="type == 'switch'" :checked="value" @change="onChange"></a-switch>
             <a-input-number style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'number'" :value="value" @change="onChange"></a-input-number>
             <emotion :disabled="disabled" v-else-if="type == 'component'" style="width:100%" @click="lanuchComponent"> 请选择</emotion>
@@ -60,12 +69,17 @@
 import utils from "./utils"
 export default {
     name: 'toolFormItem',
+    data(){
+        return {
+            label: ""
+        }
+    },
     props: {
         type: {
             type: String,
             default: 'string',
             validator(value){
-                return ['string', 'select', 'number', 'switch', 'code', 'map', 'tag', 'customer'].includes(value)
+                return ['string', 'select', 'number', 'switch', 'code', 'map', 'tag', 'customer', 'pick'].includes(value)
             }
         },
         value: {
@@ -92,25 +106,25 @@ export default {
             }
         }
     },
-    watch: {
-        editing: {
-            handler(){
-                if(this.editing) {
-                    this.$nextTick(() => {
-                        this.$refs.input.focus()
-                        switch(this.type) {
-                            case 'string': {
-                                this.$refs.input.$el.select()
-                            }break;
-                            case 'number': {
-                                this.$refs.input.$el.querySelector('input').select()
-                            }break
-                        }
-                    })
-                }
-            },
-        }
-    },
+    // watch: {
+    //     editing: {
+    //         handler(){
+    //             if(this.editing) {
+    //                 this.$nextTick(() => {
+    //                     this.$refs.input.focus()
+    //                     switch(this.type) {
+    //                         case 'string': {
+    //                             this.$refs.input.$el.select()
+    //                         }break;
+    //                         case 'number': {
+    //                             this.$refs.input.$el.querySelector('input').select()
+    //                         }break
+    //                     }
+    //                 })
+    //             }
+    //         },
+    //     }
+    // },
     computed: {
         _option(){
             const option = {...this.option}
@@ -126,6 +140,14 @@ export default {
                                 ? option.selectOptions(this.item) : []
                     }
 
+                    if(option.autoFillEmpty === undefined) {
+                        option.autoFillEmpty = true
+                    }
+
+                    if(option.autoFillEmpty) {
+                        option.selectOptions = [{label: "请选择", value: ""}, ...option.selectOptions]
+                    }
+
                     if(option.selectFilter === undefined || utils.getType(option.selectFilter) != 'Function') {
                         option.selectFilter = null
                     }
@@ -138,8 +160,24 @@ export default {
                         })
                     }
 
-
                     option.minSelectWidth = utils.getType(option.minSelectWidth) != 'String' || option.minSelectWidth.indexOf('px') == -1 ? '120px' : option.minSelectWidth
+                }break;
+                case 'pick': {
+                    if(option.autoFillEmpty === undefined) {
+                        option.autoFillEmpty = true
+                    }
+
+                    if(option.pickOptions === undefined || !Array.isArray(option.pickOptions)) {
+                        option.pickOptions = utils.getType(option.pickOptions) == 'Function'
+                                ? option.pickOptions(this.item) : []
+                    }
+
+                    if(option.autoFillEmpty) {
+                        option.pickOptions = [{label: "请选择", value: ""}, ...option.pickOptions]
+                    }
+                    if(!option.searchKey) {
+                        option.searchKey = []
+                    }
                 }break;
                 case 'switch': {
                     if(option.checkText === undefined) {
@@ -156,10 +194,7 @@ export default {
             return option
         },
         _normal_view(){
-            return ['string', 'date', 'check', 'radio', 'number', 'select'].includes(this.type)
-        },
-        _select_view(){
-            return this.type == 'select'
+            return ['string', 'date', 'check', 'radio', 'number', 'select', 'pick'].includes(this.type)
         },
         _map_view(){
             return this.type == 'map'
@@ -182,14 +217,22 @@ export default {
         _label(){
             switch (this.type) {
                 case 'select': {
-                    let option = this._option.selectOptions.filter(r => r.value == this.value)[0]
+                    let option = this._option.selectOptions.filter(r => r.value === this.value)[0]
                     if(!option) {
-                        return ''
+                        return ""
                     }
 
                     return this._option.selectLabel
                         ? option.__COL_TRUE_LABEL__ ? option.__COL_TRUE_LABEL__ : ''
                         : option.label
+                }break;
+                case 'pick': {
+                    let option = this._option.pickOptions.filter(r => r.value === this.value)[0]
+                    if(!option) {
+                        return ""
+                    }
+
+                    return option.label
                 }break;
                 default: {
                     return this.value
@@ -198,10 +241,27 @@ export default {
         }
     },
     methods: {
+        focus(){
+            this.$refs.input.focus && this.$refs.input.focus()
+            switch(this.type) {
+                case 'string': {
+                    this.$refs.input.$el.select()
+                }break;
+                case 'number': {
+                    this.$refs.input.$el.querySelector('input').select()
+                }break
+            }
+        },
+        hide(){
+            this.$refs.input.hide && this.$refs.input.hide()
+        },
         onChange(value){
             switch (this.type) {
                 case 'string': {
                     value = value.target.value
+                }break;
+                case 'pick': {
+                    value = value.value
                 }break;
                 default: {
                 }

@@ -1,5 +1,5 @@
 <template>
-    <a-popover trigger="click" placement="bottomLeft" v-model="visible" :auto-adjust-overflow="false">
+    <a-popover :visible.sync="visible" trigger="click" placement="bottomLeft" v-model="visible" :auto-adjust-overflow="false">
         <ysz-list-item slot="title" :left="true">
             <span slot="left">{{ title }}</span>
             <a-button style="margin-left:5px" @click="stop"> 关闭</a-button>
@@ -8,16 +8,16 @@
             <ysz-list-item :left="true">
                 <ysz-list-item :no-p="true" slot="left">
                     <span slot="left" style="padding-right:5px">过滤: </span>
-                    <a-input size="small" @pressEnter="onSearch" v-model="search_value" :allowClear="true"/>
+                    <a-input size="small" @pressEnter="onSearch" v-model="search_value" :allowClear="true" ref="searchInput"/>
                 </ysz-list-item>
                 <a-button size="small" type="primary" style="margin-left:5px" @click="onSearch"> 查询</a-button>
-                <a-button size="small" style="margin-left:5px" @click="clear"> 清空</a-button>
+                <a-button size="small" style="margin-left:5px" @click="() => clear()"> 清空</a-button>
             </ysz-list-item>
             <a-divider size="small" style="margin: 12px 0 9px"></a-divider>
             <ysz-list-item :start="true">
                 <a-pagination size="small" :hideOnSinglePage="true" :pageSize="pageSize" v-model="current" :total="_total" show-less-items slot="left" />
                 <ysz-list :row="true" :no-line="false" :group="group">
-                    <a-tag :color="item.value === value ? '#f50' : null" @click="() => onClick(item)" v-for="item in _views" :key="item.value">
+                    <a-tag :color="item.value === pick ? '#f50' : null" @click="() => onClick(item)" v-for="item in _views" :key="item.value">
                         {{ item.label }}
                     </a-tag>
                 </ysz-list>
@@ -39,7 +39,7 @@ export default {
     props: {
         title: {
             type: String,
-            default: '请选择'
+            default: '标题'
         }, 
         options: {
             default(){
@@ -57,12 +57,23 @@ export default {
             default: 4,
             type: Number
         },
-        pick: ''
+        value: '',
+        emptyValue: {
+            default: Function,
+            default(){
+                return () => {
+                    return {
+                        label: "请选择",
+                        value: ""
+                    }
+                }
+            }
+        }
     },
     watch: {
-        pick(val){
+        value(val){
             this.clear(val)
-        }
+        },
     },
     computed: {
         _views(){
@@ -89,15 +100,17 @@ export default {
     },
     data(){
         let pageSize = this.$props.group * 12
-        
         return {
             search: '',
             visible: false,
-            value: this.$props.pick,
+            pick: "",
             search_value: '',
             current: 1,
             pageSize
         }
+    },
+    created(){
+        this.clear(this.$props.value)
     },
     methods: {
         onSearch(){
@@ -107,12 +120,12 @@ export default {
         onClick(item){
             this.$emit('change', item)
             this.visible = false
-            this.value = item.value
+            this.pick = item.value
         },
         setValue(value){
-            this.value = value
-            let tmp = this._items.filter(c => c.value === value)[0]
-            this.$emit('change', tmp ? tmp : {label: '', value: ''})
+            this.pick = value
+            let tmp = this._options.filter(c => c.value === value)[0]
+            this.$emit('change', tmp ? tmp : this.emptyValue())
         },
         clear(value = ''){
             this.search = ''
@@ -121,6 +134,15 @@ export default {
             this.setValue(value)
         },
         stop() {
+            this.visible = false
+        },
+        focus(){
+            this.visible = true
+            this.$nextTick(() => {
+                this.$refs.searchInput.focus()
+            })
+        },
+        hide(){
             this.visible = false
         }
     }

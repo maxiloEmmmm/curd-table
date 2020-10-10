@@ -270,7 +270,7 @@ export default {
             })
         },
         filterType(type){
-            return ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer'].includes(type) ? type : 'string'
+            return ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer', 'pick'].includes(type) ? type : 'string'
         },
         getNotifyEngine(type) {
             switch(type) {

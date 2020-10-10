@@ -57,6 +57,7 @@ export default {
         actionEditRow: {type: Boolean, default: false},
         actionEditFilter:{default(r){return r},type: Function },
         paramTransform:{default(r){return r},type: Function },
+        queryParams: {type: Object, default(){return {}}},
         pageSize: {type: Number, default: 10},
         fetchTransform: {default(r){return r},type: Function },
         dataSource: {type: Array, default: () => []},
@@ -137,6 +138,7 @@ export default {
             if(Object.keys(this.store.sort).length > 0) {
                 querys.sort = Object.keys(this.store.sort).map(f => `${f},${this.store.sort[f]}`).join('|')
             }
+            Object.assign(querys, {...this.queryParams})
             return path + "?" + Object.keys(querys).map(query => `${query}=${querys[query]}`).join("&")
         },
         pagination(){
@@ -185,7 +187,8 @@ export default {
                     return {
                         children: h('tool-form-item', {
                             props: {
-                                editing: item[this.store.colEditKey][c.field], 
+                                // editing: item[this.store.colEditKey][c.field], 
+                                editing: c.edit.enable,
                                 value: utils.get(item, c.field), 
                                 option: c.option, 
                                 type: c.type,
@@ -204,7 +207,7 @@ export default {
                     }
                 }
                 c.customCell = (record, index) => {
-                    return {on: {dblclick: () => {
+                    return {on: {click: () => {
                         c.edit.enable && this.entryCell(c.field, this.getRowKey(record))
                     }}}
                 }
@@ -294,24 +297,24 @@ export default {
         document.addEventListener('keyup', (e) => {
             switch(e.code) {
                 case 'Tab': {
-                    if(this.store.edit.ing) {
+                    // if(this.store.edit.ing) {
                         if(!e.shiftKey) {
                             this.editNextCell()
                         }else {
                             this.editPrevCell()
                         }
-                    }
+                    // }
                 }break;
                 case 'NumpadEnter':
                 case 'Enter': {
-                    if(this.store.edit.ing) {
+                    // if(this.store.edit.ing) {
                         this.editNextCell()
-                    }
+                    // }
                 }break;
                 case 'Escape': {
-                    if(this.store.edit.ing) {
+                    // if(this.store.edit.ing) {
                         this.closeEdit(this.store.edit.field, this.store.edit.key)
-                    }
+                    // }
                 }
             } 
         })
@@ -380,7 +383,10 @@ export default {
             this.store.edit.field = field
             this.store.edit.key = key
             const target = cdata.filter(item => key === item[this.store.rowKey])[0]
+            let index = cdata.findIndex(item => key === item[this.store.rowKey])
+            index = index % this.store.page_size
             target[this.store.colEditKey][field] = this.store.edit.ing = true
+            this.$refs[`edit-ref-${index}-${field}`].focus()
             this.store.tableData = cdata
             this.setEditTmpValue(this.store.tableData.filter(item => key === item[this.store.rowKey])[0][field])
         },
@@ -411,6 +417,9 @@ export default {
             this.store.edit.key = ''
             const target = cdata.filter(item => key === item[this.store.rowKey])[0]
             target[this.store.colEditKey][field] = this.store.edit.ing = false
+            let index = cdata.findIndex(item => key === item[this.store.rowKey])
+            index = index % this.store.page_size
+            this.$refs[`edit-ref-${index}-${field}`].hide()
             this.store.tableData = cdata
         },
         async refresh(){
