@@ -20,29 +20,29 @@
             </tool-pick>
             <a-switch :checked-children="_option.checkText" :un-checked-children="_option.unCheckText" :disabled="disabled" ref="input" size="small" v-else-if="type == 'switch'" :checked="value" @change="onChange"></a-switch>
             <a-input-number style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'number'" :value="value" @change="onChange"></a-input-number>
-            <emotion :disabled="disabled" v-else-if="type == 'component'" style="width:100%" @click="lanuchComponent"> 请选择</emotion>
+            <!-- <emotion :disabled="disabled" v-else-if="type == 'component'" style="width:100%" @click="lanuchComponent"> 请选择</emotion> -->
             <tool-code :language="_option.language" style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'code'" :value="value" @change="onChange"></tool-code>
             <tool-map style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'map'" :value="value" @change="onChange"></tool-map>
             <tool-tag style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'tag'" :value="value" @change="onChange"></tool-tag>
-            <component style="width:100%" :option="_option" :is="_option.customer_form" :disabled="disabled" ref="input" size="small" v-else-if="type == 'customer'" :value="value" @change="onChange"></component>
+            <component style="width:100%" :option="_option" :is="_option.customer_form" :disabled="disabled" ref="input" size="small" v-else-if="type == 'customer'" :value="value" @change="onChange" :item="item"></component>
             <span v-else>
                 {{ _label }}
             </span>
         </template>
         <template v-else>
             <span v-if="_normal_view">{{ _label }}</span>
-            <emotion v-else-if="_switch_view" :type="value ? 'info' : 'danger'">{{ value ?  _option.checkText : _option.unCheckText }}</emotion>
+            <tw-emotion v-else-if="_switch_view" :type="value ? 'info' : 'danger'">{{ value ?  _option.checkText : _option.unCheckText }}</tw-emotion>
             <span v-else-if="_param_view">
                 <ysz-list :no-line="true">
                     <ysz-list-item v-for="v in value" :key="v.key" :left-item-end="true">
-                        <emotion slot="left">{{ v.key }}</emotion>{{ v.value }}
+                        <tw-emotion slot="left">{{ v.key }}</tw-emotion>{{ v.value }}
                     </ysz-list-item>
                 </ysz-list>
             </span>
             <span v-else-if="_file_view">
                 <ysz-list :no-line="true">
                     <ysz-list-item v-for="(v, index) in value" :key="index" :left-item-end="true">
-                        <emotion>{{ v }}</emotion>
+                        <tw-emotion>{{ v }}</tw-emotion>
                     </ysz-list-item>
                 </ysz-list>
             </span>

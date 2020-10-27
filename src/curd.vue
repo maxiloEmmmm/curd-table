@@ -25,7 +25,10 @@ export default {
                                 {filter.help_msg ? <tw-alert style="text-align:left" mini left title={filter.help_msg} type="info" show-icon /> : null}
                             </ysz-list-item-top>
                         )}
-                        <ysz-list-item><tw-emotion size="small" vOn:click={e => this.refresh()} type="primary"> 搜索</tw-emotion></ysz-list-item>
+                        <ysz-list-item>
+                            <tw-emotion size="small" vOn:click={e => this.refresh()} type="primary" slot="left"> 搜索</tw-emotion>
+                            <tw-emotion size="small" vOn:click={e => this.clearFilter()} type="info"> 重置</tw-emotion>
+                        </ysz-list-item>
                     </ysz-list>
                     : null}
                 
@@ -326,6 +329,10 @@ export default {
         fetchErr(e){
             console.log(e)
         },
+        clearFilter(){
+            this.store.filter = {}
+            this.refresh()
+        },
         onFilter(value, field){
             this.$set(this.store.filter, field, value)
         },
@@ -544,7 +551,6 @@ export default {
             let index = this.store.tableData.findIndex(r => this.getRowKey(r) === key)
             index = index < 0 ? this.store.tableData.length : index
             index = index+1
-            console.log(index)
             for(let k = 0; k < num; k++) {
                 this.store.tableData.splice(index+k, 0, this.transformData({...cs}))
             }

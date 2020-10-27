@@ -1,5 +1,5 @@
 <template>
-    <a-popover :visible.sync="visible" trigger="click" placement="bottomLeft" v-model="visible" :auto-adjust-overflow="false">
+    <a-popover :visible.sync="visible" trigger="click" v-model="visible" :auto-adjust-overflow="true">
         <ysz-list-item slot="title" :left="true">
             <span slot="left">{{ title }}</span>
             <a-button style="margin-left:5px" @click="stop"> 关闭</a-button>
