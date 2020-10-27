@@ -9,13 +9,13 @@ import _regeneratorRuntime from '@babel/runtime-corejs3/regenerator';
 import _asyncToGenerator from '@babel/runtime-corejs3/helpers/asyncToGenerator';
 import _findIndexInstanceProperty from '@babel/runtime-corejs3/core-js-stable/instance/find-index';
 import _Object$assign from '@babel/runtime-corejs3/core-js-stable/object/assign';
-import _toConsumableArray from '@babel/runtime-corejs3/helpers/toConsumableArray';
-import _concatInstanceProperty from '@babel/runtime-corejs3/core-js-stable/instance/concat';
 import _sortInstanceProperty from '@babel/runtime-corejs3/core-js-stable/instance/sort';
 import _Object$keys from '@babel/runtime-corejs3/core-js-stable/object/keys';
 import _forEachInstanceProperty from '@babel/runtime-corejs3/core-js-stable/instance/for-each';
 import _defineProperty from '@babel/runtime-corejs3/helpers/defineProperty';
 import _sliceInstanceProperty from '@babel/runtime-corejs3/core-js-stable/instance/slice';
+import _concatInstanceProperty from '@babel/runtime-corejs3/core-js-stable/instance/concat';
+import _toConsumableArray from '@babel/runtime-corejs3/helpers/toConsumableArray';
 import _Array$isArray from '@babel/runtime-corejs3/core-js-stable/array/is-array';
 import _filterInstanceProperty from '@babel/runtime-corejs3/core-js-stable/instance/filter';
 import _setTimeout from '@babel/runtime-corejs3/core-js-stable/set-timeout';
@@ -351,6 +351,11 @@ var http = {
 
 var getTypeDefault = function getTypeDefault(type, _d, optiom) {
   switch (type) {
+    case 'customer':
+      {
+        return _d;
+      }
+
     case 'map':
       {
         return getType(_d) == 'Object' ? _d : {};
@@ -403,7 +408,7 @@ var getTypeDefault = function getTypeDefault(type, _d, optiom) {
 
     case 'number':
       {
-        return _d ? number(_d) : '';
+        return _d ? number(_d) : 0;
       }
 
     case 'select':
@@ -587,9 +592,29 @@ var utils = {
   getArrayFunction: getArrayFunction
 };
 
+var Http = {
+  engine: null,
+  errorMsgAdapter: function errorMsgAdapter(r) {
+    return r.response.data;
+  },
+  ext: {},
+  getEngine: function getEngine(key) {
+    key = key ? key : "default";
+
+    if (key == "default" || !Http.ext[key]) {
+      return {
+        engine: Http.engine,
+        errorMsgAdapter: Http.errorMsgAdapter
+      };
+    } else {
+      return Http.ext[key];
+    }
+  }
+};
+
 function ownKeys$1(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = _filterInstanceProperty(symbols).call(symbols, function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context67; _forEachInstanceProperty(_context67 = ownKeys$1(Object(source), true)).call(_context67, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context68; _forEachInstanceProperty(_context68 = ownKeys$1(Object(source))).call(_context68, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context71; _forEachInstanceProperty(_context71 = ownKeys$1(Object(source), true)).call(_context71, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context72; _forEachInstanceProperty(_context72 = ownKeys$1(Object(source))).call(_context72, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var curd = {
   name: 'toolCurd',
   render: function render() {
@@ -601,6 +626,7 @@ var curd = {
     var $scopedSlots = this.$scopedSlots;
     return h("ysz-module-card", [h("tool-form", helper([{
       "attrs": {
+        "httpKey": this.httpKey,
         "show": this.show,
         "paramTransform": this.paramTransform
       }
@@ -618,7 +644,7 @@ var curd = {
       }
     }])), this.title || $scopedSlots.title ? h("span", {
       "slot": "title"
-    }, [this.title ? this.title : $scopedSlots.title()]) : null, $scopedSlots.top && $scopedSlots.top(), this.fetchUrl ? h("emotion", {
+    }, [this.title ? this.title : $scopedSlots.title()]) : null, $scopedSlots.top && $scopedSlots.top(), this.fetchUrl && !this.preview ? h("tw-emotion", {
       "attrs": {
         "size": "small"
       },
@@ -629,7 +655,7 @@ var curd = {
         }
       }
     }, ["\u5237\u65B0"]) : null, _mapInstanceProperty(_context = this._dispatchTop).call(_context, function (action, index) {
-      return h("emotion", {
+      return h("tw-emotion", {
         "attrs": {
           "size": "small"
         },
@@ -674,17 +700,28 @@ var curd = {
           "show-icon": true
         }
       }) : null]);
-    }), h("ysz-list-item", [h("emotion", {
+    }), h("ysz-list-item", [h("tw-emotion", {
       "attrs": {
         "size": "small",
         "type": "primary"
       },
+      "slot": "left",
       "on": {
         "click": function click(e) {
           return _this.refresh();
         }
       }
-    }, [" \u641C\u7D22"])])]) : null, h("div", {
+    }, [" \u641C\u7D22"]), h("tw-emotion", {
+      "attrs": {
+        "size": "small",
+        "type": "info"
+      },
+      "on": {
+        "click": function click(e) {
+          return _this.clearFilter();
+        }
+      }
+    }, [" \u91CD\u7F6E"])])]) : null, h("div", {
       "style": "display: flex"
     }, [this._has_left_view ? h("div", {
       "style": "flex: 0 0 auto"
@@ -692,7 +729,7 @@ var curd = {
       "style": "flex: 1 1 auto"
     }, [h("ysz-fetch-wrap", {
       "attrs": {
-        "engine": this.$http,
+        "engine": this._httpEngine,
         "url": this._fetchUrl,
         "errHandler": this.fetchErr,
         "handler": this.render,
@@ -702,6 +739,7 @@ var curd = {
       },
       "ref": "datawrap"
     }, [h("a-table", {
+      "class": "curd-core-table",
       "attrs": {
         "rowKey": this.store.rowKey,
         "size": "small",
@@ -717,7 +755,9 @@ var curd = {
       }
     })])]), this._has_right_view ? h("div", {
       "style": "flex: 0 0 auto"
-    }, [$scopedSlots.right()]) : null])]);
+    }, [$scopedSlots.right()]) : null]), this._has_footer_view ? h("div", {
+      "style": "flex: 0 0 auto"
+    }, [$scopedSlots.footer()]) : null]);
   },
   props: {
     title: {
@@ -760,6 +800,12 @@ var curd = {
       },
       type: Function
     },
+    queryParams: {
+      type: Object,
+      default: function _default() {
+        return {};
+      }
+    },
     pageSize: {
       type: Number,
       default: 10
@@ -775,10 +821,26 @@ var curd = {
       default: function _default() {
         return [];
       }
+    },
+    httpKey: {
+      type: String,
+      default: 'default'
+    },
+    preview: {
+      type: Boolean,
+      default: false
     }
   },
   data: function data() {
-    var userdata = _Array$isArray(this.$props.dataSource) ? this.$props.dataSource : [];
+    var _this2 = this;
+
+    this.$nextTick(function () {
+      var _context3;
+
+      var userdata = _Array$isArray(_this2.$props.dataSource) ? _this2.$props.dataSource : [];
+      _this2.store.tableData = _concatInstanceProperty(_context3 = []).call(_context3, _toConsumableArray(_this2.store.tableData), _toConsumableArray(_mapInstanceProperty(userdata).call(userdata, _this2.transformData)));
+      _this2.store.page_count = _this2.store.tableData.length;
+    });
     return {
       show: false,
       store: {
@@ -790,9 +852,9 @@ var curd = {
           ing: false
         },
         page: 1,
-        page_count: userdata.length,
+        page_count: 0,
         page_size: this.$props.pageSize,
-        tableData: userdata,
+        tableData: [],
         relations: [],
         editKey: -1,
         editModelKey: '__EDIT__',
@@ -804,25 +866,28 @@ var curd = {
     };
   },
   computed: {
+    _httpEngine: function _httpEngine() {
+      return Http.getEngine(this.httpKey).engine;
+    },
     _tdata: function _tdata() {
-      var _context3;
+      var _context4;
 
       if (this.fetchUrl) {
         return this.store.tableData;
       }
 
       var s = (this.store.page - 1) * this.store.page_size;
-      return _sliceInstanceProperty(_context3 = this.store.tableData).call(_context3, s, s + this.store.page_size);
+      return _sliceInstanceProperty(_context4 = this.store.tableData).call(_context4, s, s + this.store.page_size);
     },
     _has_filter: function _has_filter() {
       return this._filter.length > 0;
     },
     _filter: function _filter() {
-      var _context4, _context5;
+      var _context5, _context6;
 
-      return _mapInstanceProperty(_context4 = _filterInstanceProperty(_context5 = this._format_columns).call(_context5, function (f) {
+      return _mapInstanceProperty(_context5 = _filterInstanceProperty(_context6 = this._format_columns).call(_context6, function (f) {
         return _filterInstanceProperty(f);
-      })).call(_context4, function (f) {
+      })).call(_context5, function (f) {
         return _objectSpread$1(_objectSpread$1({
           label: f.title
         }, f), {}, {
@@ -833,10 +898,10 @@ var curd = {
       });
     },
     _fetchUrl: function _fetchUrl() {
-      var _context6,
-          _context7,
-          _this2 = this,
-          _context10;
+      var _context7,
+          _context8,
+          _this3 = this,
+          _context11;
 
       if (!this.fetchUrl) {
         return '';
@@ -847,8 +912,8 @@ var curd = {
           query = urlInfo[1];
       var querys = utils.parseURL(query);
 
-      var filters = _forEachInstanceProperty(_context6 = _filterInstanceProperty(_context7 = this._filter).call(_context7, function (f) {
-        var tmp = _filterInstanceProperty(_this2.store)[f.filterKey];
+      var filters = _forEachInstanceProperty(_context7 = _filterInstanceProperty(_context8 = this._filter).call(_context8, function (f) {
+        var tmp = _filterInstanceProperty(_this3.store)[f.filterKey];
 
         if (tmp === undefined) return false;
 
@@ -857,56 +922,58 @@ var curd = {
         }
 
         return true;
-      })).call(_context6, function (f) {
-        querys[f.filterKey] = encodeURIComponent(_filterInstanceProperty(_this2.store)[f.filterKey]);
+      })).call(_context7, function (f) {
+        querys[f.filterKey] = encodeURIComponent(_filterInstanceProperty(_this3.store)[f.filterKey]);
       });
 
       if (_Object$keys(_sortInstanceProperty(this.store)).length > 0) {
-        var _context8;
+        var _context9;
 
-        querys.sort = _mapInstanceProperty(_context8 = _Object$keys(_sortInstanceProperty(this.store))).call(_context8, function (f) {
-          var _context9;
+        querys.sort = _mapInstanceProperty(_context9 = _Object$keys(_sortInstanceProperty(this.store))).call(_context9, function (f) {
+          var _context10;
 
-          return _concatInstanceProperty(_context9 = "".concat(f, ",")).call(_context9, _sortInstanceProperty(_this2.store)[f]);
+          return _concatInstanceProperty(_context10 = "".concat(f, ",")).call(_context10, _sortInstanceProperty(_this3.store)[f]);
         }).join('|');
       }
 
-      return path + "?" + _mapInstanceProperty(_context10 = _Object$keys(querys)).call(_context10, function (query) {
-        var _context11;
+      _Object$assign(querys, _objectSpread$1({}, this.queryParams));
 
-        return _concatInstanceProperty(_context11 = "".concat(query, "=")).call(_context11, querys[query]);
+      return path + "?" + _mapInstanceProperty(_context11 = _Object$keys(querys)).call(_context11, function (query) {
+        var _context12;
+
+        return _concatInstanceProperty(_context12 = "".concat(query, "=")).call(_context12, querys[query]);
       }).join("&");
     },
     pagination: function pagination() {
-      return {
+      return this.preview ? false : {
         current: this.store.page,
         total: this.store.page_count,
         pageSize: this.store.page_size,
         hideOnSinglePage: false,
         showTotal: function showTotal(total, range) {
-          var _context12, _context13;
+          var _context13, _context14;
 
-          return _concatInstanceProperty(_context12 = _concatInstanceProperty(_context13 = "\u7B2C".concat(range[0], "-")).call(_context13, range[1], "\u6761 \u5171")).call(_context12, total, "\u6761\u8BB0\u5F55");
+          return _concatInstanceProperty(_context13 = _concatInstanceProperty(_context14 = "\u7B2C".concat(range[0], "-")).call(_context14, range[1], "\u6761 \u5171")).call(_context13, total, "\u6761\u8BB0\u5F55");
         },
         showSizeChanger: true
       };
     },
     _dispatchTop: function _dispatchTop() {
-      var _context14;
+      var _context15;
 
-      return _filterInstanceProperty(_context14 = this._models).call(_context14, function (v) {
+      return _filterInstanceProperty(_context15 = this._models).call(_context15, function (v) {
         return v.dispatchArea == 'topBar';
       });
     },
     _dispatchRow: function _dispatchRow() {
-      var _context15, _context16;
+      var _context16, _context17;
 
-      var row = _mapInstanceProperty(_context15 = this._modelBaseAction).call(_context15, function (v) {
+      var row = _mapInstanceProperty(_context16 = this._modelBaseAction).call(_context16, function (v) {
         v.type = v.type ? v.type : 'action';
         return v;
       });
 
-      row.push.apply(row, _toConsumableArray(_mapInstanceProperty(_context16 = this.store.relations).call(_context16, function (v) {
+      row.push.apply(row, _toConsumableArray(_mapInstanceProperty(_context17 = this.store.relations).call(_context17, function (v) {
         return utils.set(v, 'type', 'relation');
       })));
 
@@ -929,9 +996,9 @@ var curd = {
       return row;
     },
     _modelBaseAction: function _modelBaseAction() {
-      var _context17;
+      var _context18;
 
-      return _filterInstanceProperty(_context17 = this._format_models).call(_context17, function (v) {
+      return _filterInstanceProperty(_context18 = this._format_models).call(_context18, function (v) {
         return v.dispatchArea == 'rowBar' && !v.hidden;
       });
     },
@@ -942,33 +1009,35 @@ var curd = {
       return this.actionNewRow || this.actionEditRow;
     },
     _format_columns: function _format_columns() {
-      var _context18,
-          _this3 = this;
+      var _context19,
+          _this4 = this;
 
-      return _mapInstanceProperty(_context18 = this.columns).call(_context18, function (c) {
+      return _mapInstanceProperty(_context19 = this.columns).call(_context19, function (c) {
         c.option = c.option ? c.option : {};
         c.edit = _Object$assign({
           enable: false
         }, c.edit);
         c.dataIndex = c.field;
         c.customRender = c.customRender ? c.customRender : function (text, item, index, a) {
-          var _context19;
+          var _context20;
 
-          var h = _this3.$createElement;
+          var h = _this4.$createElement;
           return {
             children: h('tool-form-item', {
               props: {
-                editing: item[_this3.store.colEditKey][c.field],
+                // editing: item[this.store.colEditKey][c.field], 
+                editing: c.edit.enable,
                 value: utils.get(item, c.field),
                 option: c.option,
                 type: c.type,
-                autoSet: _this3._auto_set
+                autoSet: _this4._auto_set,
+                item: item
               },
-              ref: _concatInstanceProperty(_context19 = "edit-ref-".concat(index, "-")).call(_context19, c.field),
+              ref: _concatInstanceProperty(_context20 = "edit-ref-".concat(index, "-")).call(_context20, c.field),
               on: {
                 change: function change(value) {
                   if (c.edit.enable) {
-                    _this3.saveCell(c.field, _this3.getRowKey(item), value);
+                    _this4.saveCell(c.field, _this4.getRowKey(item), value);
                   }
                 }
               }
@@ -979,8 +1048,8 @@ var curd = {
         c.customCell = function (record, index) {
           return {
             on: {
-              dblclick: function dblclick() {
-                c.edit.enable && _this3.entryCell(c.field, _this3.getRowKey(record));
+              click: function click() {
+                c.edit.enable && _this4.entryCell(c.field, _this4.getRowKey(record));
               }
             }
           };
@@ -996,19 +1065,19 @@ var curd = {
       });
     },
     _form_columns: function _form_columns() {
-      var _context20;
+      var _context21;
 
-      return _filterInstanceProperty(_context20 = this._format_columns).call(_context20, function (f) {
+      return _filterInstanceProperty(_context21 = this._format_columns).call(_context21, function (f) {
         return !!f.field;
       });
     },
     _columns: function _columns() {
-      var _context21,
-          _this4 = this;
+      var _context22,
+          _this5 = this;
 
       var h = this.$createElement;
 
-      var c = _toConsumableArray(_filterInstanceProperty(_context21 = this._format_columns).call(_context21, function (c) {
+      var c = _toConsumableArray(_filterInstanceProperty(_context22 = this._format_columns).call(_context22, function (c) {
         return !c.hidden;
       }));
 
@@ -1018,9 +1087,9 @@ var curd = {
           align: 'center',
           tdSlot: '__action',
           customRender: function customRender(text, item, index) {
-            var _context22;
+            var _context23;
 
-            return _mapInstanceProperty(_context22 = _this4._dispatchRow).call(_context22, function (row, _i) {
+            return _mapInstanceProperty(_context23 = _this5._dispatchRow).call(_context23, function (row, _i) {
               return h("a-button", {
                 "attrs": {
                   "size": "small"
@@ -1036,7 +1105,7 @@ var curd = {
                 },
                 "on": {
                   "click": function click(e) {
-                    return _this4.onRowAction(row, item, index);
+                    return _this5.onRowAction(row, item, index);
                   }
                 }
               }, [row.title]);
@@ -1051,10 +1120,10 @@ var curd = {
       return utils.keyby(this._format_columns, 'field');
     },
     _format_models: function _format_models() {
-      var _context23,
-          _this5 = this;
+      var _context24,
+          _this6 = this;
 
-      return _mapInstanceProperty(_context23 = this.models).call(_context23, function (f) {
+      return _mapInstanceProperty(_context24 = this.models).call(_context24, function (f) {
         if (f.type === undefined) {
           f.type = 'action';
         }
@@ -1064,7 +1133,7 @@ var curd = {
         }
 
         if (f.xhr) {
-          f.xhr.url = f.xhr.url ? f.xhr.url : _this5.fetchUrl;
+          f.xhr.url = f.xhr.url ? f.xhr.url : _this6.fetchUrl;
           f.xhr.okMsg = f.xhr.okMsg ? f.xhr.okMsg : 'ok~';
         }
 
@@ -1076,19 +1145,19 @@ var curd = {
       var m = _toConsumableArray(this._format_models);
 
       if (this.actionEditRow) {
-        var _context24, _context25, _context26, _context27;
+        var _context25, _context26, _context27, _context28;
 
         m.push({
           title: this.store.editModeTitle,
           key: this.store.editModelKey,
-          show: _mapInstanceProperty(_context24 = _filterInstanceProperty(_context25 = this._format_columns).call(_context25, function (c) {
+          show: _mapInstanceProperty(_context25 = _filterInstanceProperty(_context26 = this._format_columns).call(_context26, function (c) {
             return c.edit.enable;
-          })).call(_context24, function (c) {
+          })).call(_context25, function (c) {
             return c.field;
           }),
-          disabled: _mapInstanceProperty(_context26 = _filterInstanceProperty(_context27 = this._format_columns).call(_context27, function (c) {
+          disabled: _mapInstanceProperty(_context27 = _filterInstanceProperty(_context28 = this._format_columns).call(_context28, function (c) {
             return c.disabled;
-          })).call(_context26, function (c) {
+          })).call(_context27, function (c) {
             return c.field;
           })
         });
@@ -1102,45 +1171,48 @@ var curd = {
     _has_right_view: function _has_right_view() {
       return !!this.$slots.right;
     },
+    _has_footer_view: function _has_footer_view() {
+      return !!this.$slots.footer;
+    },
     _auto_set: function _auto_set() {
-      var _context28;
+      var _context29;
 
-      return _filterInstanceProperty(_context28 = this._format_columns).call(_context28, function (c) {
+      return _filterInstanceProperty(_context29 = this._format_columns).call(_context29, function (c) {
         return c.type == 'select' && c.option.labelKey;
       });
     }
   },
   mounted: function mounted() {
-    var _this6 = this;
+    var _this7 = this;
 
     document.addEventListener('keyup', function (e) {
       switch (e.code) {
         case 'Tab':
           {
-            if (_this6.store.edit.ing) {
-              if (!e.shiftKey) {
-                _this6.editNextCell();
-              } else {
-                _this6.editPrevCell();
-              }
-            }
+            // if(this.store.edit.ing) {
+            if (!e.shiftKey) {
+              _this7.editNextCell();
+            } else {
+              _this7.editPrevCell();
+            } // }
+
           }
           break;
 
         case 'NumpadEnter':
         case 'Enter':
           {
-            if (_this6.store.edit.ing) {
-              _this6.editNextCell();
-            }
+            // if(this.store.edit.ing) {
+            _this7.editNextCell(); // }
+
           }
           break;
 
         case 'Escape':
           {
-            if (_this6.store.edit.ing) {
-              _this6.closeEdit(_this6.store.edit.field, _this6.store.edit.key);
-            }
+            // if(this.store.edit.ing) {
+            _this7.closeEdit(_this7.store.edit.field, _this7.store.edit.key); // }
+
           }
       }
     });
@@ -1151,19 +1223,23 @@ var curd = {
     fetchErr: function fetchErr(e) {
       console.log(e);
     },
+    clearFilter: function clearFilter() {
+      this.store.filter = {};
+      this.refresh();
+    },
     onFilter: function onFilter(value, field) {
       this.$set(_filterInstanceProperty(this.store), field, value);
     },
     editNextCell: function editNextCell() {
-      var _context29,
-          _this7 = this,
-          _context30;
+      var _context30,
+          _this8 = this,
+          _context31;
 
-      var fieldIndex = _findIndexInstanceProperty(_context29 = this._format_columns).call(_context29, function (f) {
-        return f.field == _this7.store.edit.field;
+      var fieldIndex = _findIndexInstanceProperty(_context30 = this._format_columns).call(_context30, function (f) {
+        return f.field == _this8.store.edit.field;
       });
 
-      var nfi = _findIndexInstanceProperty(_context30 = this._format_columns).call(_context30, function (f, i) {
+      var nfi = _findIndexInstanceProperty(_context31 = this._format_columns).call(_context31, function (f, i) {
         return i > fieldIndex && f.edit.enable;
       });
 
@@ -1172,10 +1248,10 @@ var curd = {
       if (nfi != -1) {
         this.entryCell(this._format_columns[nfi].field, this.store.edit.key);
       } else {
-        var _context31;
+        var _context32;
 
-        var index = _findIndexInstanceProperty(_context31 = this.store.tableData).call(_context31, function (r) {
-          return r[_this7.store.rowKey] == _this7.store.edit.key;
+        var index = _findIndexInstanceProperty(_context32 = this.store.tableData).call(_context32, function (r) {
+          return r[_this8.store.rowKey] == _this8.store.edit.key;
         });
 
         index = index + 1;
@@ -1183,18 +1259,18 @@ var curd = {
         if (index > this.store.tableData.length - 1) {
           this.apiNewRow();
           this.$nextTick(function () {
-            var _context32;
+            var _context33;
 
-            var firstEditField = _filterInstanceProperty(_context32 = _this7._format_columns).call(_context32, function (f) {
+            var firstEditField = _filterInstanceProperty(_context33 = _this8._format_columns).call(_context33, function (f) {
               return f.edit.enable && f.field;
             })[0];
 
-            _this7.entryCell(firstEditField.field, _this7.getRowKey(_this7.store.tableData[index]));
+            _this8.entryCell(firstEditField.field, _this8.getRowKey(_this8.store.tableData[index]));
           });
         } else {
-          var _context33;
+          var _context34;
 
-          var firstEditField = _filterInstanceProperty(_context33 = this._format_columns).call(_context33, function (f) {
+          var firstEditField = _filterInstanceProperty(_context34 = this._format_columns).call(_context34, function (f) {
             return f.edit.enable && f.field;
           })[0];
 
@@ -1203,11 +1279,11 @@ var curd = {
       }
     },
     editPrevCell: function editPrevCell() {
-      var _context34,
-          _this8 = this;
+      var _context35,
+          _this9 = this;
 
-      var fieldIndex = _findIndexInstanceProperty(_context34 = this._format_columns).call(_context34, function (f) {
-        return f.field == _this8.store.edit.field;
+      var fieldIndex = _findIndexInstanceProperty(_context35 = this._format_columns).call(_context35, function (f) {
+        return f.field == _this9.store.edit.field;
       });
 
       var nfi = -1;
@@ -1224,10 +1300,10 @@ var curd = {
       if (nfi != -1) {
         this.entryCell(this._format_columns[nfi].field, this.store.edit.key);
       } else {
-        var _context35;
+        var _context36;
 
-        var index = _findIndexInstanceProperty(_context35 = this.store.tableData).call(_context35, function (r) {
-          return r[_this8.store.rowKey] == _this8.store.edit.key;
+        var index = _findIndexInstanceProperty(_context36 = this.store.tableData).call(_context36, function (r) {
+          return r[_this9.store.rowKey] == _this9.store.edit.key;
         });
 
         index = index - 1;
@@ -1242,8 +1318,9 @@ var curd = {
       this.store.tmpeditcellvalue = value;
     },
     entryCell: function entryCell(field, key) {
-      var _this9 = this,
-          _context36;
+      var _this10 = this,
+          _context37,
+          _context38;
 
       if (this.store.edit.ing) {
         this.closeEdit(this.store.edit.field, this.store.edit.key);
@@ -1255,18 +1332,26 @@ var curd = {
       this.store.edit.key = key;
 
       var target = _filterInstanceProperty(cdata).call(cdata, function (item) {
-        return key === item[_this9.store.rowKey];
+        return key === item[_this10.store.rowKey];
       })[0];
 
+      var index = _findIndexInstanceProperty(cdata).call(cdata, function (item) {
+        return key === item[_this10.store.rowKey];
+      });
+
+      index = index % this.store.page_size;
       target[this.store.colEditKey][field] = this.store.edit.ing = true;
+
+      this.$refs[_concatInstanceProperty(_context37 = "edit-ref-".concat(index, "-")).call(_context37, field)].focus();
+
       this.store.tableData = cdata;
-      this.setEditTmpValue(_filterInstanceProperty(_context36 = this.store.tableData).call(_context36, function (item) {
-        return key === item[_this9.store.rowKey];
+      this.setEditTmpValue(_filterInstanceProperty(_context38 = this.store.tableData).call(_context38, function (item) {
+        return key === item[_this10.store.rowKey];
       })[0][field]);
     },
     saveCell: function saveCell(field, key, value) {
-      var _this10 = this,
-          _context37;
+      var _this11 = this,
+          _context39;
 
       // if(value === this.store.tmpeditcellvalue) {
       //     return
@@ -1274,31 +1359,32 @@ var curd = {
       var cdata = _toConsumableArray(this.store.tableData);
 
       var item = _filterInstanceProperty(cdata).call(cdata, function (item) {
-        return key === _this10.getRowKey(item);
+        return key === _this11.getRowKey(item);
       })[0];
 
-      item[field] = value;
+      item[field] = value; //old Object.assign(item, this.editFilter(key, item))
+
+      var fi = _filterInstanceProperty(_context39 = this._format_columns).call(_context39, function (r) {
+        return r.field == field;
+      })[0]; //old this.change(this.store.tableData)
+
+
+      if (fi.edit.cellHandler) {
+        fi.edit.cellHandler(key, item);
+      }
 
       _Object$assign(item, this.editFilter(key, item));
 
       this.store.tableData = cdata;
-
-      var fi = _filterInstanceProperty(_context37 = this._format_columns).call(_context37, function (r) {
-        return r.field == field;
-      })[0];
-
       this.change(this.store.tableData);
-
-      if (fi.edit.cellHandler) {
-        fi.edit.cellHandler(key, this);
-      }
     },
     cancleEdit: function cancleEdit(field, key) {
       this.saveCell(field, key, this.store.tmpeditcellvalue);
       this.closeEdit(field, key);
     },
     closeEdit: function closeEdit(field, key) {
-      var _this11 = this;
+      var _this12 = this,
+          _context40;
 
       var cdata = _toConsumableArray(this.store.tableData);
 
@@ -1306,31 +1392,40 @@ var curd = {
       this.store.edit.key = '';
 
       var target = _filterInstanceProperty(cdata).call(cdata, function (item) {
-        return key === item[_this11.store.rowKey];
+        return key === item[_this12.store.rowKey];
       })[0];
 
       target[this.store.colEditKey][field] = this.store.edit.ing = false;
+
+      var index = _findIndexInstanceProperty(cdata).call(cdata, function (item) {
+        return key === item[_this12.store.rowKey];
+      });
+
+      index = index % this.store.page_size;
+
+      this.$refs[_concatInstanceProperty(_context40 = "edit-ref-".concat(index, "-")).call(_context40, field)].hide();
+
       this.store.tableData = cdata;
     },
     refresh: function refresh() {
-      var _this12 = this;
+      var _this13 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee() {
-        return _regeneratorRuntime.wrap(function _callee$(_context38) {
+        return _regeneratorRuntime.wrap(function _callee$(_context41) {
           while (1) {
-            switch (_context38.prev = _context38.next) {
+            switch (_context41.prev = _context41.next) {
               case 0:
-                _this12.store.tableData = [];
-                _this12.store.page_count;
-                _context38.next = 4;
-                return _this12.$nextTick();
+                _this13.store.tableData = [];
+                _this13.store.page_count = 0;
+                _context41.next = 4;
+                return _this13.$nextTick();
 
               case 4:
-                _this12.$refs.datawrap.fetch();
+                _this13.$refs.datawrap.fetch();
 
               case 5:
               case "end":
-                return _context38.stop();
+                return _context41.stop();
             }
           }
         }, _callee);
@@ -1340,45 +1435,73 @@ var curd = {
       this.refresh();
     },
     pageRender: function pageRender(page, sorter, filter) {
-      var _this13 = this;
+      var _this14 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2() {
-        return _regeneratorRuntime.wrap(function _callee2$(_context39) {
+        return _regeneratorRuntime.wrap(function _callee2$(_context42) {
           while (1) {
-            switch (_context39.prev = _context39.next) {
+            switch (_context42.prev = _context42.next) {
               case 0:
                 if (sorter.column) {
-                  _this13.$set(_sortInstanceProperty(_this13.store), sorter.column.field, sorter.order);
+                  _this14.$set(_sortInstanceProperty(_this14.store), sorter.column.field, sorter.order);
                 } else {
-                  _this13.store.sort = {};
+                  _this14.store.sort = {};
                 }
 
-                _this13.store.page = page.current;
-                _this13.store.page_size = page.pageSize;
-                _context39.next = 5;
-                return _this13.$nextTick();
+                _this14.store.page = page.current;
+                _this14.store.page_size = page.pageSize;
+                _context42.next = 5;
+                return _this14.$nextTick();
 
               case 5:
-                _this13.$refs.datawrap.fetch();
+                _this14.$refs.datawrap.fetch();
 
               case 6:
               case "end":
-                return _context39.stop();
+                return _context42.stop();
             }
           }
         }, _callee2);
       }))();
     },
     render: function render(response) {
-      if (utils.http.responseOk(response)) {
-        var _context40;
+      var _this15 = this;
 
-        response = this.fetchTransform(response);
-        this.store.tableData = _mapInstanceProperty(_context40 = response.data.data).call(_context40, this.transformData);
-        this.store.page_count = response.data.total;
-      } else {
-        this.$message.warn(response.data.msg);
-      }
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3() {
+        var _context43;
+
+        return _regeneratorRuntime.wrap(function _callee3$(_context44) {
+          while (1) {
+            switch (_context44.prev = _context44.next) {
+              case 0:
+                if (!utils.http.responseOk(response)) {
+                  _context44.next = 9;
+                  break;
+                }
+
+                _context44.next = 3;
+                return _this15.fetchTransform(response);
+
+              case 3:
+                response = _context44.sent;
+                _this15.store.tableData = _mapInstanceProperty(_context43 = response.data.data).call(_context43, _this15.transformData);
+                _this15.store.page_count = response.data.total;
+
+                _this15.change(_this15.store.tableData);
+
+                _context44.next = 10;
+                break;
+
+              case 9:
+                _this15.$message.warn(response.data.msg);
+
+              case 10:
+              case "end":
+                return _context44.stop();
+            }
+          }
+        }, _callee3);
+      }))();
     },
     onTopAction: function onTopAction(action) {
       switch (action.type) {
@@ -1403,22 +1526,22 @@ var curd = {
       return item[this.store.rowKey];
     },
     getRow: function getRow(key) {
-      var _this14 = this;
+      var _this16 = this;
 
       var cdata = _toConsumableArray(this.store.tableData);
 
       return _filterInstanceProperty(cdata).call(cdata, function (item) {
-        return key === item[_this14.store.rowKey];
+        return key === item[_this16.store.rowKey];
       })[0];
     },
     onRowAction: function onRowAction(action, item, index) {
       switch (action.type) {
         case 'relation':
           {
-            var _context41, _context42;
+            var _context45, _context46;
 
             this.$router.push({
-              path: _concatInstanceProperty(_context41 = _concatInstanceProperty(_context42 = "".concat(this.$route.fullPath, "/")).call(_context42, item[action.primaryKey], "/")).call(_context41, action.key)
+              path: _concatInstanceProperty(_context45 = _concatInstanceProperty(_context46 = "".concat(this.$route.fullPath, "/")).call(_context46, item[action.primaryKey], "/")).call(_context45, action.key)
             });
           }
           break;
@@ -1451,6 +1574,7 @@ var curd = {
                 {
                   this.$emit(action.key, {
                     item: item,
+                    rawItem: this.getRaw(item),
                     key: this.getRowKey(item),
                     table: this
                   });
@@ -1459,22 +1583,29 @@ var curd = {
           }
       }
     },
+    getRaw: function getRaw(item) {
+      var obj = _objectSpread$1({}, item);
+
+      delete obj[this.store.colEditKey];
+      delete obj[this.store.rowKey];
+      return obj;
+    },
     autoSet: function autoSet(key, item) {
-      var _context43,
-          _this15 = this;
+      var _context47,
+          _this17 = this;
 
       var tmp = _objectSpread$1({}, item);
 
       var cdata = _toConsumableArray(this.store.tableData);
 
-      _forEachInstanceProperty(_context43 = this._auto_set).call(_context43, function (s) {
-        var _context44;
+      _forEachInstanceProperty(_context47 = this._auto_set).call(_context47, function (s) {
+        var _context48;
 
         var index = _findIndexInstanceProperty(cdata).call(cdata, function (item) {
-          return key === _this15.getRowKey(item);
+          return key === _this17.getRowKey(item);
         });
 
-        tmp[s.option.labelKey] = _this15.$refs[_concatInstanceProperty(_context44 = "edit-ref-".concat(index, "-")).call(_context44, s.field)].getLabel();
+        tmp[s.option.labelKey] = _this17.$refs[_concatInstanceProperty(_context48 = "edit-ref-".concat(index, "-")).call(_context48, s.field)].getLabel();
       });
 
       return tmp;
@@ -1487,20 +1618,20 @@ var curd = {
       return item;
     },
     opearDone: function opearDone(data) {
-      var _this16 = this;
+      var _this18 = this;
 
       if (this.actionEditRow) {
-        var _context45;
+        var _context49;
 
         _Object$assign(data, this.editFilter(this.store.editKey, data));
 
         var cdata = _toConsumableArray(this.store.tableData);
 
         var target = _filterInstanceProperty(cdata).call(cdata, function (item) {
-          return _this16.store.editKey === _this16.getRowKey(item);
+          return _this18.store.editKey === _this18.getRowKey(item);
         })[0];
 
-        _forEachInstanceProperty(_context45 = _Object$keys(data)).call(_context45, function (k) {
+        _forEachInstanceProperty(_context49 = _Object$keys(data)).call(_context49, function (k) {
           target[k] = data[k];
         });
 
@@ -1509,67 +1640,30 @@ var curd = {
       }
     },
     apiDeleteRow: function apiDeleteRow(key) {
-      var _context46,
-          _this17 = this,
-          _context47;
+      var _context50,
+          _this19 = this,
+          _context51;
 
-      var index = _findIndexInstanceProperty(_context46 = this.store.tableData).call(_context46, function (r) {
-        return _this17.getRowKey(r) === key;
+      var index = _findIndexInstanceProperty(_context50 = this.store.tableData).call(_context50, function (r) {
+        return _this19.getRowKey(r) === key;
       });
 
-      _spliceInstanceProperty(_context47 = this.store.tableData).call(_context47, index, 1);
+      _spliceInstanceProperty(_context51 = this.store.tableData).call(_context51, index, 1);
 
       this.change(this.store.tableData);
     },
     apiNewRow: function apiNewRow() {
-      var _context48,
-          _context49,
-          _this18 = this;
+      var _context52,
+          _context53,
+          _this20 = this;
 
       var num = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
       var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
       var cs = {};
 
-      _forEachInstanceProperty(_context48 = this._columns).call(_context48, function (f) {
+      _forEachInstanceProperty(_context52 = this._columns).call(_context52, function (f) {
         f.type && (cs[f.field] = utils.getTypeDefault(f.type, f.default, f.option || {}));
       });
-
-      var index = _findIndexInstanceProperty(_context49 = this.store.tableData).call(_context49, function (r) {
-        return _this18.getRowKey(r) === key;
-      });
-
-      index = index < 0 ? this.store.tableData.length : index;
-      index = index + 1;
-
-      for (var k = 0; k < num; k++) {
-        var _context50;
-
-        _spliceInstanceProperty(_context50 = this.store.tableData).call(_context50, index + k, 0, this.transformData(_objectSpread$1({}, cs)));
-      }
-    },
-    apiAppend: function apiAppend(item) {
-      var _context51,
-          _this19 = this,
-          _context52;
-
-      var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-
-      var index = _findIndexInstanceProperty(_context51 = this.store.tableData).call(_context51, function (r) {
-        return _this19.getRowKey(r) === key;
-      });
-
-      index = index < 0 ? this.store.tableData.length : index;
-      index = index + 1;
-
-      _spliceInstanceProperty(_context52 = this.store.tableData).call(_context52, index > -1 ? index : this.store.tableData.length, 0, this.transformData(_objectSpread$1({}, item)));
-
-      this.change(this.store.tableData);
-    },
-    apiAppends: function apiAppends(items) {
-      var _context53,
-          _this20 = this;
-
-      var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
 
       var index = _findIndexInstanceProperty(_context53 = this.store.tableData).call(_context53, function (r) {
         return _this20.getRowKey(r) === key;
@@ -1578,35 +1672,72 @@ var curd = {
       index = index < 0 ? this.store.tableData.length : index;
       index = index + 1;
 
-      _forEachInstanceProperty(items).call(items, function (item, i) {
+      for (var k = 0; k < num; k++) {
         var _context54;
 
-        return _spliceInstanceProperty(_context54 = _this20.store.tableData).call(_context54, index + i, 0, _this20.transformData(_objectSpread$1({}, item)));
+        _spliceInstanceProperty(_context54 = this.store.tableData).call(_context54, index + k, 0, this.transformData(_objectSpread$1({}, cs)));
+      }
+    },
+    apiAppend: function apiAppend(item) {
+      var _context55,
+          _this21 = this,
+          _context56;
+
+      var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+
+      var index = _findIndexInstanceProperty(_context55 = this.store.tableData).call(_context55, function (r) {
+        return _this21.getRowKey(r) === key;
+      });
+
+      index = index < 0 ? this.store.tableData.length : index;
+      index = index + 1;
+
+      _spliceInstanceProperty(_context56 = this.store.tableData).call(_context56, index > -1 ? index : this.store.tableData.length, 0, this.transformData(_objectSpread$1({}, item)));
+
+      this.change(this.store.tableData);
+    },
+    apiAppends: function apiAppends(items) {
+      var _context57,
+          _this22 = this;
+
+      var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+
+      var index = _findIndexInstanceProperty(_context57 = this.store.tableData).call(_context57, function (r) {
+        return _this22.getRowKey(r) === key;
+      });
+
+      index = index < 0 ? this.store.tableData.length : index;
+      index = index + 1;
+
+      _forEachInstanceProperty(items).call(items, function (item, i) {
+        var _context58;
+
+        return _spliceInstanceProperty(_context58 = _this22.store.tableData).call(_context58, index + i, 0, _this22.transformData(_objectSpread$1({}, item)));
       });
 
       this.change(this.store.tableData);
     },
     setRowItem: function setRowItem() {
-      var _context55,
-          _this21 = this;
+      var _context59,
+          _this23 = this;
 
       var item = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var index = _findIndexInstanceProperty(_context55 = this.store.tableData).call(_context55, function (r) {
-        return _this21.getRowKey(r) === _this21.getRowKey(item);
+      var index = _findIndexInstanceProperty(_context59 = this.store.tableData).call(_context59, function (r) {
+        return _this23.getRowKey(r) === _this23.getRowKey(item);
       });
 
       this.store.tableData[index] = this.transformData(_objectSpread$1(_objectSpread$1({}, this.store.tableData[index]), item));
       this.change(this.store.tableData);
     },
     setRow: function setRow(key) {
-      var _context56,
-          _this22 = this;
+      var _context60,
+          _this24 = this;
 
       var item = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      var index = _findIndexInstanceProperty(_context56 = this.store.tableData).call(_context56, function (r) {
-        return _this22.getRowKey(r) === key;
+      var index = _findIndexInstanceProperty(_context60 = this.store.tableData).call(_context60, function (r) {
+        return _this24.getRowKey(r) === key;
       });
 
       this.store.tableData[index] = this.transformData(_objectSpread$1(_objectSpread$1({}, this.store.tableData[index]), item));
@@ -1624,25 +1755,26 @@ var curd = {
       }
     },
     transform: function transform(cb) {
-      var _context57;
+      var _context61,
+          _this25 = this;
 
-      this.store.tableData = _mapInstanceProperty(_context57 = this.store.tableData).call(_context57, function (v, i, arr) {
-        return cb(v, i, arr);
+      this.store.tableData = _mapInstanceProperty(_context61 = this.store.tableData).call(_context61, function (v, i, arr) {
+        return _this25.editFilter(_this25.getRowKey(v), cb(v, i, arr));
       });
       this.change(this.store.tableData);
     },
     transformData: function transformData(data) {
-      var _this23 = this;
+      var _this26 = this;
 
       if (data[this.store.colEditKey] === undefined) {
-        var _context58, _context59;
+        var _context62, _context63;
 
         data[this.store.colEditKey] = {};
 
-        _forEachInstanceProperty(_context58 = _filterInstanceProperty(_context59 = this._format_columns).call(_context59, function (f) {
+        _forEachInstanceProperty(_context62 = _filterInstanceProperty(_context63 = this._format_columns).call(_context63, function (f) {
           return !!f.field;
-        })).call(_context58, function (f) {
-          data[_this23.store.colEditKey][f.field] = false;
+        })).call(_context62, function (f) {
+          data[_this26.store.colEditKey][f.field] = false;
         });
       }
 
@@ -1650,6 +1782,7 @@ var curd = {
         data[this.store.rowKey] = utils.random('rowkey-');
       }
 
+      data = this.editFilter(data[this.store.rowKey], data);
       return data;
     },
     clear: function clear() {
@@ -1667,20 +1800,20 @@ var curd = {
       this.$emit('change', v);
     },
     getData: function getData() {
-      var _context60,
-          _this24 = this;
+      var _context64,
+          _this27 = this;
 
       var withlabel = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      return _mapInstanceProperty(_context60 = this.store.tableData).call(_context60, function (r) {
-        var _context61, _context62;
+      return _mapInstanceProperty(_context64 = this.store.tableData).call(_context64, function (r) {
+        var _context65, _context66;
 
         var tmp = _objectSpread$1({}, r);
 
-        _Object$assign(tmp, _this24.autoSet(_this24.getRowKey(tmp), tmp));
+        _Object$assign(tmp, _this27.autoSet(_this27.getRowKey(tmp), tmp));
 
-        _forEachInstanceProperty(_context61 = _filterInstanceProperty(_context62 = _this24._format_columns).call(_context62, function (f) {
+        _forEachInstanceProperty(_context65 = _filterInstanceProperty(_context66 = _this27._format_columns).call(_context66, function (f) {
           return !!f.field;
-        })).call(_context61, function (f) {
+        })).call(_context65, function (f) {
           if (!withlabel) {
             switch (f.type) {
               case 'select':
@@ -1709,22 +1842,22 @@ var curd = {
       return this.pageSize;
     },
     getPageData: function getPageData() {
-      var _context63,
-          _context64,
-          _this25 = this;
+      var _context67,
+          _context68,
+          _this28 = this;
 
       var start = (this.store.page - 1) * this.pageSize;
       var end = start + this.pageSize > this.store.tableData.length ? this.store.tableData.length : start + this.pageSize;
-      return _mapInstanceProperty(_context63 = _sliceInstanceProperty(_context64 = this.store.tableData).call(_context64, start, end)).call(_context63, function (r) {
-        var _context65, _context66;
+      return _mapInstanceProperty(_context67 = _sliceInstanceProperty(_context68 = this.store.tableData).call(_context68, start, end)).call(_context67, function (r) {
+        var _context69, _context70;
 
         var tmp = _objectSpread$1({}, r);
 
-        _Object$assign(tmp, _this25.autoSet(_this25.getRowKey(tmp), tmp));
+        _Object$assign(tmp, _this28.autoSet(_this28.getRowKey(tmp), tmp));
 
-        _forEachInstanceProperty(_context65 = _filterInstanceProperty(_context66 = _this25._format_columns).call(_context66, function (f) {
+        _forEachInstanceProperty(_context69 = _filterInstanceProperty(_context70 = _this28._format_columns).call(_context70, function (f) {
           return !!f.field;
-        })).call(_context65, function (f) {
+        })).call(_context69, function (f) {
           tmp[f.field] = r[f.field];
         });
 
@@ -1734,16 +1867,9 @@ var curd = {
   }
 };
 
-var Http = {
-  engine: null,
-  errorMsgAdapter: function errorMsgAdapter(r) {
-    return r.response.data;
-  }
-};
-
 function ownKeys$2(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = _filterInstanceProperty(symbols).call(symbols, function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context25; _forEachInstanceProperty(_context25 = ownKeys$2(Object(source), true)).call(_context25, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context26; _forEachInstanceProperty(_context26 = ownKeys$2(Object(source))).call(_context26, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context24; _forEachInstanceProperty(_context24 = ownKeys$2(Object(source), true)).call(_context24, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context25; _forEachInstanceProperty(_context25 = ownKeys$2(Object(source))).call(_context25, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var form = {
   render: function render() {
     var _vm = this;
@@ -1822,7 +1948,8 @@ var form = {
                 "editing": true,
                 "value": _vm.dataform[field.form_key],
                 "option": field.option,
-                "type": field.type
+                "type": field.type,
+                "item": _vm.dataform
               },
               on: {
                 "change": function change(value) {
@@ -1896,6 +2023,10 @@ var form = {
       default: function _default(r) {
         return r;
       }
+    },
+    httpKey: {
+      type: String,
+      default: 'default'
     }
   },
   computed: {
@@ -1955,6 +2086,10 @@ var form = {
     _model_data: function _model_data() {
       var _this = this;
 
+      // 只有汇集数据时根据form_key生成具体包含路径的数据
+      // dataform 只存储path => value
+      // _model_data: {a: {b: 1}}
+      // dataform: {'a.b': 1}
       if (this._hasModel) {
         if (_Array$isArray(this._current_model.pick) && this._current_model.pick.length != 0) {
           var _context5;
@@ -1962,11 +2097,9 @@ var form = {
           var keys = utils.getArrayFunction(this._current_model.pick, [this._current_model, this.dataform]);
           var tmp = {};
 
-          _forEachInstanceProperty(_context5 = _Object$keys(this.dataform)).call(_context5, function (v) {
-            var field = _this.getFieldByDataKey(v);
-
+          _forEachInstanceProperty(_context5 = this.store.fields).call(_context5, function (field) {
             if (_includesInstanceProperty(keys).call(keys, field.form_key)) {
-              tmp[field.form_key] = _this.dataform[field.form_value_key];
+              utils.set(tmp, field.form_key, _this.dataform[field.form_key]);
             }
           });
 
@@ -1977,11 +2110,9 @@ var form = {
           var omit = utils.getArrayFunction(this._current_model.omit, [this._current_model, this.dataform]);
           var _tmp = {};
 
-          _forEachInstanceProperty(_context6 = _Object$keys(this.dataform)).call(_context6, function (v) {
-            var field = _this.getFieldByDataKey(v);
-
+          _forEachInstanceProperty(_context6 = this.store.fields).call(_context6, function (field) {
             if (!_includesInstanceProperty(omit).call(omit, field.form_key)) {
-              _tmp[field.form_key] = _this.dataform[field.form_value_key];
+              utils.set(_tmp, field.form_key, _this.dataform[field.form_key]);
             }
           });
 
@@ -2103,9 +2234,9 @@ var form = {
           option.titleKey = option.titleKey ? option.titleKey : 'label';
         }
 
-        var _default = utils.getTypeDefault(type, v.default, option);
-
         var fk = v.form_key ? v.form_key : v.field;
+
+        var _default = utils.getTypeDefault(type, v.default, option);
 
         _this4.$set(_this4.dataform, fk, _default);
 
@@ -2203,29 +2334,20 @@ var form = {
         this.store.model = model;
       }
     },
-    getFieldByDataKey: function getFieldByDataKey(key) {
-      var _context16;
-
-      return _filterInstanceProperty(_context16 = this.store.fields).call(_context16, function (f) {
-        return f.field == key || f.form_key == key;
-      })[0];
-    },
     setData: function setData(data) {
-      var _context17,
+      var _context16,
           _this6 = this;
 
-      _forEachInstanceProperty(_context17 = _Object$keys(data)).call(_context17, function (v) {
-        var field = _this6.getFieldByDataKey(v);
-
-        if (field) {
-          _this6.$set(_this6.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.form_value_key), field.option));
-        }
+      _forEachInstanceProperty(_context16 = this.store.fields).call(_context16, function (field) {
+        // 只根据field.field获取数据
+        // dataform key 根据_mode_data 注释设置
+        _this6.$set(_this6.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.field), field.option));
       });
     },
     filterType: function filterType(type) {
-      var _context18;
+      var _context17;
 
-      return _includesInstanceProperty(_context18 = ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag']).call(_context18, type) ? type : 'string';
+      return _includesInstanceProperty(_context17 = ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer', 'pick']).call(_context17, type) ? type : 'string';
     },
     getNotifyEngine: function getNotifyEngine(type) {
       switch (type) {
@@ -2242,9 +2364,9 @@ var form = {
       var tmp = _objectSpread$2({}, params);
 
       if (_Object$keys(tmp).length > 0) {
-        var _context19;
+        var _context18;
 
-        _forEachInstanceProperty(_context19 = this.autoSet).call(_context19, function (s) {
+        _forEachInstanceProperty(_context18 = this.autoSet).call(_context18, function (s) {
           tmp[s.option.labelKey] = _this7.$refs[s.field].getLabel();
         });
       }
@@ -2255,22 +2377,23 @@ var form = {
       var _this8 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3() {
-        var param, _context20, sub, _context21, ks, response;
+        var param, _context19, sub, _context20, ks, hkObj, response;
 
-        return _regeneratorRuntime.wrap(function _callee3$(_context22) {
+        return _regeneratorRuntime.wrap(function _callee3$(_context21) {
           while (1) {
-            switch (_context22.prev = _context22.next) {
+            switch (_context21.prev = _context21.next) {
               case 0:
                 param = _this8._current_model.xhr.method == 'get' ? {
                   params: _this8._model_data
                 } : {
                   payload: _this8._model_data
                 };
-                _context22.prev = 1;
-                sub = '';
+                _context21.prev = 1;
+                sub = ''; // put not include
+                // put include key to body
 
-                if (_includesInstanceProperty(_context20 = ['put', 'delete', 'patch']).call(_context20, _this8._current_model.xhr.method)) {
-                  ks = _filterInstanceProperty(_context21 = _this8.store.fields).call(_context21, function (field) {
+                if (_includesInstanceProperty(_context19 = ['delete', 'patch']).call(_context19, _this8._current_model.xhr.method)) {
+                  ks = _filterInstanceProperty(_context20 = _this8.store.fields).call(_context20, function (field) {
                     return field.key;
                   });
 
@@ -2280,11 +2403,12 @@ var form = {
                 }
 
                 _this8.loading = true;
-                _context22.next = 7;
-                return Http.engine[_this8._current_model.xhr.method](_this8._current_model.xhr.url + sub, _this8.paramTransform(_this8.transform(param)));
+                hkObj = Http.getEngine(_this8._current_model.xhr.httpKey ? _this8._current_model.xhr.httpKey : _this8.httpKey);
+                _context21.next = 8;
+                return hkObj.engine[_this8._current_model.xhr.method](_this8._current_model.xhr.url + sub, _this8.paramTransform(_this8.transform(param)));
 
-              case 7:
-                response = _context22.sent;
+              case 8:
+                response = _context21.sent;
                 _this8.loading = false;
 
                 if (utils.http.responseOk(response)) {
@@ -2296,63 +2420,63 @@ var form = {
                     _this8.close();
                   }
                 } else {
-                  _this8.getNotifyEngine(_this8._current_model.xhr.notifyEngine).info(Http.errorMsgAdapter({
+                  _this8.getNotifyEngine(_this8._current_model.xhr.notifyEngine).info(hkObj.errorMsgAdapter({
                     response: response
                   }));
                 }
 
-                return _context22.abrupt("return", response);
+                return _context21.abrupt("return", response);
 
-              case 13:
-                _context22.prev = 13;
-                _context22.t0 = _context22["catch"](1);
+              case 14:
+                _context21.prev = 14;
+                _context21.t0 = _context21["catch"](1);
 
-                if (_context22.t0.response && _context22.t0.response.status == 422) {
-                  _this8.getNotifyEngine(_this8._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context22.t0));
+                if (_context21.t0.response && _context21.t0.response.status == 422) {
+                  _this8.getNotifyEngine(_this8._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context21.t0));
                 } else {
-                  _this8.getNotifyEngine(_this8._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context22.t0));
+                  _this8.getNotifyEngine(_this8._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context21.t0));
                 }
 
                 _this8.loading = false;
-                return _context22.abrupt("return", _context22.t0);
+                return _context21.abrupt("return", _context21.t0);
 
-              case 18:
+              case 19:
               case "end":
-                return _context22.stop();
+                return _context21.stop();
             }
           }
-        }, _callee3, null, [[1, 13]]);
+        }, _callee3, null, [[1, 14]]);
       }))();
     },
     okHandle: function okHandle() {
       var _this9 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee4() {
-        return _regeneratorRuntime.wrap(function _callee4$(_context23) {
+        return _regeneratorRuntime.wrap(function _callee4$(_context22) {
           while (1) {
-            switch (_context23.prev = _context23.next) {
+            switch (_context22.prev = _context22.next) {
               case 0:
-                _context23.next = 2;
+                _context22.next = 2;
                 return _this9.$refs.ob.validate();
 
               case 2:
-                if (_context23.sent) {
-                  _context23.next = 5;
+                if (_context22.sent) {
+                  _context22.next = 5;
                   break;
                 }
 
                 _this9.getNotifyEngine(_this9._current_model.xhr.notifyEngine).info("信息检测未通过请检查!");
 
-                return _context23.abrupt("return");
+                return _context22.abrupt("return");
 
               case 5:
                 if (!_this9._has_xhr) {
-                  _context23.next = 17;
+                  _context22.next = 17;
                   break;
                 }
 
                 if (!_this9._current_model.xhr.confirm) {
-                  _context23.next = 10;
+                  _context22.next = 10;
                   break;
                 }
 
@@ -2367,21 +2491,21 @@ var form = {
                   cancelText: '取消'
                 });
 
-                _context23.next = 15;
+                _context22.next = 15;
                 break;
 
               case 10:
-                _context23.t0 = _this9;
-                _context23.next = 13;
+                _context22.t0 = _this9;
+                _context22.next = 13;
                 return _this9.request();
 
               case 13:
-                _context23.t1 = _context23.sent;
+                _context22.t1 = _context22.sent;
 
-                _context23.t0.$emit.call(_context23.t0, 'opearFinish', _context23.t1);
+                _context22.t0.$emit.call(_context22.t0, 'opearFinish', _context22.t1);
 
               case 15:
-                _context23.next = 19;
+                _context22.next = 19;
                 break;
 
               case 17:
@@ -2393,7 +2517,7 @@ var form = {
 
               case 19:
               case "end":
-                return _context23.stop();
+                return _context22.stop();
             }
           }
         }, _callee4);
@@ -2455,13 +2579,11 @@ var form = {
       }
     },
     clean: function clean() {
-      var _context24,
+      var _context23,
           _this10 = this;
 
-      _forEachInstanceProperty(_context24 = _Object$keys(this.dataform)).call(_context24, function (v) {
-        var field = _this10.getFieldByDataKey(v);
-
-        _this10.$set(_this10.dataform, field.form_key, utils.getTypeDefault(field.type, field.default, field.option));
+      _forEachInstanceProperty(_context23 = this.store.fields).call(_context23, function (field) {
+        _this10.$set(_this10.dataform, field.form_key, field.default);
       });
     }
   }
@@ -2469,7 +2591,7 @@ var form = {
 
 function ownKeys$3(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = _filterInstanceProperty(symbols).call(symbols, function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context8; _forEachInstanceProperty(_context8 = ownKeys$3(Object(source), true)).call(_context8, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context9; _forEachInstanceProperty(_context9 = ownKeys$3(Object(source))).call(_context9, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context11; _forEachInstanceProperty(_context11 = ownKeys$3(Object(source), true)).call(_context11, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context12; _forEachInstanceProperty(_context12 = ownKeys$3(Object(source))).call(_context12, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var formItem = {
   render: function render() {
     var _context, _context2;
@@ -2517,7 +2639,29 @@ var formItem = {
       on: {
         "change": _vm.onChange
       }
-    }) : _vm.type == 'switch' ? _c('a-switch', {
+    }) : _vm.type == 'pick' ? _c('tool-pick', {
+      ref: "input",
+      staticStyle: {
+        "width": "100%"
+      },
+      style: {
+        minWidth: _vm._option.minpickWidth
+      },
+      attrs: {
+        "size": "small",
+        "value": _vm.value,
+        "options": _vm._option.pickOptions,
+        "disabled": _vm.disabled,
+        "searchKey": _vm._option.searchKey
+      },
+      on: {
+        "change": _vm.onChange
+      }
+    }, [_c('a-button', {
+      attrs: {
+        "size": "small"
+      }
+    }, [_vm._v(_vm._s(_vm._label))])], 1) : _vm.type == 'switch' ? _c('a-switch', {
       ref: "input",
       attrs: {
         "checked-children": _vm._option.checkText,
@@ -2542,17 +2686,7 @@ var formItem = {
       on: {
         "change": _vm.onChange
       }
-    }) : _vm.type == 'component' ? _c('emotion', {
-      staticStyle: {
-        "width": "100%"
-      },
-      attrs: {
-        "disabled": _vm.disabled
-      },
-      on: {
-        "click": _vm.lanuchComponent
-      }
-    }, [_vm._v(" 请选择")]) : _vm.type == 'code' ? _c('tool-code', {
+    }) : _vm.type == 'code' ? _c('tool-code', {
       ref: "input",
       staticStyle: {
         "width": "100%"
@@ -2592,7 +2726,23 @@ var formItem = {
       on: {
         "change": _vm.onChange
       }
-    }) : _c('span', [_vm._v("\n            " + _vm._s(_vm._label) + "\n        ")])] : [_vm._normal_view ? _c('span', [_vm._v(_vm._s(_vm._label))]) : _vm._switch_view ? _c('emotion', {
+    }) : _vm.type == 'customer' ? _c(_vm._option.customer_form, {
+      ref: "input",
+      tag: "component",
+      staticStyle: {
+        "width": "100%"
+      },
+      attrs: {
+        "option": _vm._option,
+        "disabled": _vm.disabled,
+        "size": "small",
+        "value": _vm.value,
+        "item": _vm.item
+      },
+      on: {
+        "change": _vm.onChange
+      }
+    }) : _c('span', [_vm._v("\n            " + _vm._s(_vm._label) + "\n        ")])] : [_vm._normal_view ? _c('span', [_vm._v(_vm._s(_vm._label))]) : _vm._switch_view ? _c('tw-emotion', {
       attrs: {
         "type": _vm.value ? 'info' : 'danger'
       }
@@ -2606,7 +2756,7 @@ var formItem = {
         attrs: {
           "left-item-end": true
         }
-      }, [_c('emotion', {
+      }, [_c('tw-emotion', {
         attrs: {
           "slot": "left"
         },
@@ -2622,7 +2772,7 @@ var formItem = {
         attrs: {
           "left-item-end": true
         }
-      }, [_c('emotion', [_vm._v(_vm._s(v))])], 1);
+      }, [_c('tw-emotion', [_vm._v(_vm._s(v))])], 1);
     }), 1)], 1) : _vm._map_view ? _c('span', [_c('tw-list-item2', {
       attrs: {
         "fit": "",
@@ -2650,6 +2800,11 @@ var formItem = {
   },
   staticRenderFns: [],
   name: 'toolFormItem',
+  data: function data() {
+    return {
+      label: ""
+    };
+  },
   props: {
     type: {
       type: String,
@@ -2657,7 +2812,7 @@ var formItem = {
       validator: function validator(value) {
         var _context3;
 
-        return _includesInstanceProperty(_context3 = ['string', 'select', 'number', 'switch', 'code', 'map', 'tag']).call(_context3, value);
+        return _includesInstanceProperty(_context3 = ['string', 'select', 'number', 'switch', 'code', 'map', 'tag', 'customer', 'pick']).call(_context3, value);
       }
     },
     value: {
@@ -2676,35 +2831,33 @@ var formItem = {
     disabled: {
       type: Boolean,
       default: false
-    }
-  },
-  watch: {
-    editing: {
-      handler: function handler() {
-        var _this = this;
-
-        if (this.editing) {
-          this.$nextTick(function () {
-            _this.$refs.input.focus();
-
-            switch (_this.type) {
-              case 'string':
-                {
-                  _this.$refs.input.$el.select();
-                }
-                break;
-
-              case 'number':
-                {
-                  _this.$refs.input.$el.querySelector('input').select();
-                }
-                break;
-            }
-          });
-        }
+    },
+    item: {
+      type: Object,
+      default: function _default() {
+        return {};
       }
     }
   },
+  // watch: {
+  //     editing: {
+  //         handler(){
+  //             if(this.editing) {
+  //                 this.$nextTick(() => {
+  //                     this.$refs.input.focus()
+  //                     switch(this.type) {
+  //                         case 'string': {
+  //                             this.$refs.input.$el.select()
+  //                         }break;
+  //                         case 'number': {
+  //                             this.$refs.input.$el.querySelector('input').select()
+  //                         }break
+  //                     }
+  //                 })
+  //             }
+  //         },
+  //     }
+  // },
   computed: {
     _option: function _option() {
       var option = _objectSpread$3({}, this.option);
@@ -2720,10 +2873,23 @@ var formItem = {
 
         case 'select':
           {
-            var _context5;
+            var _context6;
 
             if (option.selectOptions === undefined || !_Array$isArray(option.selectOptions)) {
-              option.selectOptions = utils.getType(option.selectOptions) == 'Function' ? option.selectOptions() : [];
+              option.selectOptions = utils.getType(option.selectOptions) == 'Function' ? option.selectOptions(this.item) : [];
+            }
+
+            if (option.autoFillEmpty === undefined) {
+              option.autoFillEmpty = true;
+            }
+
+            if (option.autoFillEmpty) {
+              var _context4;
+
+              option.selectOptions = _concatInstanceProperty(_context4 = [{
+                label: "请选择",
+                value: ""
+              }]).call(_context4, _toConsumableArray(option.selectOptions));
             }
 
             if (option.selectFilter === undefined || utils.getType(option.selectFilter) != 'Function') {
@@ -2731,9 +2897,9 @@ var formItem = {
             }
 
             if (utils.getType(option.selectLabel) == 'Function') {
-              var _context4;
+              var _context5;
 
-              option.selectOptions = _mapInstanceProperty(_context4 = option.selectOptions).call(_context4, function (r) {
+              option.selectOptions = _mapInstanceProperty(_context5 = option.selectOptions).call(_context5, function (r) {
                 var x = _objectSpread$3({}, r);
 
                 x.__COL_TRUE_LABEL__ = x.label;
@@ -2742,7 +2908,32 @@ var formItem = {
               });
             }
 
-            option.minSelectWidth = utils.getType(option.minSelectWidth) != 'String' || _indexOfInstanceProperty(_context5 = option.minSelectWidth).call(_context5, 'px') == -1 ? '120px' : option.minSelectWidth;
+            option.minSelectWidth = utils.getType(option.minSelectWidth) != 'String' || _indexOfInstanceProperty(_context6 = option.minSelectWidth).call(_context6, 'px') == -1 ? '120px' : option.minSelectWidth;
+          }
+          break;
+
+        case 'pick':
+          {
+            if (option.autoFillEmpty === undefined) {
+              option.autoFillEmpty = true;
+            }
+
+            if (option.pickOptions === undefined || !_Array$isArray(option.pickOptions)) {
+              option.pickOptions = utils.getType(option.pickOptions) == 'Function' ? option.pickOptions(this.item) : [];
+            }
+
+            if (option.autoFillEmpty) {
+              var _context7;
+
+              option.pickOptions = _concatInstanceProperty(_context7 = [{
+                label: "请选择",
+                value: ""
+              }]).call(_context7, _toConsumableArray(option.pickOptions));
+            }
+
+            if (!option.searchKey) {
+              option.searchKey = [];
+            }
           }
           break;
 
@@ -2762,12 +2953,9 @@ var formItem = {
       return option;
     },
     _normal_view: function _normal_view() {
-      var _context6;
+      var _context8;
 
-      return _includesInstanceProperty(_context6 = ['string', 'date', 'check', 'radio', 'number', 'select']).call(_context6, this.type);
-    },
-    _select_view: function _select_view() {
-      return this.type == 'select';
+      return _includesInstanceProperty(_context8 = ['string', 'date', 'check', 'radio', 'number', 'select', 'pick']).call(_context8, this.type);
     },
     _map_view: function _map_view() {
       return this.type == 'map';
@@ -2784,23 +2972,41 @@ var formItem = {
     _tag_view: function _tag_view() {
       return this.type == 'tag';
     },
+    _customer_view: function _customer_view() {
+      return this.type == 'customer';
+    },
     _label: function _label() {
-      var _this2 = this;
+      var _this = this;
 
       switch (this.type) {
         case 'select':
           {
-            var _context7;
+            var _context9;
 
-            var option = _filterInstanceProperty(_context7 = this._option.selectOptions).call(_context7, function (r) {
-              return r.value == _this2.value;
+            var option = _filterInstanceProperty(_context9 = this._option.selectOptions).call(_context9, function (r) {
+              return r.value === _this.value;
             })[0];
 
             if (!option) {
-              return '';
+              return "";
             }
 
             return this._option.selectLabel ? option.__COL_TRUE_LABEL__ ? option.__COL_TRUE_LABEL__ : '' : option.label;
+          }
+
+        case 'pick':
+          {
+            var _context10;
+
+            var _option2 = _filterInstanceProperty(_context10 = this._option.pickOptions).call(_context10, function (r) {
+              return r.value === _this.value;
+            })[0];
+
+            if (!_option2) {
+              return "";
+            }
+
+            return _option2.label;
           }
 
         default:
@@ -2811,11 +3017,37 @@ var formItem = {
     }
   },
   methods: {
+    focus: function focus() {
+      this.$refs.input.focus && this.$refs.input.focus();
+
+      switch (this.type) {
+        case 'string':
+          {
+            this.$refs.input.$el.select();
+          }
+          break;
+
+        case 'number':
+          {
+            this.$refs.input.$el.querySelector('input').select();
+          }
+          break;
+      }
+    },
+    hide: function hide() {
+      this.$refs.input.hide && this.$refs.input.hide();
+    },
     onChange: function onChange(value) {
       switch (this.type) {
         case 'string':
           {
             value = value.target.value;
+          }
+          break;
+
+        case 'pick':
+          {
+            value = value.value;
           }
           break;
       }
@@ -2878,6 +3110,301 @@ var state = {
       result: {},
       msg: ""
     };
+  }
+};
+
+var pick = {
+  render: function render() {
+    var _vm = this;
+
+    var _h = _vm.$createElement;
+
+    var _c = _vm._self._c || _h;
+
+    return _c('a-popover', {
+      attrs: {
+        "visible": _vm.visible,
+        "trigger": "click",
+        "auto-adjust-overflow": true
+      },
+      on: {
+        "update:visible": function updateVisible($event) {
+          _vm.visible = $event;
+        }
+      },
+      model: {
+        value: _vm.visible,
+        callback: function callback($$v) {
+          _vm.visible = $$v;
+        },
+        expression: "visible"
+      }
+    }, [_c('ysz-list-item', {
+      attrs: {
+        "slot": "title",
+        "left": true
+      },
+      slot: "title"
+    }, [_c('span', {
+      attrs: {
+        "slot": "left"
+      },
+      slot: "left"
+    }, [_vm._v(_vm._s(_vm.title))]), _vm._v(" "), _c('a-button', {
+      staticStyle: {
+        "margin-left": "5px"
+      },
+      on: {
+        "click": _vm.stop
+      }
+    }, [_vm._v(" 关闭")])], 1), _vm._v(" "), _c('template', {
+      slot: "content"
+    }, [_c('ysz-list-item', {
+      attrs: {
+        "left": true
+      }
+    }, [_c('ysz-list-item', {
+      attrs: {
+        "slot": "left",
+        "no-p": true
+      },
+      slot: "left"
+    }, [_c('span', {
+      staticStyle: {
+        "padding-right": "5px"
+      },
+      attrs: {
+        "slot": "left"
+      },
+      slot: "left"
+    }, [_vm._v("过滤: ")]), _vm._v(" "), _c('a-input', {
+      ref: "searchInput",
+      attrs: {
+        "size": "small",
+        "allowClear": true
+      },
+      on: {
+        "pressEnter": _vm.onSearch
+      },
+      model: {
+        value: _vm.search_value,
+        callback: function callback($$v) {
+          _vm.search_value = $$v;
+        },
+        expression: "search_value"
+      }
+    })], 1), _vm._v(" "), _c('a-button', {
+      staticStyle: {
+        "margin-left": "5px"
+      },
+      attrs: {
+        "size": "small",
+        "type": "primary"
+      },
+      on: {
+        "click": _vm.onSearch
+      }
+    }, [_vm._v(" 查询")]), _vm._v(" "), _c('a-button', {
+      staticStyle: {
+        "margin-left": "5px"
+      },
+      attrs: {
+        "size": "small"
+      },
+      on: {
+        "click": function click() {
+          return _vm.clear();
+        }
+      }
+    }, [_vm._v(" 清空")])], 1), _vm._v(" "), _c('a-divider', {
+      staticStyle: {
+        "margin": "12px 0 9px"
+      },
+      attrs: {
+        "size": "small"
+      }
+    }), _vm._v(" "), _c('ysz-list-item', {
+      attrs: {
+        "start": true
+      }
+    }, [_c('a-pagination', {
+      attrs: {
+        "slot": "left",
+        "size": "small",
+        "hideOnSinglePage": true,
+        "pageSize": _vm.pageSize,
+        "total": _vm._total,
+        "show-less-items": ""
+      },
+      slot: "left",
+      model: {
+        value: _vm.current,
+        callback: function callback($$v) {
+          _vm.current = $$v;
+        },
+        expression: "current"
+      }
+    }), _vm._v(" "), _c('ysz-list', {
+      attrs: {
+        "row": true,
+        "no-line": false,
+        "group": _vm.group
+      }
+    }, _vm._l(_vm._views, function (item) {
+      return _c('a-tag', {
+        key: item.value,
+        attrs: {
+          "color": item.value === _vm.pick ? '#f50' : null
+        },
+        on: {
+          "click": function click() {
+            return _vm.onClick(item);
+          }
+        }
+      }, [_vm._v("\n                    " + _vm._s(item.label) + "\n                ")]);
+    }), 1)], 1)], 1), _vm._v(" "), _c('div', {
+      staticStyle: {
+        "cursor": "pointer",
+        "display": "flex"
+      }
+    }, [_vm._t("default")], 2)], 2);
+  },
+  staticRenderFns: [],
+  name: 'tool-pick',
+  props: {
+    title: {
+      type: String,
+      default: '标题'
+    },
+    options: {
+      default: function _default() {
+        return [];
+      },
+      type: Array
+    },
+    searchKey: {
+      default: function _default() {
+        return ['label'];
+      },
+      type: Array
+    },
+    group: {
+      default: 4,
+      type: Number
+    },
+    value: '',
+    emptyValue: _defineProperty({
+      default: Function
+    }, "default", function _default() {
+      return function () {
+        return {
+          label: "请选择",
+          value: ""
+        };
+      };
+    })
+  },
+  watch: {
+    value: function value(val) {
+      this.clear(val);
+    }
+  },
+  computed: {
+    _views: function _views() {
+      var _context;
+
+      var start = (this.current - 1) * this.pageSize;
+      var end = start + this.pageSize;
+      end = end > this._total ? this._total : end;
+      return _sliceInstanceProperty(_context = this._items).call(_context, start, end);
+    },
+    _items: function _items() {
+      var _context2,
+          _this = this;
+
+      return this.search ? _filterInstanceProperty(_context2 = this._options).call(_context2, function (v) {
+        var _context3;
+
+        return _indexOfInstanceProperty(_context3 = v.__SEARCH__).call(_context3, _this.search) > -1;
+      }) : this._options;
+    },
+    _options: function _options() {
+      var _context4,
+          _this2 = this;
+
+      return _mapInstanceProperty(_context4 = this.options).call(_context4, function (r) {
+        var _context5, _context6;
+
+        r.__SEARCH__ = _mapInstanceProperty(_context5 = _filterInstanceProperty(_context6 = _Object$keys(r)).call(_context6, function (k) {
+          var _context7;
+
+          return _includesInstanceProperty(_context7 = _this2.searchKey).call(_context7, k);
+        })).call(_context5, function (k) {
+          return r[k];
+        }).join('_');
+        return r;
+      });
+    },
+    _total: function _total() {
+      return this._items.length;
+    }
+  },
+  data: function data() {
+    var pageSize = this.$props.group * 12;
+    return {
+      search: '',
+      visible: false,
+      pick: "",
+      search_value: '',
+      current: 1,
+      pageSize: pageSize
+    };
+  },
+  created: function created() {
+    this.clear(this.$props.value);
+  },
+  methods: {
+    onSearch: function onSearch() {
+      this.current = 1;
+      this.search = this.search_value;
+    },
+    onClick: function onClick(item) {
+      this.$emit('change', item);
+      this.visible = false;
+      this.pick = item.value;
+    },
+    setValue: function setValue(value) {
+      var _context8;
+
+      this.pick = value;
+
+      var tmp = _filterInstanceProperty(_context8 = this._options).call(_context8, function (c) {
+        return c.value === value;
+      })[0];
+
+      this.$emit('change', tmp ? tmp : this.emptyValue());
+    },
+    clear: function clear() {
+      var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+      this.search = '';
+      this.search_value = '';
+      this.current = 1;
+      this.setValue(value);
+    },
+    stop: function stop() {
+      this.visible = false;
+    },
+    focus: function focus() {
+      var _this3 = this;
+
+      this.visible = true;
+      this.$nextTick(function () {
+        _this3.$refs.searchInput.focus();
+      });
+    },
+    hide: function hide() {
+      this.visible = false;
+    }
   }
 };
 
@@ -3293,7 +3820,7 @@ var tag = {
   }
 };
 
-var components = [curd, formItem, select, state, form, code, map, tag];
+var components = [curd, formItem, select, state, form, code, map, tag, pick];
 
 var ant = {
   install: function install(vue) {
