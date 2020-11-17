@@ -262,6 +262,9 @@ export default {
                 this.store.model = model
             }
         },
+        getModel(){
+            return this.store.model
+        },
         setData(data){
             this.store.fields.forEach(field => {
                 // 只根据field.field获取数据

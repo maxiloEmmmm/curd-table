@@ -525,7 +525,8 @@ export default {
             return item
         },
         opearDone(data){
-            if(this.actionEditRow) {
+            let model = this.$refs.ywSettingBase.getModel()
+            if(this.actionEditRow && model == "edit-row") {
                 Object.assign(data, this.editFilter(this.store.editKey, data))
                 const cdata = [...this.store.tableData]
                 const target = cdata.filter(item => this.store.editKey === this.getRowKey(item))[0]
@@ -535,6 +536,8 @@ export default {
 
                 this.store.tableData = cdata
                 this.change(this.store.tableData)
+            }else {
+                this.$emit(model, data)
             }
         },
         apiDeleteRow(key) {

@@ -1620,7 +1620,9 @@ var curd = {
     opearDone: function opearDone(data) {
       var _this18 = this;
 
-      if (this.actionEditRow) {
+      var model = this.$refs.ywSettingBase.getModel();
+
+      if (this.actionEditRow && model == "edit-row") {
         var _context49;
 
         _Object$assign(data, this.editFilter(this.store.editKey, data));
@@ -1637,6 +1639,8 @@ var curd = {
 
         this.store.tableData = cdata;
         this.change(this.store.tableData);
+      } else {
+        this.$emit(model, data);
       }
     },
     apiDeleteRow: function apiDeleteRow(key) {
@@ -2333,6 +2337,9 @@ var form = {
       if (this._models[model]) {
         this.store.model = model;
       }
+    },
+    getModel: function getModel() {
+      return this.store.model;
     },
     setData: function setData(data) {
       var _context16,
