@@ -269,7 +269,7 @@ export default {
             this.store.fields.forEach(field => {
                 // 只根据field.field获取数据
                 // dataform key 根据_mode_data 注释设置
-                this.$set(this.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.field), field.option))
+                this.$set(this.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.field, field.default), field.option))
             })
         },
         filterType(type){
