@@ -7,7 +7,7 @@ export default {
         const {$scopedSlots} = this
         
         return <ysz-module-card>
-                <tool-form httpKey={this.httpKey} vOn:done={this.opearDone} vOn:opearFinish={this.opearFinish} show={this.show} paramTransform={this.paramTransform} on={{"update:show": v => this.show = v}} ref="ywSettingBase"></tool-form>
+                <tool-form layout={this.layout} httpKey={this.httpKey} vOn:done={this.opearDone} vOn:opearFinish={this.opearFinish} show={this.show} paramTransform={this.paramTransform} on={{"update:show": v => this.show = v}} ref="ywSettingBase"></tool-form>
                 {this.title || $scopedSlots.title ? <span slot="title">{ this.title ? this.title : $scopedSlots.title()   }</span> : null}
                 {$scopedSlots.top && $scopedSlots.top() }
                 {this.fetchUrl && !this.preview
@@ -66,6 +66,10 @@ export default {
         dataSource: {type: Array, default: () => []},
         httpKey: {type: String, default: 'default'},
         preview: {type: Boolean, default: false},
+        layout: {
+            type: Array,
+            default: () => []
+        }
     },
     data(){
         this.$nextTick(() => {

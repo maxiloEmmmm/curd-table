@@ -626,6 +626,7 @@ var curd = {
     var $scopedSlots = this.$scopedSlots;
     return h("ysz-module-card", [h("tool-form", helper([{
       "attrs": {
+        "layout": this.layout,
         "httpKey": this.httpKey,
         "show": this.show,
         "paramTransform": this.paramTransform
@@ -829,6 +830,12 @@ var curd = {
     preview: {
       type: Boolean,
       default: false
+    },
+    layout: {
+      type: Array,
+      default: function _default() {
+        return [];
+      }
     }
   },
   data: function data() {
@@ -1873,7 +1880,7 @@ var curd = {
 
 function ownKeys$2(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = _filterInstanceProperty(symbols).call(symbols, function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context24; _forEachInstanceProperty(_context24 = ownKeys$2(Object(source), true)).call(_context24, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context25; _forEachInstanceProperty(_context25 = ownKeys$2(Object(source))).call(_context25, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context26; _forEachInstanceProperty(_context26 = ownKeys$2(Object(source), true)).call(_context26, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context27; _forEachInstanceProperty(_context27 = ownKeys$2(Object(source))).call(_context27, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var form = {
   render: function render() {
     var _vm = this;
@@ -1899,84 +1906,87 @@ var form = {
       }
     }, [_c('ValidationObserver', {
       ref: "ob"
-    }, [_c('ysz-list', {
-      attrs: {
-        "no-line": false,
-        "row": true,
-        "group": _vm._model_layout_group
-      }
-    }, _vm._l(_vm._fields, function (field) {
-      return _c('ValidationProvider', {
-        key: field.field,
-        staticStyle: {
-          "width": "100%"
-        },
+    }, [_vm._l(_vm._layout, function (layout) {
+      return [_c('ysz-list', {
+        key: layout.key,
         attrs: {
-          "name": field.title,
-          "rules": field.validate
-        },
-        scopedSlots: _vm._u([{
-          key: "default",
-          fn: function fn(ref) {
-            var _context;
+          "no-line": false,
+          "row": true,
+          "group": layout.col
+        }
+      }, _vm._l(layout.fields, function (field) {
+        return _c('ValidationProvider', {
+          key: field.field,
+          staticStyle: {
+            "width": "100%"
+          },
+          attrs: {
+            "name": field.title,
+            "rules": field.validate
+          },
+          scopedSlots: _vm._u([{
+            key: "default",
+            fn: function fn(ref) {
+              var _context;
 
-            var errors = ref.errors;
-            var validate = ref.validate;
-            return [_c('ysz-list-item-top', [_c('ysz-list-item', {
-              attrs: {
-                "slot": "top"
-              },
-              slot: "top"
-            }, [_c('span', {
-              attrs: {
-                "slot": "left"
-              },
-              slot: "left"
-            }, [_vm._v(_vm._s("" + field.title + (field.type == 'code' ? "(" + field.option.language + ")" : '')))]), _vm._v(" "), _c('a-badge', {
-              directives: [{
-                name: "show",
-                rawName: "v-show",
-                value: errors.length,
-                expression: "errors.length"
-              }],
-              attrs: {
-                "status": "warning",
-                "text": errors[0]
-              }
-            })], 1), _vm._v(" "), _c('ysz-list-item-top', [_c('tool-form-item', {
-              ref: field.field,
-              refInFor: true,
-              attrs: {
-                "slot": "top",
-                "disabled": _includesInstanceProperty(_context = _vm._model_disabled).call(_context, field.field),
-                "editing": true,
-                "value": _vm.dataform[field.form_key],
-                "option": field.option,
-                "type": field.type,
-                "item": _vm.dataform
-              },
-              on: {
-                "change": function change(value) {
-                  validate(value), _vm.onChange(value, field.form_key);
+              var errors = ref.errors;
+              var validate = ref.validate;
+              return [_c('ysz-list-item-top', [_c('ysz-list-item', {
+                attrs: {
+                  "slot": "top"
+                },
+                slot: "top"
+              }, [_c('span', {
+                attrs: {
+                  "slot": "left"
+                },
+                slot: "left"
+              }, [_vm._v(_vm._s("" + field.title + (field.type == 'code' ? "(" + field.option.language + ")" : '')))]), _vm._v(" "), _c('a-badge', {
+                directives: [{
+                  name: "show",
+                  rawName: "v-show",
+                  value: errors.length,
+                  expression: "errors.length"
+                }],
+                attrs: {
+                  "status": "warning",
+                  "text": errors[0]
                 }
-              },
-              slot: "top"
-            }), _vm._v(" "), field.help_msg ? _c('tw-alert', {
-              staticStyle: {
-                "text-align": "left"
-              },
-              attrs: {
-                "mini": "",
-                "left": "",
-                "title": field.help_msg,
-                "type": "info",
-                "show-icon": ""
-              }
-            }) : _vm._e()], 1)], 1)];
-          }
-        }], null, true)
-      });
-    }), 1)], 1)], 1), _vm._v(" "), _c('ysz-list-item', {
+              })], 1), _vm._v(" "), _c('ysz-list-item-top', [_c('tool-form-item', {
+                ref: field.field,
+                refInFor: true,
+                attrs: {
+                  "slot": "top",
+                  "disabled": _includesInstanceProperty(_context = _vm._model_disabled).call(_context, field.field),
+                  "editing": true,
+                  "value": _vm.dataform[field.form_key],
+                  "option": field.option,
+                  "type": field.type,
+                  "item": _vm.dataform
+                },
+                on: {
+                  "change": function change(value) {
+                    validate(value), _vm.onChange(value, field.form_key);
+                  }
+                },
+                slot: "top"
+              }), _vm._v(" "), field.help_msg ? _c('tw-alert', {
+                staticStyle: {
+                  "text-align": "left"
+                },
+                attrs: {
+                  "mini": "",
+                  "left": "",
+                  "title": field.help_msg,
+                  "type": "info",
+                  "show-icon": ""
+                }
+              }) : _vm._e()], 1)], 1)];
+            }
+          }], null, true)
+        });
+      }), 1)];
+    })], 2)], 1), _vm._v(" "), _c('ysz-list-item', {
       attrs: {
         "slot": "footer",
         "left": true
@@ -2031,13 +2041,41 @@ var form = {
     httpKey: {
       type: String,
       default: 'default'
+    },
+    layout: {
+      type: Array,
+      default: function _default() {
+        return [];
+      }
     }
   },
   computed: {
-    _has_option_remote_load: function _has_option_remote_load() {
-      var _context2;
+    _layout: function _layout() {
+      var _this = this;
 
-      return _someInstanceProperty(_context2 = this.store.fields).call(_context2, function (f) {
+      if (this.layout.length == 0) {
+        return [{
+          key: "default",
+          col: this._model_layout_group,
+          fields: this._fields
+        }];
+      } else {
+        var _context2;
+
+        return _mapInstanceProperty(_context2 = this.layout).call(_context2, function (lay, index) {
+          var _context3;
+
+          lay.fields = _filterInstanceProperty(_context3 = _this._fields).call(_context3, function (field) {
+            return !field.layout_key && index == 0 || field.layout_key == lay.key;
+          });
+          return lay;
+        });
+      }
+    },
+    _has_option_remote_load: function _has_option_remote_load() {
+      var _context4;
+
+      return _someInstanceProperty(_context4 = this.store.fields).call(_context4, function (f) {
         return !!f.meta.fetchUrl;
       });
     },
@@ -2045,11 +2083,11 @@ var form = {
       return !!this._models[this.store.model];
     },
     _models: function _models() {
-      var _context3;
+      var _context5;
 
       var tmp = {};
 
-      _forEachInstanceProperty(_context3 = this.store.models).call(_context3, function (v) {
+      _forEachInstanceProperty(_context5 = this.store.models).call(_context5, function (v) {
         tmp[v.key] = v;
       });
 
@@ -2076,10 +2114,10 @@ var form = {
         if (this._current_model.hide.length != 0) {
           return !_Array$isArray(this._current_model.hide) && this._current_model.hide == '*' ? _Object$keys(this.dataform) : utils.getArrayFunction(this._current_model.hide, [this._current_model, this.dataform]);
         } else {
-          var _context4;
+          var _context6;
 
           var show = utils.getArrayFunction(this._current_model.show, [this._current_model, this.dataform]);
-          return show.length == 0 ? [] : _filterInstanceProperty(_context4 = _Object$keys(this.dataform)).call(_context4, function (v) {
+          return show.length == 0 ? [] : _filterInstanceProperty(_context6 = _Object$keys(this.dataform)).call(_context6, function (v) {
             return !_includesInstanceProperty(show).call(show, v);
           });
         }
@@ -2088,7 +2126,7 @@ var form = {
       }
     },
     _model_data: function _model_data() {
-      var _this = this;
+      var _this2 = this;
 
       // 只有汇集数据时根据form_key生成具体包含路径的数据
       // dataform 只存储path => value
@@ -2096,27 +2134,27 @@ var form = {
       // dataform: {'a.b': 1}
       if (this._hasModel) {
         if (_Array$isArray(this._current_model.pick) && this._current_model.pick.length != 0) {
-          var _context5;
+          var _context7;
 
           var keys = utils.getArrayFunction(this._current_model.pick, [this._current_model, this.dataform]);
           var tmp = {};
 
-          _forEachInstanceProperty(_context5 = this.store.fields).call(_context5, function (field) {
+          _forEachInstanceProperty(_context7 = this.store.fields).call(_context7, function (field) {
             if (_includesInstanceProperty(keys).call(keys, field.form_key)) {
-              utils.set(tmp, field.form_key, _this.dataform[field.form_key]);
+              utils.set(tmp, field.form_key, _this2.dataform[field.form_key]);
             }
           });
 
           return tmp;
         } else {
-          var _context6;
+          var _context8;
 
           var omit = utils.getArrayFunction(this._current_model.omit, [this._current_model, this.dataform]);
           var _tmp = {};
 
-          _forEachInstanceProperty(_context6 = this.store.fields).call(_context6, function (field) {
+          _forEachInstanceProperty(_context8 = this.store.fields).call(_context8, function (field) {
             if (!_includesInstanceProperty(omit).call(omit, field.form_key)) {
-              utils.set(_tmp, field.form_key, _this.dataform[field.form_key]);
+              utils.set(_tmp, field.form_key, _this2.dataform[field.form_key]);
             }
           });
 
@@ -2127,11 +2165,11 @@ var form = {
       }
     },
     _fieldMap: function _fieldMap() {
-      var _context7;
+      var _context9;
 
       var tmp = {};
 
-      _forEachInstanceProperty(_context7 = this.store.fields).call(_context7, function (v) {
+      _forEachInstanceProperty(_context9 = this.store.fields).call(_context9, function (v) {
         tmp[v.field] = v;
       });
 
@@ -2141,22 +2179,22 @@ var form = {
       return this._hasModel && !!this._current_model.xhr.url;
     },
     _key: function _key() {
-      var _context8;
+      var _context10;
 
-      var ks = _filterInstanceProperty(_context8 = this.store.fields).call(_context8, function (field) {
+      var ks = _filterInstanceProperty(_context10 = this.store.fields).call(_context10, function (field) {
         return field.key;
       });
 
       return ks.length > 0 ? ks[0].form_key : '';
     },
     _fields: function _fields() {
-      var _context9,
-          _this2 = this;
+      var _context11,
+          _this3 = this;
 
-      return _filterInstanceProperty(_context9 = this.store.fields).call(_context9, function (v) {
-        var _context10;
+      return _filterInstanceProperty(_context11 = this.store.fields).call(_context11, function (v) {
+        var _context12;
 
-        return v.field && !_includesInstanceProperty(_context10 = _this2._model_hide).call(_context10, v.form_key);
+        return v.field && !_includesInstanceProperty(_context12 = _this3._model_hide).call(_context12, v.form_key);
       });
     }
   },
@@ -2165,51 +2203,51 @@ var form = {
       this.$set(this.dataform, field, value);
     },
     upload: function upload(file, field) {
-      var _this3 = this;
+      var _this4 = this;
 
       var fd = new FormData();
       fd.append('file', file);
       return new _Promise( /*#__PURE__*/function () {
         var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(ok) {
           var response;
-          return _regeneratorRuntime.wrap(function _callee$(_context11) {
+          return _regeneratorRuntime.wrap(function _callee$(_context13) {
             while (1) {
-              switch (_context11.prev = _context11.next) {
+              switch (_context13.prev = _context13.next) {
                 case 0:
-                  _this3.loading = true;
-                  _context11.prev = 1;
-                  _context11.next = 4;
-                  return _this3.$http.post(_this3._current_model.xhr.url + '/' + field.option.uploadApi, fd, {
+                  _this4.loading = true;
+                  _context13.prev = 1;
+                  _context13.next = 4;
+                  return _this4.$http.post(_this4._current_model.xhr.url + '/' + field.option.uploadApi, fd, {
                     'Content-Type': 'multipart/form-data',
                     onUploadProgress: function onUploadProgress(progressEvent) {
-                      _this3.$set(_this3.store.progress, field.field, progressEvent.loaded / progressEvent.total * 100 | 0);
+                      _this4.$set(_this4.store.progress, field.field, progressEvent.loaded / progressEvent.total * 100 | 0);
                     }
                   });
 
                 case 4:
-                  response = _context11.sent;
-                  _this3.loading = false;
+                  response = _context13.sent;
+                  _this4.loading = false;
 
                   if (utils.http.responseOk(response)) {
-                    _this3.$set(_this3.dataform[field.field], 0, response.data.path);
+                    _this4.$set(_this4.dataform[field.field], 0, response.data.path);
 
                     ok([response.data.path]);
                   } else {
                     ok('');
                   }
 
-                  _context11.next = 13;
+                  _context13.next = 13;
                   break;
 
                 case 9:
-                  _context11.prev = 9;
-                  _context11.t0 = _context11["catch"](1);
-                  _this3.loading = false;
+                  _context13.prev = 9;
+                  _context13.t0 = _context13["catch"](1);
+                  _this4.loading = false;
                   ok('');
 
                 case 13:
                 case "end":
-                  return _context11.stop();
+                  return _context13.stop();
               }
             }
           }, _callee, null, [[1, 9]]);
@@ -2221,19 +2259,19 @@ var form = {
       }());
     },
     setFields: function setFields() {
-      var _this4 = this;
+      var _this5 = this;
 
       var fields = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var tmp = [];
 
       _forEachInstanceProperty(fields).call(fields, function (v) {
-        var _context12;
+        var _context14;
 
-        var type = _this4.filterType(v.type);
+        var type = _this5.filterType(v.type);
 
         var option = v.option ? v.option : {};
 
-        if (_includesInstanceProperty(_context12 = ['select', 'radio']).call(_context12, v.type)) {
+        if (_includesInstanceProperty(_context14 = ['select', 'radio']).call(_context14, v.type)) {
           option.valueKey = option.valueKey ? option.valueKey : 'value';
           option.titleKey = option.titleKey ? option.titleKey : 'label';
         }
@@ -2242,7 +2280,7 @@ var form = {
 
         var _default = utils.getTypeDefault(type, v.default, option);
 
-        _this4.$set(_this4.dataform, fk, _default);
+        _this5.$set(_this5.dataform, fk, _default);
 
         tmp.push({
           type: type,
@@ -2255,7 +2293,8 @@ var form = {
           key: v.key === undefined ? false : v.key,
           meta: v,
           form_key: fk,
-          form_value_key: v.form_value_key ? v.form_value_key : v.field
+          form_value_key: v.form_value_key ? v.form_value_key : v.field,
+          layout_key: v.layout_key
         });
       });
 
@@ -2263,20 +2302,20 @@ var form = {
     },
     setModels: function setModels() {
       var _arguments = arguments,
-          _this5 = this;
+          _this6 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2() {
-        var _context13, _context14, _this5$store$models;
+        var _context15, _context16, _this6$store$models;
 
         var models, tmp;
-        return _regeneratorRuntime.wrap(function _callee2$(_context15) {
+        return _regeneratorRuntime.wrap(function _callee2$(_context17) {
           while (1) {
-            switch (_context15.prev = _context15.next) {
+            switch (_context17.prev = _context17.next) {
               case 0:
                 models = _arguments.length > 0 && _arguments[0] !== undefined ? _arguments[0] : [];
-                _this5.store.models = _mapInstanceProperty(_context13 = _filterInstanceProperty(models).call(models, function (v) {
+                _this6.store.models = _mapInstanceProperty(_context15 = _filterInstanceProperty(models).call(models, function (v) {
                   return !v.extend;
-                })).call(_context13, function (v) {
+                })).call(_context15, function (v) {
                   if (!v.disabled || !_Array$isArray(v.disabled)) {
                     v.disabled = [];
                   }
@@ -2309,25 +2348,25 @@ var form = {
 
                   return v;
                 });
-                _context15.next = 4;
-                return _this5.$nextTick();
+                _context17.next = 4;
+                return _this6.$nextTick();
 
               case 4:
-                tmp = _mapInstanceProperty(_context14 = _filterInstanceProperty(models).call(models, function (v) {
-                  return !!v.extend && _this5._models[v.extend] != undefined;
-                })).call(_context14, function (v) {
+                tmp = _mapInstanceProperty(_context16 = _filterInstanceProperty(models).call(models, function (v) {
+                  return !!v.extend && _this6._models[v.extend] != undefined;
+                })).call(_context16, function (v) {
                   if (v.extendResolve) {
-                    return v.extendResolve({}, _this5._models[v.extend], v);
+                    return v.extendResolve({}, _this6._models[v.extend], v);
                   } else {
-                    return _Object$assign({}, _this5._models[v.extend], v);
+                    return _Object$assign({}, _this6._models[v.extend], v);
                   }
                 });
 
-                (_this5$store$models = _this5.store.models).push.apply(_this5$store$models, _toConsumableArray(tmp));
+                (_this6$store$models = _this6.store.models).push.apply(_this6$store$models, _toConsumableArray(tmp));
 
               case 6:
               case "end":
-                return _context15.stop();
+                return _context17.stop();
             }
           }
         }, _callee2);
@@ -2342,19 +2381,19 @@ var form = {
       return this.store.model;
     },
     setData: function setData(data) {
-      var _context16,
-          _this6 = this;
+      var _context18,
+          _this7 = this;
 
-      _forEachInstanceProperty(_context16 = this.store.fields).call(_context16, function (field) {
+      _forEachInstanceProperty(_context18 = this.store.fields).call(_context18, function (field) {
         // 只根据field.field获取数据
         // dataform key 根据_mode_data 注释设置
-        _this6.$set(_this6.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.field), field.option));
+        _this7.$set(_this7.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.field, field.default), field.option));
       });
     },
     filterType: function filterType(type) {
-      var _context17;
+      var _context19;
 
-      return _includesInstanceProperty(_context17 = ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer', 'pick']).call(_context17, type) ? type : 'string';
+      return _includesInstanceProperty(_context19 = ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer', 'pick']).call(_context19, type) ? type : 'string';
     },
     getNotifyEngine: function getNotifyEngine(type) {
       switch (type) {
@@ -2366,131 +2405,131 @@ var form = {
       }
     },
     transform: function transform(params) {
-      var _this7 = this;
+      var _this8 = this;
 
       var tmp = _objectSpread$2({}, params);
 
       if (_Object$keys(tmp).length > 0) {
-        var _context18;
+        var _context20;
 
-        _forEachInstanceProperty(_context18 = this.autoSet).call(_context18, function (s) {
-          tmp[s.option.labelKey] = _this7.$refs[s.field].getLabel();
+        _forEachInstanceProperty(_context20 = this.autoSet).call(_context20, function (s) {
+          tmp[s.option.labelKey] = _this8.$refs[s.field].getLabel();
         });
       }
 
       return tmp;
     },
     request: function request() {
-      var _this8 = this;
+      var _this9 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3() {
-        var param, _context19, sub, _context20, ks, hkObj, response;
+        var param, _context21, sub, _context22, ks, hkObj, response;
 
-        return _regeneratorRuntime.wrap(function _callee3$(_context21) {
+        return _regeneratorRuntime.wrap(function _callee3$(_context23) {
           while (1) {
-            switch (_context21.prev = _context21.next) {
+            switch (_context23.prev = _context23.next) {
               case 0:
-                param = _this8._current_model.xhr.method == 'get' ? {
-                  params: _this8._model_data
+                param = _this9._current_model.xhr.method == 'get' ? {
+                  params: _this9._model_data
                 } : {
-                  payload: _this8._model_data
+                  payload: _this9._model_data
                 };
-                _context21.prev = 1;
+                _context23.prev = 1;
                 sub = ''; // put not include
                 // put include key to body
 
-                if (_includesInstanceProperty(_context19 = ['delete', 'patch']).call(_context19, _this8._current_model.xhr.method)) {
-                  ks = _filterInstanceProperty(_context20 = _this8.store.fields).call(_context20, function (field) {
+                if (_includesInstanceProperty(_context21 = ['delete', 'patch']).call(_context21, _this9._current_model.xhr.method)) {
+                  ks = _filterInstanceProperty(_context22 = _this9.store.fields).call(_context22, function (field) {
                     return field.key;
                   });
 
                   if (ks.length > 0) {
-                    sub = "/".concat(_this8.dataform[_this8._key]);
+                    sub = "/".concat(_this9.dataform[_this9._key]);
                   }
                 }
 
-                _this8.loading = true;
-                hkObj = Http.getEngine(_this8._current_model.xhr.httpKey ? _this8._current_model.xhr.httpKey : _this8.httpKey);
-                _context21.next = 8;
-                return hkObj.engine[_this8._current_model.xhr.method](_this8._current_model.xhr.url + sub, _this8.paramTransform(_this8.transform(param)));
+                _this9.loading = true;
+                hkObj = Http.getEngine(_this9._current_model.xhr.httpKey ? _this9._current_model.xhr.httpKey : _this9.httpKey);
+                _context23.next = 8;
+                return hkObj.engine[_this9._current_model.xhr.method](_this9._current_model.xhr.url + sub, _this9.paramTransform(_this9.transform(param)));
 
               case 8:
-                response = _context21.sent;
-                _this8.loading = false;
+                response = _context23.sent;
+                _this9.loading = false;
 
                 if (utils.http.responseOk(response)) {
-                  _this8.getNotifyEngine(_this8._current_model.xhr.notifyEngine).success(_this8._current_model.xhr.okMsg);
+                  _this9.getNotifyEngine(_this9._current_model.xhr.notifyEngine).success(_this9._current_model.xhr.okMsg);
 
-                  _this8.$emit('opearFinish', response);
+                  _this9.$emit('opearFinish', response);
 
-                  if (_this8._current_model.xhr.autoClose) {
-                    _this8.close();
+                  if (_this9._current_model.xhr.autoClose) {
+                    _this9.close();
                   }
                 } else {
-                  _this8.getNotifyEngine(_this8._current_model.xhr.notifyEngine).info(hkObj.errorMsgAdapter({
+                  _this9.getNotifyEngine(_this9._current_model.xhr.notifyEngine).info(hkObj.errorMsgAdapter({
                     response: response
                   }));
                 }
 
-                return _context21.abrupt("return", response);
+                return _context23.abrupt("return", response);
 
               case 14:
-                _context21.prev = 14;
-                _context21.t0 = _context21["catch"](1);
+                _context23.prev = 14;
+                _context23.t0 = _context23["catch"](1);
 
-                if (_context21.t0.response && _context21.t0.response.status == 422) {
-                  _this8.getNotifyEngine(_this8._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context21.t0));
+                if (_context23.t0.response && _context23.t0.response.status == 422) {
+                  _this9.getNotifyEngine(_this9._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context23.t0));
                 } else {
-                  _this8.getNotifyEngine(_this8._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context21.t0));
+                  _this9.getNotifyEngine(_this9._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context23.t0));
                 }
 
-                _this8.loading = false;
-                return _context21.abrupt("return", _context21.t0);
+                _this9.loading = false;
+                return _context23.abrupt("return", _context23.t0);
 
               case 19:
               case "end":
-                return _context21.stop();
+                return _context23.stop();
             }
           }
         }, _callee3, null, [[1, 14]]);
       }))();
     },
     okHandle: function okHandle() {
-      var _this9 = this;
+      var _this10 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee4() {
-        return _regeneratorRuntime.wrap(function _callee4$(_context22) {
+        return _regeneratorRuntime.wrap(function _callee4$(_context24) {
           while (1) {
-            switch (_context22.prev = _context22.next) {
+            switch (_context24.prev = _context24.next) {
               case 0:
-                _context22.next = 2;
-                return _this9.$refs.ob.validate();
+                _context24.next = 2;
+                return _this10.$refs.ob.validate();
 
               case 2:
-                if (_context22.sent) {
-                  _context22.next = 5;
+                if (_context24.sent) {
+                  _context24.next = 5;
                   break;
                 }
 
-                _this9.getNotifyEngine(_this9._current_model.xhr.notifyEngine).info("信息检测未通过请检查!");
+                _this10.getNotifyEngine(_this10._current_model.xhr.notifyEngine).info("信息检测未通过请检查!");
 
-                return _context22.abrupt("return");
+                return _context24.abrupt("return");
 
               case 5:
-                if (!_this9._has_xhr) {
-                  _context22.next = 17;
+                if (!_this10._has_xhr) {
+                  _context24.next = 17;
                   break;
                 }
 
-                if (!_this9._current_model.xhr.confirm) {
-                  _context22.next = 10;
+                if (!_this10._current_model.xhr.confirm) {
+                  _context24.next = 10;
                   break;
                 }
 
-                _this9.$confirm({
-                  title: _this9._current_model.xhr.confirmMsg ? _this9._current_model.xhr.confirmMsg : '确认?',
+                _this10.$confirm({
+                  title: _this10._current_model.xhr.confirmMsg ? _this10._current_model.xhr.confirmMsg : '确认?',
                   onOk: function onOk() {
-                    _this9.request();
+                    _this10.request();
                   },
                   onCancel: function onCancel() {//todo
                   },
@@ -2498,33 +2537,33 @@ var form = {
                   cancelText: '取消'
                 });
 
-                _context22.next = 15;
+                _context24.next = 15;
                 break;
 
               case 10:
-                _context22.t0 = _this9;
-                _context22.next = 13;
-                return _this9.request();
+                _context24.t0 = _this10;
+                _context24.next = 13;
+                return _this10.request();
 
               case 13:
-                _context22.t1 = _context22.sent;
+                _context24.t1 = _context24.sent;
 
-                _context22.t0.$emit.call(_context22.t0, 'opearFinish', _context22.t1);
+                _context24.t0.$emit.call(_context24.t0, 'opearFinish', _context24.t1);
 
               case 15:
-                _context22.next = 19;
+                _context24.next = 19;
                 break;
 
               case 17:
-                if (_this9._current_model.xhr.autoClose) {
-                  _this9.close();
+                if (_this10._current_model.xhr.autoClose) {
+                  _this10.close();
                 }
 
-                _this9.$emit('done', _this9._model_data);
+                _this10.$emit('done', _this10._model_data);
 
               case 19:
               case "end":
-                return _context22.stop();
+                return _context24.stop();
             }
           }
         }, _callee4);
@@ -2586,11 +2625,11 @@ var form = {
       }
     },
     clean: function clean() {
-      var _context23,
-          _this10 = this;
+      var _context25,
+          _this11 = this;
 
-      _forEachInstanceProperty(_context23 = this.store.fields).call(_context23, function (field) {
-        _this10.$set(_this10.dataform, field.form_key, field.default);
+      _forEachInstanceProperty(_context25 = this.store.fields).call(_context25, function (field) {
+        _this11.$set(_this11.dataform, field.form_key, field.default);
       });
     }
   }

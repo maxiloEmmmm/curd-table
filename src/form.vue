@@ -6,20 +6,22 @@
         <span slot="title">{{ _model_title }}</span>
         <a-spin :spinning="loading">
             <ValidationObserver ref="ob">
-                <ysz-list :no-line="false" :row="true" :group="_model_layout_group">
-                    <ValidationProvider style="width:100%" :key="field.field" v-for="(field) in _fields" :name="field.title" :rules="field.validate" v-slot="{ errors, validate }">
-                        <ysz-list-item-top>
-                            <ysz-list-item slot="top">
-                                <span slot="left">{{ `${field.title}${field.type == 'code' ? `(${field.option.language})` : ''}` }}</span>
-                                <a-badge v-show="errors.length" status="warning" :text="errors[0]" />
-                            </ysz-list-item>
+                <template v-for="layout in _layout">
+                    <ysz-list :no-line="false" :row="true" :group="layout.col" :key="layout.key">
+                        <ValidationProvider style="width:100%" :key="field.field" v-for="(field) in layout.fields" :name="field.title" :rules="field.validate" v-slot="{ errors, validate }">
                             <ysz-list-item-top>
-                                <tool-form-item slot="top" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="true" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key)}" :item="dataform"></tool-form-item>
-                                <tw-alert style="text-align:left" mini left v-if="field.help_msg" :title="field.help_msg" type="info" show-icon />
+                                <ysz-list-item slot="top">
+                                    <span slot="left">{{ `${field.title}${field.type == 'code' ? `(${field.option.language})` : ''}` }}</span>
+                                    <a-badge v-show="errors.length" status="warning" :text="errors[0]" />
+                                </ysz-list-item>
+                                <ysz-list-item-top>
+                                    <tool-form-item slot="top" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="true" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key)}" :item="dataform"></tool-form-item>
+                                    <tw-alert style="text-align:left" mini left v-if="field.help_msg" :title="field.help_msg" type="info" show-icon />
+                                </ysz-list-item-top>
                             </ysz-list-item-top>
-                        </ysz-list-item-top>
-                    </ValidationProvider>
-                </ysz-list>
+                        </ValidationProvider>
+                    </ysz-list>
+                </template>
             </ValidationObserver>
         </a-spin>
         <ysz-list-item slot="footer" :left="true">
@@ -65,8 +67,26 @@ export default {
             default: r => r
         },
         httpKey: {type: String, default: 'default'},
+        layout: {
+            type: Array,
+            default: () => []
+        }
     },
     computed: {
+        _layout(){
+            if(this.layout.length == 0) {
+                return [{
+                    key: "default",
+                    col: this._model_layout_group,
+                    fields: this._fields
+                }]
+            }else {
+                return this.layout.map((lay, index) => {
+                    lay.fields = this._fields.filter(field => (!field.layout_key && index == 0) || (field.layout_key == lay.key))
+                    return lay
+                })
+            }
+        },
         _has_option_remote_load(){
             return this.store.fields.some(f => !!f.meta.fetchUrl)
         },
@@ -212,7 +232,8 @@ export default {
                     key: v.key === undefined ? false : v.key,
                     meta: v,
                     form_key: fk,
-                    form_value_key: v.form_value_key ? v.form_value_key : v.field
+                    form_value_key: v.form_value_key ? v.form_value_key : v.field,
+                    layout_key: v.layout_key
                 })
             });
 
