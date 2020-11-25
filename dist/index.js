@@ -3589,7 +3589,7 @@ var code = {
       if (this.handler) {
         if (val != this.handler.getValue()) {
           var scrollInfo = this.handler.getScrollInfo();
-          this.cminstance.setValue(newVal);
+          this.cminstance.setValue(val);
           this.handler.scrollTo(scrollInfo.left, scrollInfo.top);
         }
       }
