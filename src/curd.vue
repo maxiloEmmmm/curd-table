@@ -237,7 +237,8 @@ export default {
                     align: 'center',
                     tdSlot: '__action',
                     customRender: (text, item, index) =>
-                        this._dispatchRow.map((row, _i) => 
+                        <a-space>
+                        {this._dispatchRow.map((row, _i) => 
                             <a-button 
                                 size="small"
                                 v-show={!row.filter || row.filter(item)}
@@ -248,7 +249,7 @@ export default {
                                 }}
                                 vOn:click={e => this.onRowAction(row, item, index)}>
                                 {row.title}</a-button>
-                    ),
+                        )}</a-space>
                 })
             }
 

@@ -28,7 +28,6 @@ import CodeMirror from 'codemirror';
 import 'codemirror/addon/hint/show-hint';
 import 'codemirror/addon/hint/anyword-hint';
 import 'codemirror/addon/edit/matchbrackets';
-import 'js-beautify';
 import 'ant-design-vue/es/notification/style';
 import _notification from 'ant-design-vue/es/notification';
 import 'ant-design-vue/es/message/style';
@@ -59,6 +58,8 @@ import 'ant-design-vue/es/config-provider/style';
 import _ConfigProvider from 'ant-design-vue/es/config-provider';
 import 'ant-design-vue/es/button/style';
 import _Button from 'ant-design-vue/es/button';
+import 'ant-design-vue/es/space/style';
+import _Space from 'ant-design-vue/es/space';
 import mvyu from 'maxilo-vue-ysz-ui';
 import 'maxilo-vue-ysz-ui/lib/ysz-ui.css';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
@@ -1096,7 +1097,7 @@ var curd = {
           customRender: function customRender(text, item, index) {
             var _context23;
 
-            return _mapInstanceProperty(_context23 = _this5._dispatchRow).call(_context23, function (row, _i) {
+            return h("a-space", [_mapInstanceProperty(_context23 = _this5._dispatchRow).call(_context23, function (row, _i) {
               return h("a-button", {
                 "attrs": {
                   "size": "small"
@@ -1116,7 +1117,7 @@ var curd = {
                   }
                 }
               }, [row.title]);
-            });
+            })]);
           }
         });
       }
@@ -3274,6 +3275,7 @@ var pick = {
         "start": true
       }
     }, [_c('a-pagination', {
+      staticClass: "pc",
       attrs: {
         "slot": "left",
         "size": "small",
@@ -3870,6 +3872,7 @@ var components = [curd, formItem, select, state, form, code, map, tag, pick];
 
 var ant = {
   install: function install(vue) {
+    vue.use(_Space);
     vue.use(_Button);
     vue.use(_ConfigProvider);
     vue.use(_Input);

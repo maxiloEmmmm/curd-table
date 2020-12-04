@@ -5,7 +5,6 @@ import 'codemirror/addon/hint/show-hint'
 import 'codemirror/addon/hint/anyword-hint'
 import 'codemirror/addon/edit/matchbrackets'
 
-import jsBeautify from 'js-beautify'
 export default {
     name: "toolCode",
     props: {

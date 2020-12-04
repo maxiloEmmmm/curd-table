@@ -15,7 +15,7 @@
             </ysz-list-item>
             <a-divider size="small" style="margin: 12px 0 9px"></a-divider>
             <ysz-list-item :start="true">
-                <a-pagination size="small" :hideOnSinglePage="true" :pageSize="pageSize" v-model="current" :total="_total" show-less-items slot="left" />
+                <a-pagination class="pc" size="small" :hideOnSinglePage="true" :pageSize="pageSize" v-model="current" :total="_total" show-less-items slot="left" />
                 <ysz-list :row="true" :no-line="false" :group="group">
                     <a-tag :color="item.value === pick ? '#f50' : null" @click="() => onClick(item)" v-for="item in _views" :key="item.value">
                         {{ item.label }}
@@ -28,7 +28,7 @@
 </template>
 
 <style lang="scss" scoped>
-    .ant-pagination {display: flex; flex-direction: column;
+    .ant-pagination.pc {display: flex; flex-direction: column;
         &::v-deep li {margin-bottom: 8px; margin-right: 0;}
     }
 </style>

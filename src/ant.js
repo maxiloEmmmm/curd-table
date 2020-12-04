@@ -14,10 +14,12 @@ import {
     Switch,
     Pagination,
     Badge,
+    Space,
 } from 'ant-design-vue'
 
 export default {
     install: function(vue){
+        vue.use(Space)
         vue.use(Button)
         vue.use(ConfigProvider)
         vue.use(Input)

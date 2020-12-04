@@ -1,6 +1,6 @@
 {
   "name": "antd-vue-tool",
-  "version": "1.0.11-beta9",
+  "version": "1.0.11-beta10",
   "description": "vue antd tool",
   "main": "./dist/index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   "homepage": "https://github.com/maxiloEmmmm/vue-tool#readme",
   "dependencies": {
     "@rollup/plugin-commonjs": "^14.0.0",
-    "ant-design-vue": "^1.6.4",
+    "ant-design-vue": "^1.6.5",
     "codemirror": "^5.56.0",
     "dayjs": "^1.8.33",
     "js-beautify": "^1.11.0",
