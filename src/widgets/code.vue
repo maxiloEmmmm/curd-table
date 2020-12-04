@@ -22,7 +22,7 @@ export default {
             if(this.handler) {
                 if(val != this.handler.getValue()) {
                     const scrollInfo = this.handler.getScrollInfo()
-                    this.cminstance.setValue(val)
+                    this.handler.setValue(val)
                     this.handler.scrollTo(scrollInfo.left, scrollInfo.top)
                 }
             }
