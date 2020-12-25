@@ -37,7 +37,7 @@ export default {
                         ? <div style="flex: 0 0 auto">{$scopedSlots.left()}</div>
                         : null}
                     <div style="flex: 1 1 auto">
-                        <ysz-fetch-wrap engine={this._httpEngine} ref="datawrap" url={this._fetchUrl} errHandler={this.fetchErr} handler={this.render} page={this.store.page} pageKey="page" size={this.store.page_size}>
+                        <ysz-fetch-wrap engine={this._httpEngine} ref="datawrap" url={this._fetchUrl} errHandler={this.fetchErr} handler={this.render} page={this.store.page} pageKey="page" pageSizeKey={this.pageSizeKey} size={this.store.page_size}>
                             <a-table class="curd-core-table" rowKey={this.store.rowKey} size="small" vOn:change={(page, sorter, filter) => this.pageRender(page, sorter, filter)} dataSource={this._tdata} columns={this._columns} bordered={true} pagination={this.pagination}></a-table>
                         </ysz-fetch-wrap>
                     </div>
@@ -66,6 +66,8 @@ export default {
         dataSource: {type: Array, default: () => []},
         httpKey: {type: String, default: 'default'},
         preview: {type: Boolean, default: false},
+        card: {type: Boolean, default: false},
+        pageSizeKey: {type: String, default: "page_suze"},
         layout: {
             type: Array,
             default: () => []
@@ -195,7 +197,7 @@ export default {
                         children: h('tool-form-item', {
                             props: {
                                 // editing: item[this.store.colEditKey][c.field], 
-                                editing: c.edit.enable,
+                                editing: !this.preview && c.edit.enable,
                                 value: utils.get(item, c.field), 
                                 option: c.option, 
                                 type: c.type,
@@ -235,7 +237,6 @@ export default {
                 c.push({
                     title: '操作',
                     align: 'center',
-                    tdSlot: '__action',
                     customRender: (text, item, index) =>
                         <a-space>
                         {this._dispatchRow.map((row, _i) => 
@@ -251,6 +252,21 @@ export default {
                                 {row.title}</a-button>
                         )}</a-space>
                 })
+            }
+
+            if(this.card) {
+                return [{
+                    title: '数据',
+                    align: 'center',
+                    customRender: (text, item, index) => {
+                        return <ysz-list>
+                            {c.map(col => <ysz-list-item>
+                                <span style="font-size: 1rem; font-weight: 400;" slot="left">{col.title}</span>
+                                {col.customRender(text, item, index).children}
+                            </ysz-list-item>)}
+                        </ysz-list>
+                    }
+                }]
             }
 
             return c

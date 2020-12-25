@@ -229,9 +229,12 @@ const http = {
     }
 }
 
-import dayjs from "dayjs"
-const getTypeDefault = function(type, _d, optiom) {
+import moment from "moment"
+const getTypeDefault = function(type, _d, option) {
     switch(type){
+        case 'datetimepick': {
+            return _d ? moment(_d) : moment()
+        }break;
         case 'customer': {
             return _d
         }break;
@@ -239,27 +242,17 @@ const getTypeDefault = function(type, _d, optiom) {
             return getType(_d) == 'Object' ? _d : {}
         }break;
         case 'date': {
-            return _d === undefined ? dayjs() : dayjs(_d)
+            return _d === undefined ? moment() : moment(_d)
         }break;
         case 'switch': {
             return !!_d
         }break;
         case 'radio': {
-            if(option.list && Array.isArray(option.list) && option.list.length > 0) {
-                let index = option.list.findIndex(v => v.value === _d)
-
-                if(index === -1) {
-                    return option.list[0].value
-                }else {
-                    return option.list[index].value
-                }
-            }else {
-                return ''
-            }
+            return _d
         }break;
         case 'tag':
-        case 'check': {
-            return Array.isArray(_d) ? _d : []
+        case 'checkbox': {
+            return _d ? (Array.isArray(_d) ? _d : [_d]) : []
         }break;
         case 'param': {
             return Array.isArray(_d) ? _d : []
@@ -268,7 +261,7 @@ const getTypeDefault = function(type, _d, optiom) {
             return Array.isArray(_d) ? _d : (getType(_d) == 'String' && !!_d ? [_d] : [])
         }break;
         case 'number': {
-            return _d ? number(_d) : 0
+            return _d ? number(_d) : null
         }break;
         case 'select': {
             return _d === undefined || _d === null ? '' : _d

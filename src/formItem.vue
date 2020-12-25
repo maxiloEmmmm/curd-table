@@ -1,7 +1,7 @@
 <template>
     <div style="width:100%; text-align: left">
         <template v-if="editing">
-            <component :is="_option.textarea ? 'a-textarea' : 'a-input'" style="width:100%" size="small" v-if="type == 'string'" :value="value" :disabled="disabled" @change="onChange" ref="input"></component>
+            <component allow-clear :is="_option.textarea ? 'a-textarea' : 'a-input'" style="width:100%" size="small" v-if="type == 'string'" :value="value" :disabled="disabled" @change="onChange" ref="input"></component>
             <tool-select size="small" :value="value" @change="onChange" 
                 :options="_option.selectOptions" v-else-if="type == 'select'" 
                 :disabled="disabled" 
@@ -21,6 +21,9 @@
             <a-switch :checked-children="_option.checkText" :un-checked-children="_option.unCheckText" :disabled="disabled" ref="input" size="small" v-else-if="type == 'switch'" :checked="value" @change="onChange"></a-switch>
             <a-input-number style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'number'" :value="value" @change="onChange"></a-input-number>
             <!-- <emotion :disabled="disabled" v-else-if="type == 'component'" style="width:100%" @click="lanuchComponent"> 请选择</emotion> -->
+            <tool-radio :solid="_option.solid" style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'radio'" :value="value" @change="onChange" :options="_option.radioOptions"></tool-radio>
+            <tool-datetimepick :showTime="_option.showTime" :format="_option.format" style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'datetimepick'" :value="value" @change="onChange" :options="_option.radioOptions"></tool-datetimepick>
+            <tool-checkbox style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'checkbox'" :value="value" @change="onChange" :options="_option.checkboxOptions"></tool-checkbox>
             <tool-code :language="_option.language" style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'code'" :value="value" @change="onChange"></tool-code>
             <tool-map style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'map'" :value="value" @change="onChange"></tool-map>
             <tool-tag style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'tag'" :value="value" @change="onChange"></tool-tag>
@@ -38,6 +41,9 @@
                         <tw-emotion slot="left">{{ v.key }}</tw-emotion>{{ v.value }}
                     </ysz-list-item>
                 </ysz-list>
+            </span>
+            <span v-else-if="_map_checkbox">
+                <span v-for="(label, index) in _label" :key="index">{{ label }}{{ index == _label.length-1 ? "" : "," }}</span>
             </span>
             <span v-else-if="_file_view">
                 <ysz-list :no-line="true">
@@ -79,8 +85,12 @@ export default {
             type: String,
             default: 'string',
             validator(value){
-                return ['string', 'select', 'number', 'switch', 'code', 'map', 'tag', 'customer', 'pick'].includes(value)
+                return ['datetimepick', 'radio', "checkbox", 'string', 'select', 'number', 'switch', 'code', 'map', 'tag', 'customer', 'pick'].includes(value)
             }
+        },
+        emptyLabel: {
+            type: String,
+            default: ""
         },
         value: {
             default: '',
@@ -134,6 +144,14 @@ export default {
                         option.language = "javascript"
                     }
                 }break;
+                case 'datetimepick': {
+                    if(option.format === undefined) {
+                        option.format = "YYYY-MM-DD HH:mm:ss"
+                    }
+                    if(option.showTime === undefined) {
+                        option.showTime = false
+                    }
+                }break
                 case 'select': {
                     if(option.selectOptions === undefined || !Array.isArray(option.selectOptions)) {
                         option.selectOptions = utils.getType(option.selectOptions) == 'Function'
@@ -145,7 +163,7 @@ export default {
                     }
 
                     if(option.autoFillEmpty) {
-                        option.selectOptions = [{label: "请选择", value: ""}, ...option.selectOptions]
+                        option.selectOptions = [{label: option.defaultOptionLabel ? option.defaultOptionLabel : "全部", value: option.defaultOptionValue ? option.defaultOptionValue : ""}, ...option.selectOptions]
                     }
 
                     if(option.selectFilter === undefined || utils.getType(option.selectFilter) != 'Function') {
@@ -173,12 +191,33 @@ export default {
                     }
 
                     if(option.autoFillEmpty) {
-                        option.pickOptions = [{label: "请选择", value: ""}, ...option.pickOptions]
+                        option.pickOptions = [{label: option.defaultOptionLabel ? option.defaultOptionLabel : "全部", value: option.defaultOptionValue ? option.defaultOptionValue : ""}, ...option.pickOptions]
                     }
                     if(!option.searchKey) {
-                        option.searchKey = []
+                        option.searchKey = ["label"]
                     }
                 }break;
+                case "radio": {
+                    if(option.radioOptions === undefined || !Array.isArray(option.radioOptions)) {
+                        option.radioOptions = utils.getType(option.radioOptions) == 'Function'
+                                ? option.radioOptions(this.item) : []
+                    }
+                    if(option.solid === undefined) {
+                        option.solid = false
+                    }
+                    if(option.autoFillEmpty === undefined) {
+                        option.autoFillEmpty = true
+                    }
+                    if(option.autoFillEmpty) {
+                        option.radioOptions = [{label: option.defaultOptionLabel ? option.defaultOptionLabel : "全部", value: option.defaultOptionValue ? option.defaultOptionValue : ""}, ...option.radioOptions]
+                    }
+                };break
+                case "checkbox": {
+                    if(option.checkboxOptions === undefined || !Array.isArray(option.checkboxOptions)) {
+                        option.checkboxOptions = utils.getType(option.checkboxOptions) == 'Function'
+                                ? option.checkboxOptions(this.item) : []
+                    }
+                };break
                 case 'switch': {
                     if(option.checkText === undefined) {
                         option.checkText = '开'
@@ -194,7 +233,10 @@ export default {
             return option
         },
         _normal_view(){
-            return ['string', 'date', 'check', 'radio', 'number', 'select', 'pick'].includes(this.type)
+            return ['datetimepick', 'string', 'date', 'check', 'radio', 'number', 'select', 'pick'].includes(this.type)
+        },
+        _map_checkbox(){
+            return this.type == 'checkbox'
         },
         _map_view(){
             return this.type == 'map'
@@ -219,7 +261,7 @@ export default {
                 case 'select': {
                     let option = this._option.selectOptions.filter(r => r.value === this.value)[0]
                     if(!option) {
-                        return ""
+                        return this.emptyLabel
                     }
 
                     return this._option.selectLabel
@@ -229,13 +271,39 @@ export default {
                 case 'pick': {
                     let option = this._option.pickOptions.filter(r => r.value === this.value)[0]
                     if(!option) {
-                        return ""
+                        return this.emptyLabel
                     }
 
                     return option.label
                 }break;
+                case 'radio': {
+                    let option = this._option.radioOptions.filter(r => r.value === this.value)[0]
+                    if(!option) {
+                        return this.emptyLabel
+                    }
+
+                    return option.label
+                }break;
+                case 'checkbox': {
+                    if(Array.isArray(this.value)) {
+                        let options = this._option.checkboxOptions.filter(r => this.value.includes(r.value)).map(r => r.label)
+                        if(options.length == 0) {
+                            return [this.emptyLabel]
+                        }
+                        return options
+                    }else {
+                        let option = this._option.checkboxOptions.filter(r => r.value === this.value)[0]
+                        if(!option) {
+                            return [this.emptyLabel]
+                        }
+                        return [option.label]
+                    }
+                }break;
+                case 'datetimepick': {
+                    return this.value.format(this._option.format)
+                }break;
                 default: {
-                    return this.value
+                    return this.value ? this.value : this.emptyLabel
                 }
             }
         }
@@ -244,9 +312,7 @@ export default {
         focus(){
             this.$refs.input.focus && this.$refs.input.focus()
             switch(this.type) {
-                case 'string': {
-                    this.$refs.input.$el.select()
-                }break;
+                case 'string':
                 case 'number': {
                     this.$refs.input.$el.querySelector('input').select()
                 }break

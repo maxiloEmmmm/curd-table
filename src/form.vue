@@ -1,34 +1,60 @@
 <template>
-    <a-modal
+    <component :is="_box"
         width="80%"
         :closable="false"
         :visible="show">
-        <span slot="title">{{ _model_title }}</span>
+        <ysz-list-item slot="title" :left="true">
+            <span slot="left">{{ _model_title }}</span>
+            <a-icon type="setting" @click="onViewShow" v-if="!_edit" style="font-size: 1.2rem;"/>
+        </ysz-list-item>
         <a-spin :spinning="loading">
             <ValidationObserver ref="ob">
-                <template v-for="layout in _layout">
-                    <ysz-list :no-line="false" :row="true" :group="layout.col" :key="layout.key">
+                <ysz-module-widget v-for="layout in _layout" :key="layout.key" :title="layout.title">
+                    <ysz-list :no-p="noP" :no-line="false" :row="true" :group="view && !viewShow ? viewCol : layout.col" :key="layout.key">
                         <ValidationProvider style="width:100%" :key="field.field" v-for="(field) in layout.fields" :name="field.title" :rules="field.validate" v-slot="{ errors, validate }">
-                            <ysz-list-item-top>
+                            <ysz-list-item-top :no-p="noP">
                                 <ysz-list-item slot="top">
-                                    <span slot="left">{{ `${field.title}${field.type == 'code' ? `(${field.option.language})` : ''}` }}</span>
+                                    <span slot="left" style="font-size: 1rem; font-weight: 400;">{{ `${field.title}${field.type == 'code' ? `(${field.option.language})` : ''}` }}</span>
                                     <a-badge v-show="errors.length" status="warning" :text="errors[0]" />
                                 </ysz-list-item>
-                                <ysz-list-item-top>
-                                    <tool-form-item slot="top" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="true" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key)}" :item="dataform"></tool-form-item>
+                                <ysz-list-item-top :no-p="noP" @click="() => onItemClick(field)">
+                                    <ysz-list-item no-p left slot="top">
+                                        <tool-form-item slot="left" :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="_edit && field.editing && !singleRequest" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
+                                        <a-icon type="right" v-if="field.editing && singleRequest"/>
+                                    </ysz-list-item>
                                     <tw-alert style="text-align:left" mini left v-if="field.help_msg" :title="field.help_msg" type="info" show-icon />
                                 </ysz-list-item-top>
                             </ysz-list-item-top>
                         </ValidationProvider>
                     </ysz-list>
-                </template>
+                </ysz-module-widget>
             </ValidationObserver>
         </a-spin>
-        <ysz-list-item slot="footer" :left="true">
-            <a-button @click="cancleHandle">取消</a-button>
-            <a-button type="primary" @click="okHandle">提交</a-button>
+        
+        
+        <ysz-list-item slot="footer" :left="true" v-if="_edit">
+            <a-space>
+                <a-button @click="cancleHandle" v-if="!view">取消</a-button>
+                <a-button type="primary" @click="okHandle">提交</a-button>
+            </a-space>
         </ysz-list-item>
-    </a-modal>
+        <a-drawer
+            placement="right"
+            width="100%"
+            :closable="true"
+            :visible="singleShow"
+            @close="onSingleClose"
+            >
+            <a-button slot="title" type="primary" @click="onSingleFinish">完成</a-button>
+            <ysz-module-widget :title="_singleTitle">
+                <ValidationObserver ref="singleOb" v-if="singleField">
+                    <ValidationProvider style="width:100%" :name="_singleTitle" :rules="singleField.validate" v-slot="{ errors, validate }">
+                        <tool-form-item ref="singleFormItem" slot="top" :disabled="_model_disabled.includes(singleField.field)" editing :value="dataform[singleField.form_key]" :option="singleField.option" :type="singleField.type" @change="(value) => {validate(value), onChange(value, singleField.form_key, singleField.on.change)}" :item="dataform"></tool-form-item>
+                    </ValidationProvider>
+                </ValidationObserver>
+            </ysz-module-widget>
+        </a-drawer>
+    </component>
 </template>
 
 <script>
@@ -39,6 +65,8 @@ export default {
     name: 'toolForm',
     data(){
         return {
+            singleShow: false,
+            singleField: null,
             dataform: {},
             store: {
                 fields: [],
@@ -48,11 +76,36 @@ export default {
                 progress: {}
             },
             _show: [],
+            viewShow: false,
             loading: false
         }
     },
     props: {
+        view: {
+            type: Boolean,
+            default:false
+        },
+        viewCol: {
+            type: Number,
+            default: 3
+        },
+        singleRequest: {
+            type: Boolean,
+            default:false
+        },
+        singleRequestAloneField: {
+            type: Boolean,
+            default: true
+        },
+        viewEdit: {
+            type: Boolean,
+            default:false
+        },
         show: {
+            type: Boolean,
+            default:false
+        },
+        noP: {
             type: Boolean,
             default:false
         },
@@ -70,9 +123,23 @@ export default {
         layout: {
             type: Array,
             default: () => []
+        },
+        validateJustAlert: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
+        _singleTitle(){
+            return this.singleField ? this.singleField.title : ""
+        },
+        _edit(){
+            // 平面模式且(展示或编辑模式)或非阅览模式
+            return (this.view && (this.viewShow || this.viewEdit)) || !this.view
+        },
+        _box(){
+            return !this.view ? "a-modal" : "div"
+        },
         _layout(){
             if(this.layout.length == 0) {
                 return [{
@@ -135,13 +202,14 @@ export default {
             // dataform 只存储path => value
             // _model_data: {a: {b: 1}}
             // dataform: {'a.b': 1}
+            const fields = this.singleRequest && this.singleRequestAloneField && this.singleField ? [this.singleField] : this.store.fields
             if(this._hasModel) {
                 if(Array.isArray(this._current_model.pick) && this._current_model.pick.length != 0) {
                     let keys = utils.getArrayFunction(this._current_model.pick, [this._current_model, this.dataform])
                     let tmp = {}
-                    this.store.fields.forEach(field => {
+                    fields.forEach(field => {
                         if(keys.includes(field.form_key)) {
-                            utils.set(tmp, field.form_key, this.dataform[field.form_key])
+                            utils.set(tmp, field.form_key, this.filterFormat(field, this.dataform[field.form_key]))
                         }
                     })
                     return tmp
@@ -149,9 +217,9 @@ export default {
                     let omit = utils.getArrayFunction(this._current_model.omit, [this._current_model, this.dataform])
                     let tmp = {}
                     
-                    this.store.fields.forEach(field => {
+                    fields.forEach(field => {
                         if(!omit.includes(field.form_key)) {
-                            utils.set(tmp, field.form_key, this.dataform[field.form_key])
+                            utils.set(tmp, field.form_key, this.filterFormat(field, this.dataform[field.form_key]))
                         }
                     })
                     return tmp
@@ -181,8 +249,39 @@ export default {
         }
     },
     methods: {
-        onChange(value, field){
+        async onSingleFinish(){
+            if(!await this.$refs.singleOb.validate()) {
+                if(!this.validateJustAlert) {
+                    return
+                }else {
+                    this.getNotifyEngine(this._current_model.xhr.notifyEngine).info("信息检测未通过请检查!")
+                }
+            }
+            await this.do()
+        },
+        onSingleClose(){
+            this.singleShow = false
+            this.singleField = null
+        },
+        onItemClick(field){
+            if(this.singleRequest && field.editing) {
+                this.singleField = field
+                this.singleShow = true
+                this.$nextTick(() => {
+                    this.$refs.singleFormItem.focus()
+                })
+            }
+        },
+        filterFormat(field, v){
+            if(field.type == "datetimepick") {
+                return v.format(field.option.format)
+            }else {
+                return v
+            }
+        },
+        onChange(value, field, cb){
             this.$set(this.dataform, field, value)
+            cb && cb(value)
         },
         upload(file, field){
             let fd = new FormData()
@@ -225,6 +324,7 @@ export default {
                     type,
                     title: v.title ? v.title : '未命名字段',
                     field: v.field,
+                    editing: v.editing === undefined ? true : false,
                     default: _default,
                     option,
                     validate: v.validate ? v.validate : '',
@@ -233,7 +333,11 @@ export default {
                     meta: v,
                     form_key: fk,
                     form_value_key: v.form_value_key ? v.form_value_key : v.field,
-                    layout_key: v.layout_key
+                    layout_key: v.layout_key,
+                    placeholder: v.placeholder ? v.placeholder : "",
+                    on: {
+                        change: v.onChange ? v.onChange : null
+                    }
                 })
             });
 
@@ -294,7 +398,7 @@ export default {
             })
         },
         filterType(type){
-            return ['string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer', 'pick'].includes(type) ? type : 'string'
+            return ["datetimepick", "checkbox", 'radio', 'string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer', 'pick'].includes(type) ? type : 'string'
         },
         getNotifyEngine(type) {
             switch(type) {
@@ -304,8 +408,9 @@ export default {
                 }
             }
         },
-        transform(params){
+        transform(params, method){
             let tmp = {...params}
+            // auto set
             if(Object.keys(tmp).length > 0) {
                 this.autoSet.forEach(s => {
                     tmp[s.option.labelKey] = this.$refs[s.field].getLabel()
@@ -354,12 +459,7 @@ export default {
                 return error
             }
         },
-        async okHandle(){
-            if(!await this.$refs.ob.validate()) {
-                this.getNotifyEngine(this._current_model.xhr.notifyEngine).info("信息检测未通过请检查!")
-                return
-            }
-
+        async do(){
             if(this._has_xhr) {
                 if(this._current_model.xhr.confirm) {
                     this.$confirm({
@@ -377,17 +477,33 @@ export default {
                     this.$emit('opearFinish', await this.request())
                 }
             }else {
-                if(this._current_model.xhr.autoClose) {
-                    this.close()
-                }
                 this.$emit('done', this._model_data)
             }
         },
+        async okHandle(){
+            if(!await this.$refs.ob.validate()) {
+                this.getNotifyEngine(this._current_model.xhr.notifyEngine).info("信息检测未通过请检查!")
+                if(!this.validateJustAlert) {
+                    return
+                }
+            }
+
+            await this.do()
+            if(this._current_model.xhr.autoClose) {
+                this.cancleHandle()
+            }
+        },
         cancleHandle(){
-            this.close()
+            !this.view ? this.close() : this.onViewHidden()
         },
         close(){
             this.$emit('update:show', false)
+        },
+        onViewShow(){
+            this.viewShow = true
+        },
+        onViewHidden(){
+            this.viewShow = false
         },
         getEmpty(type){
             switch(type){
