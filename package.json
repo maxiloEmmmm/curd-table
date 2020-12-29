@@ -1,6 +1,6 @@
 {
   "name": "antd-vue-tool",
-  "version": "1.0.11-beta13",
+  "version": "1.0.11-beta14",
   "description": "vue antd tool",
   "main": "./dist/index.js",
   "scripts": {
@@ -30,7 +30,8 @@
     "js-beautify": "^1.11.0",
     "vee-validate": "^3.3.9",
     "vue": "^2.6.11",
-    "@babel/runtime-corejs3": "^7.11.2"
+    "@babel/runtime-corejs3": "^7.11.2",
+    "maxilo-vue-ysz-ui": "^0.0.15-beta8"
   },
   "devDependencies": {
     "@babel/core": "^7.11.1",
@@ -47,7 +48,6 @@
     "cssnano": "^4.1.10",
     "indexof": "^0.0.1",
     "less": "^3.12.2",
-    "maxilo-vue-ysz-ui": "^0.0.15-beta8",
     "rollup": "^2.23.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-flow-no-whitespace": "^1.0.0",
