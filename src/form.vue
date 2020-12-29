@@ -12,15 +12,15 @@
                 <ysz-module-widget v-for="layout in _layout" :key="layout.key" :title="layout.title">
                     <ysz-list :no-p="noP" :no-line="false" :row="true" :group="view && !viewShow ? viewCol : layout.col" :key="layout.key">
                         <ValidationProvider style="width:100%" :key="field.field" v-for="(field) in layout.fields" :name="field.title" :rules="field.validate" v-slot="{ errors, validate }">
-                            <ysz-list-item-top :no-p="noP">
+                            <ysz-list-item-top>
                                 <ysz-list-item slot="top">
                                     <span slot="left" style="font-size: 1rem; font-weight: 400;">{{ `${field.title}${field.type == 'code' ? `(${field.option.language})` : ''}` }}</span>
-                                    <a-badge v-show="errors.length" status="warning" :text="errors[0]" />
+                                    <a-badge style="border-bottom: 1px solid #faad14;" v-show="errors.length" status="warning" :text="errors[0]" />
                                 </ysz-list-item>
                                 <ysz-list-item-top :no-p="noP" @click="() => onItemClick(field)">
-                                    <ysz-list-item no-p left slot="top">
+                                    <ysz-list-item no-p left slot="top" :style="`cursor:${field.editing && singleRequest ? 'pointer' : 'default'}`">
                                         <tool-form-item slot="left" :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="_edit && field.editing && !singleRequest" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
-                                        <a-icon type="right" v-if="field.editing && singleRequest"/>
+                                        <a-icon type="right" v-if="field.editing && singleRequest" style="color:#aaa"/>
                                     </ysz-list-item>
                                     <tw-alert style="text-align:left" mini left v-if="field.help_msg" :title="field.help_msg" type="info" show-icon />
                                 </ysz-list-item-top>
@@ -32,7 +32,7 @@
         </a-spin>
         
         
-        <ysz-list-item slot="footer" :left="true" v-if="_edit">
+        <ysz-list-item slot="footer" :left="true" v-if="_edit && !this.singleRequest">
             <a-space>
                 <a-button @click="cancleHandle" v-if="!view">取消</a-button>
                 <a-button type="primary" @click="okHandle">提交</a-button>
@@ -390,12 +390,17 @@ export default {
         getModel(){
             return this.store.model
         },
-        setData(data){
+        setData(data, validate = false){
             this.store.fields.forEach(field => {
                 // 只根据field.field获取数据
                 // dataform key 根据_mode_data 注释设置
                 this.$set(this.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.field, field.default), field.option))
             })
+            if(validate) {
+                this.$nextTick(() => {
+                    this.$refs.ob.validate()
+                })
+            }
         },
         filterType(type){
             return ["datetimepick", "checkbox", 'radio', 'string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer', 'pick'].includes(type) ? type : 'string'

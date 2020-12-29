@@ -424,4 +424,9 @@ export default {
     getRender,
     bytesToSize,
     getArrayFunction,
+    dispatchEvent: (en) => {
+        const e = document.createEvent('Event')
+        e.initEvent(en, true, true)
+        window.dispatchEvent(e)
+    }
 }

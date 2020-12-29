@@ -2627,10 +2627,10 @@ make-dir@^2.1.0:
     pify "^4.0.1"
     semver "^5.6.0"
 
-maxilo-vue-ysz-ui@^0.0.15-beta7:
-  version "0.0.15-beta7"
-  resolved "https://registry.npmjs.org/maxilo-vue-ysz-ui/-/maxilo-vue-ysz-ui-0.0.15-beta7.tgz#4f2cec2cdc4ad4fc042239ecce8800aefbd65070"
-  integrity sha512-HEL5vbuQgAfJ1tc8G2h3bEISOyjXKZ5XdxWLyDToEBKqb1e3fXR3gMNL27PVv7EY6YPcLN3j4aMcx9hJLTxtSA==
+maxilo-vue-ysz-ui@^0.0.15-beta8:
+  version "0.0.15-beta8"
+  resolved "https://registry.npmjs.org/maxilo-vue-ysz-ui/-/maxilo-vue-ysz-ui-0.0.15-beta8.tgz#7cb60d1148d10df1f80ba8acec32c2802e64aba3"
+  integrity sha512-TGL9U0z6Wv0SphYnjkMepaqdXqSwY7kbWRRCAt42Co2hb9M5o88ZI/yTPWTRtKLYb4R+xqKuugvItwRGzI631Q==
   dependencies:
     autoprefixer "^9.8.5"
     dayjs "^1.8.29"

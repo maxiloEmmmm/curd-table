@@ -2,11 +2,12 @@ import components from './src'
 import ant from "./src/ant"
 import state from "./src/state"
 import http from "./src/http"
-import mvyu from "maxilo-vue-ysz-ui"
-import "maxilo-vue-ysz-ui/lib/ysz-ui.css"
-
+import mvyu from "maxilo-vue-ysz-ui/ysz-ui"
+import config from "./src/config"
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
-
+mvyu.config.responsive.cb.push(t => {
+    config.dispatch(t)
+})
 const install = function(vue){
     ant.install(vue)
     mvyu.install(vue)
@@ -24,5 +25,6 @@ if (window.Vue) {
 
 export default {
     install,
-    http
+    http,
+    config
 }

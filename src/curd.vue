@@ -1,6 +1,7 @@
 <script>
 import utils from './utils'
 import httpConfig from "./http"
+import config from "./config"
 export default {
     name: 'toolCurd',
     render(){
@@ -66,7 +67,7 @@ export default {
         dataSource: {type: Array, default: () => []},
         httpKey: {type: String, default: 'default'},
         preview: {type: Boolean, default: false},
-        card: {type: Boolean, default: false},
+        useCard: {type: Boolean, default: true},
         pageSizeKey: {type: String, default: "page_suze"},
         layout: {
             type: Array,
@@ -80,6 +81,7 @@ export default {
             this.store.page_count = this.store.tableData.length
         })
         return {
+            card: false,
             show: false,
             store: {
                 colEditKey: utils.random('curd-edit-'),
@@ -316,6 +318,11 @@ export default {
         _auto_set(){
             return this._format_columns.filter(c => c.type == 'select' && c.option.labelKey)
         }
+    },
+    created(){
+        config.addResponsiveCallback((t) => {
+            this.card = this.useCard ? (t == "xs") : false
+        })
     },
     mounted(){
         document.addEventListener('keyup', (e) => {
