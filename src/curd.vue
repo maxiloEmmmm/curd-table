@@ -39,7 +39,28 @@ export default {
                         : null}
                     <div style="flex: 1 1 auto">
                         <ysz-fetch-wrap engine={this._httpEngine} ref="datawrap" url={this._fetchUrl} errHandler={this.fetchErr} handler={this.render} page={this.store.page} pageKey="page" pageSizeKey={this.pageSizeKey} size={this.store.page_size}>
-                            <a-table class="curd-core-table" rowKey={this.store.rowKey} size="small" vOn:change={(page, sorter, filter) => this.pageRender(page, sorter, filter)} dataSource={this._tdata} columns={this._columns} bordered={true} pagination={this.pagination}></a-table>
+                            <a-table 
+                                class="curd-core-table" 
+                                rowKey={this.store.rowKey} 
+                                size="small" 
+                                vOn:change={(page, sorter, filter) => this.pageRender(page, sorter, filter)} 
+                                dataSource={this._tdata} 
+                                columns={this._columns} 
+                                bordered={true} 
+                                pagination={this.pagination}
+                                scopedSlots={
+                                    this.expandedRow ? {
+                                        expandedRowRender: (record, index, indent, expanded) => {
+                                            return <ysz-list>
+                                                {this._expanded_columns.map(col => <ysz-list-item>
+                                                    <span style="font-size: 1rem; font-weight: 400;" slot="left">{col.title}</span>
+                                                    {col.customRender(record[col.field], record, index).children}
+                                                </ysz-list-item>)}
+                                            </ysz-list>
+                                        }
+                                    }: {}
+                                }>
+                            </a-table>
                         </ysz-fetch-wrap>
                     </div>
                     {this._has_right_view
@@ -67,12 +88,13 @@ export default {
         dataSource: {type: Array, default: () => []},
         httpKey: {type: String, default: 'default'},
         preview: {type: Boolean, default: false},
-        useCard: {type: Boolean, default: true},
+        useCard: {type: Boolean, default: false},
         pageSizeKey: {type: String, default: "page_suze"},
         layout: {
             type: Array,
             default: () => []
-        }
+        },
+        expandedRow: {type: Boolean, default: false},
     },
     data(){
         this.$nextTick(() => {
@@ -193,6 +215,7 @@ export default {
                 c.option = c.option ? c.option : {}
                 c.edit = Object.assign({enable: false}, c.edit)
                 c.dataIndex = c.field
+                c.expanded = c.expanded || false
                 c.customRender = c.customRender ? c.customRender : (text, item, index, a) => {
                     const h = this.$createElement
                     return {
@@ -232,8 +255,11 @@ export default {
         _form_columns(){
             return this._format_columns.filter(f => !!f.field)
         },
+        _expanded_columns(){
+            return this.expandedRow ? this._format_columns.filter(col => !!col.expanded) : []
+        },
         _columns(){
-            let c = [...this._format_columns.filter(c => !c.hidden)]
+            let c = [...this._format_columns.filter(c => !c.hidden && (this.expandedRow ? !c.expanded : true))]
 
             if(this._hasAction) {
                 c.push({

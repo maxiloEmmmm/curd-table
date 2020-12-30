@@ -6307,7 +6307,7 @@ var config$1 = {
 
 function ownKeys$1(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = _filterInstanceProperty(symbols).call(symbols, function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context71; _forEachInstanceProperty(_context71 = ownKeys$1(Object(source), true)).call(_context71, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context72; _forEachInstanceProperty(_context72 = ownKeys$1(Object(source))).call(_context72, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context73; _forEachInstanceProperty(_context73 = ownKeys$1(Object(source), true)).call(_context73, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context74; _forEachInstanceProperty(_context74 = ownKeys$1(Object(source))).call(_context74, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var curd = {
   name: 'toolCurd',
   render: function render() {
@@ -6443,6 +6443,18 @@ var curd = {
         "bordered": true,
         "pagination": this.pagination
       },
+      "scopedSlots": this.expandedRow ? {
+        expandedRowRender: function expandedRowRender(record, index, indent, expanded) {
+          var _context3;
+
+          return h("ysz-list", [_mapInstanceProperty(_context3 = _this._expanded_columns).call(_context3, function (col) {
+            return h("ysz-list-item", [h("span", {
+              "style": "font-size: 1rem; font-weight: 400;",
+              "slot": "left"
+            }, [col.title]), col.customRender(record[col.field], record, index).children]);
+          })]);
+        }
+      } : {},
       "on": {
         "change": function change(page, sorter, filter) {
           return _this.pageRender(page, sorter, filter);
@@ -6527,7 +6539,7 @@ var curd = {
     },
     useCard: {
       type: Boolean,
-      default: true
+      default: false
     },
     pageSizeKey: {
       type: String,
@@ -6538,16 +6550,20 @@ var curd = {
       default: function _default() {
         return [];
       }
+    },
+    expandedRow: {
+      type: Boolean,
+      default: false
     }
   },
   data: function data() {
     var _this2 = this;
 
     this.$nextTick(function () {
-      var _context3;
+      var _context4;
 
       var userdata = _Array$isArray(_this2.$props.dataSource) ? _this2.$props.dataSource : [];
-      _this2.store.tableData = _concatInstanceProperty(_context3 = []).call(_context3, _toConsumableArray(_this2.store.tableData), _toConsumableArray(_mapInstanceProperty(userdata).call(userdata, _this2.transformData)));
+      _this2.store.tableData = _concatInstanceProperty(_context4 = []).call(_context4, _toConsumableArray(_this2.store.tableData), _toConsumableArray(_mapInstanceProperty(userdata).call(userdata, _this2.transformData)));
       _this2.store.page_count = _this2.store.tableData.length;
     });
     return {
@@ -6580,24 +6596,24 @@ var curd = {
       return Http.getEngine(this.httpKey).engine;
     },
     _tdata: function _tdata() {
-      var _context4;
+      var _context5;
 
       if (this.fetchUrl) {
         return this.store.tableData;
       }
 
       var s = (this.store.page - 1) * this.store.page_size;
-      return _sliceInstanceProperty(_context4 = this.store.tableData).call(_context4, s, s + this.store.page_size);
+      return _sliceInstanceProperty(_context5 = this.store.tableData).call(_context5, s, s + this.store.page_size);
     },
     _has_filter: function _has_filter() {
       return this._filter.length > 0;
     },
     _filter: function _filter() {
-      var _context5, _context6;
+      var _context6, _context7;
 
-      return _mapInstanceProperty(_context5 = _filterInstanceProperty(_context6 = this._format_columns).call(_context6, function (f) {
+      return _mapInstanceProperty(_context6 = _filterInstanceProperty(_context7 = this._format_columns).call(_context7, function (f) {
         return _filterInstanceProperty(f);
-      })).call(_context5, function (f) {
+      })).call(_context6, function (f) {
         return _objectSpread$1(_objectSpread$1({
           label: f.title
         }, f), {}, {
@@ -6608,10 +6624,10 @@ var curd = {
       });
     },
     _fetchUrl: function _fetchUrl() {
-      var _context7,
-          _context8,
+      var _context8,
+          _context9,
           _this3 = this,
-          _context11;
+          _context12;
 
       if (!this.fetchUrl) {
         return '';
@@ -6622,7 +6638,7 @@ var curd = {
           query = urlInfo[1];
       var querys = utils.parseURL(query);
 
-      var filters = _forEachInstanceProperty(_context7 = _filterInstanceProperty(_context8 = this._filter).call(_context8, function (f) {
+      var filters = _forEachInstanceProperty(_context8 = _filterInstanceProperty(_context9 = this._filter).call(_context9, function (f) {
         var tmp = _filterInstanceProperty(_this3.store)[f.filterKey];
 
         if (tmp === undefined) return false;
@@ -6632,26 +6648,26 @@ var curd = {
         }
 
         return true;
-      })).call(_context7, function (f) {
+      })).call(_context8, function (f) {
         querys[f.filterKey] = encodeURIComponent(_filterInstanceProperty(_this3.store)[f.filterKey]);
       });
 
       if (_Object$keys(_sortInstanceProperty(this.store)).length > 0) {
-        var _context9;
+        var _context10;
 
-        querys.sort = _mapInstanceProperty(_context9 = _Object$keys(_sortInstanceProperty(this.store))).call(_context9, function (f) {
-          var _context10;
+        querys.sort = _mapInstanceProperty(_context10 = _Object$keys(_sortInstanceProperty(this.store))).call(_context10, function (f) {
+          var _context11;
 
-          return _concatInstanceProperty(_context10 = "".concat(f, ",")).call(_context10, _sortInstanceProperty(_this3.store)[f]);
+          return _concatInstanceProperty(_context11 = "".concat(f, ",")).call(_context11, _sortInstanceProperty(_this3.store)[f]);
         }).join('|');
       }
 
       _Object$assign(querys, _objectSpread$1({}, this.queryParams));
 
-      return path + "?" + _mapInstanceProperty(_context11 = _Object$keys(querys)).call(_context11, function (query) {
-        var _context12;
+      return path + "?" + _mapInstanceProperty(_context12 = _Object$keys(querys)).call(_context12, function (query) {
+        var _context13;
 
-        return _concatInstanceProperty(_context12 = "".concat(query, "=")).call(_context12, querys[query]);
+        return _concatInstanceProperty(_context13 = "".concat(query, "=")).call(_context13, querys[query]);
       }).join("&");
     },
     pagination: function pagination() {
@@ -6661,29 +6677,29 @@ var curd = {
         pageSize: this.store.page_size,
         hideOnSinglePage: false,
         showTotal: function showTotal(total, range) {
-          var _context13, _context14;
+          var _context14, _context15;
 
-          return _concatInstanceProperty(_context13 = _concatInstanceProperty(_context14 = "\u7B2C".concat(range[0], "-")).call(_context14, range[1], "\u6761 \u5171")).call(_context13, total, "\u6761\u8BB0\u5F55");
+          return _concatInstanceProperty(_context14 = _concatInstanceProperty(_context15 = "\u7B2C".concat(range[0], "-")).call(_context15, range[1], "\u6761 \u5171")).call(_context14, total, "\u6761\u8BB0\u5F55");
         },
         showSizeChanger: true
       };
     },
     _dispatchTop: function _dispatchTop() {
-      var _context15;
+      var _context16;
 
-      return _filterInstanceProperty(_context15 = this._models).call(_context15, function (v) {
+      return _filterInstanceProperty(_context16 = this._models).call(_context16, function (v) {
         return v.dispatchArea == 'topBar';
       });
     },
     _dispatchRow: function _dispatchRow() {
-      var _context16, _context17;
+      var _context17, _context18;
 
-      var row = _mapInstanceProperty(_context16 = this._modelBaseAction).call(_context16, function (v) {
+      var row = _mapInstanceProperty(_context17 = this._modelBaseAction).call(_context17, function (v) {
         v.type = v.type ? v.type : 'action';
         return v;
       });
 
-      row.push.apply(row, _toConsumableArray(_mapInstanceProperty(_context17 = this.store.relations).call(_context17, function (v) {
+      row.push.apply(row, _toConsumableArray(_mapInstanceProperty(_context18 = this.store.relations).call(_context18, function (v) {
         return utils.set(v, 'type', 'relation');
       })));
 
@@ -6706,9 +6722,9 @@ var curd = {
       return row;
     },
     _modelBaseAction: function _modelBaseAction() {
-      var _context18;
+      var _context19;
 
-      return _filterInstanceProperty(_context18 = this._format_models).call(_context18, function (v) {
+      return _filterInstanceProperty(_context19 = this._format_models).call(_context19, function (v) {
         return v.dispatchArea == 'rowBar' && !v.hidden;
       });
     },
@@ -6719,17 +6735,18 @@ var curd = {
       return this.actionNewRow || this.actionEditRow;
     },
     _format_columns: function _format_columns() {
-      var _context19,
+      var _context20,
           _this4 = this;
 
-      return _mapInstanceProperty(_context19 = this.columns).call(_context19, function (c) {
+      return _mapInstanceProperty(_context20 = this.columns).call(_context20, function (c) {
         c.option = c.option ? c.option : {};
         c.edit = _Object$assign({
           enable: false
         }, c.edit);
         c.dataIndex = c.field;
+        c.expanded = c.expanded || false;
         c.customRender = c.customRender ? c.customRender : function (text, item, index, a) {
-          var _context20;
+          var _context21;
 
           var h = _this4.$createElement;
           return {
@@ -6743,7 +6760,7 @@ var curd = {
                 autoSet: _this4._auto_set,
                 item: item
               },
-              ref: _concatInstanceProperty(_context20 = "edit-ref-".concat(index, "-")).call(_context20, c.field),
+              ref: _concatInstanceProperty(_context21 = "edit-ref-".concat(index, "-")).call(_context21, c.field),
               on: {
                 change: function change(value) {
                   if (c.edit.enable) {
@@ -6775,20 +6792,27 @@ var curd = {
       });
     },
     _form_columns: function _form_columns() {
-      var _context21;
+      var _context22;
 
-      return _filterInstanceProperty(_context21 = this._format_columns).call(_context21, function (f) {
+      return _filterInstanceProperty(_context22 = this._format_columns).call(_context22, function (f) {
         return !!f.field;
       });
     },
+    _expanded_columns: function _expanded_columns() {
+      var _context23;
+
+      return this.expandedRow ? _filterInstanceProperty(_context23 = this._format_columns).call(_context23, function (col) {
+        return !!col.expanded;
+      }) : [];
+    },
     _columns: function _columns() {
-      var _context22,
+      var _context24,
           _this5 = this;
 
       var h = this.$createElement;
 
-      var c = _toConsumableArray(_filterInstanceProperty(_context22 = this._format_columns).call(_context22, function (c) {
-        return !c.hidden;
+      var c = _toConsumableArray(_filterInstanceProperty(_context24 = this._format_columns).call(_context24, function (c) {
+        return !c.hidden && (_this5.expandedRow ? !c.expanded : true);
       }));
 
       if (this._hasAction) {
@@ -6796,9 +6820,9 @@ var curd = {
           title: '操作',
           align: 'center',
           customRender: function customRender(text, item, index) {
-            var _context23;
+            var _context25;
 
-            return h("a-space", [_mapInstanceProperty(_context23 = _this5._dispatchRow).call(_context23, function (row, _i) {
+            return h("a-space", [_mapInstanceProperty(_context25 = _this5._dispatchRow).call(_context25, function (row, _i) {
               return h("a-button", {
                 "attrs": {
                   "size": "small"
@@ -6844,10 +6868,10 @@ var curd = {
       return utils.keyby(this._format_columns, 'field');
     },
     _format_models: function _format_models() {
-      var _context24,
+      var _context26,
           _this6 = this;
 
-      return _mapInstanceProperty(_context24 = this.models).call(_context24, function (f) {
+      return _mapInstanceProperty(_context26 = this.models).call(_context26, function (f) {
         if (f.type === undefined) {
           f.type = 'action';
         }
@@ -6869,19 +6893,19 @@ var curd = {
       var m = _toConsumableArray(this._format_models);
 
       if (this.actionEditRow) {
-        var _context25, _context26, _context27, _context28;
+        var _context27, _context28, _context29, _context30;
 
         m.push({
           title: this.store.editModeTitle,
           key: this.store.editModelKey,
-          show: _mapInstanceProperty(_context25 = _filterInstanceProperty(_context26 = this._format_columns).call(_context26, function (c) {
+          show: _mapInstanceProperty(_context27 = _filterInstanceProperty(_context28 = this._format_columns).call(_context28, function (c) {
             return c.edit.enable;
-          })).call(_context25, function (c) {
+          })).call(_context27, function (c) {
             return c.field;
           }),
-          disabled: _mapInstanceProperty(_context27 = _filterInstanceProperty(_context28 = this._format_columns).call(_context28, function (c) {
+          disabled: _mapInstanceProperty(_context29 = _filterInstanceProperty(_context30 = this._format_columns).call(_context30, function (c) {
             return c.disabled;
-          })).call(_context27, function (c) {
+          })).call(_context29, function (c) {
             return c.field;
           })
         });
@@ -6899,9 +6923,9 @@ var curd = {
       return !!this.$slots.footer;
     },
     _auto_set: function _auto_set() {
-      var _context29;
+      var _context31;
 
-      return _filterInstanceProperty(_context29 = this._format_columns).call(_context29, function (c) {
+      return _filterInstanceProperty(_context31 = this._format_columns).call(_context31, function (c) {
         return c.type == 'select' && c.option.labelKey;
       });
     }
@@ -6962,15 +6986,15 @@ var curd = {
       this.$set(_filterInstanceProperty(this.store), field, value);
     },
     editNextCell: function editNextCell() {
-      var _context30,
+      var _context32,
           _this9 = this,
-          _context31;
+          _context33;
 
-      var fieldIndex = _findIndexInstanceProperty(_context30 = this._format_columns).call(_context30, function (f) {
+      var fieldIndex = _findIndexInstanceProperty(_context32 = this._format_columns).call(_context32, function (f) {
         return f.field == _this9.store.edit.field;
       });
 
-      var nfi = _findIndexInstanceProperty(_context31 = this._format_columns).call(_context31, function (f, i) {
+      var nfi = _findIndexInstanceProperty(_context33 = this._format_columns).call(_context33, function (f, i) {
         return i > fieldIndex && f.edit.enable;
       });
 
@@ -6979,9 +7003,9 @@ var curd = {
       if (nfi != -1) {
         this.entryCell(this._format_columns[nfi].field, this.store.edit.key);
       } else {
-        var _context32;
+        var _context34;
 
-        var index = _findIndexInstanceProperty(_context32 = this.store.tableData).call(_context32, function (r) {
+        var index = _findIndexInstanceProperty(_context34 = this.store.tableData).call(_context34, function (r) {
           return r[_this9.store.rowKey] == _this9.store.edit.key;
         });
 
@@ -6990,18 +7014,18 @@ var curd = {
         if (index > this.store.tableData.length - 1) {
           this.apiNewRow();
           this.$nextTick(function () {
-            var _context33;
+            var _context35;
 
-            var firstEditField = _filterInstanceProperty(_context33 = _this9._format_columns).call(_context33, function (f) {
+            var firstEditField = _filterInstanceProperty(_context35 = _this9._format_columns).call(_context35, function (f) {
               return f.edit.enable && f.field;
             })[0];
 
             _this9.entryCell(firstEditField.field, _this9.getRowKey(_this9.store.tableData[index]));
           });
         } else {
-          var _context34;
+          var _context36;
 
-          var firstEditField = _filterInstanceProperty(_context34 = this._format_columns).call(_context34, function (f) {
+          var firstEditField = _filterInstanceProperty(_context36 = this._format_columns).call(_context36, function (f) {
             return f.edit.enable && f.field;
           })[0];
 
@@ -7010,10 +7034,10 @@ var curd = {
       }
     },
     editPrevCell: function editPrevCell() {
-      var _context35,
+      var _context37,
           _this10 = this;
 
-      var fieldIndex = _findIndexInstanceProperty(_context35 = this._format_columns).call(_context35, function (f) {
+      var fieldIndex = _findIndexInstanceProperty(_context37 = this._format_columns).call(_context37, function (f) {
         return f.field == _this10.store.edit.field;
       });
 
@@ -7031,9 +7055,9 @@ var curd = {
       if (nfi != -1) {
         this.entryCell(this._format_columns[nfi].field, this.store.edit.key);
       } else {
-        var _context36;
+        var _context38;
 
-        var index = _findIndexInstanceProperty(_context36 = this.store.tableData).call(_context36, function (r) {
+        var index = _findIndexInstanceProperty(_context38 = this.store.tableData).call(_context38, function (r) {
           return r[_this10.store.rowKey] == _this10.store.edit.key;
         });
 
@@ -7050,8 +7074,8 @@ var curd = {
     },
     entryCell: function entryCell(field, key) {
       var _this11 = this,
-          _context37,
-          _context38;
+          _context39,
+          _context40;
 
       if (this.store.edit.ing) {
         this.closeEdit(this.store.edit.field, this.store.edit.key);
@@ -7073,16 +7097,16 @@ var curd = {
       index = index % this.store.page_size;
       target[this.store.colEditKey][field] = this.store.edit.ing = true;
 
-      this.$refs[_concatInstanceProperty(_context37 = "edit-ref-".concat(index, "-")).call(_context37, field)].focus();
+      this.$refs[_concatInstanceProperty(_context39 = "edit-ref-".concat(index, "-")).call(_context39, field)].focus();
 
       this.store.tableData = cdata;
-      this.setEditTmpValue(_filterInstanceProperty(_context38 = this.store.tableData).call(_context38, function (item) {
+      this.setEditTmpValue(_filterInstanceProperty(_context40 = this.store.tableData).call(_context40, function (item) {
         return key === item[_this11.store.rowKey];
       })[0][field]);
     },
     saveCell: function saveCell(field, key, value) {
       var _this12 = this,
-          _context39;
+          _context41;
 
       // if(value === this.store.tmpeditcellvalue) {
       //     return
@@ -7095,7 +7119,7 @@ var curd = {
 
       item[field] = value; //old Object.assign(item, this.editFilter(key, item))
 
-      var fi = _filterInstanceProperty(_context39 = this._format_columns).call(_context39, function (r) {
+      var fi = _filterInstanceProperty(_context41 = this._format_columns).call(_context41, function (r) {
         return r.field == field;
       })[0]; //old this.change(this.store.tableData)
 
@@ -7115,7 +7139,7 @@ var curd = {
     },
     closeEdit: function closeEdit(field, key) {
       var _this13 = this,
-          _context40;
+          _context42;
 
       var cdata = _toConsumableArray(this.store.tableData);
 
@@ -7134,7 +7158,7 @@ var curd = {
 
       index = index % this.store.page_size;
 
-      this.$refs[_concatInstanceProperty(_context40 = "edit-ref-".concat(index, "-")).call(_context40, field)].hide();
+      this.$refs[_concatInstanceProperty(_context42 = "edit-ref-".concat(index, "-")).call(_context42, field)].hide();
 
       this.store.tableData = cdata;
     },
@@ -7142,13 +7166,13 @@ var curd = {
       var _this14 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee() {
-        return _regeneratorRuntime.wrap(function _callee$(_context41) {
+        return _regeneratorRuntime.wrap(function _callee$(_context43) {
           while (1) {
-            switch (_context41.prev = _context41.next) {
+            switch (_context43.prev = _context43.next) {
               case 0:
                 _this14.store.tableData = [];
                 _this14.store.page_count = 0;
-                _context41.next = 4;
+                _context43.next = 4;
                 return _this14.$nextTick();
 
               case 4:
@@ -7156,7 +7180,7 @@ var curd = {
 
               case 5:
               case "end":
-                return _context41.stop();
+                return _context43.stop();
             }
           }
         }, _callee);
@@ -7169,9 +7193,9 @@ var curd = {
       var _this15 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2() {
-        return _regeneratorRuntime.wrap(function _callee2$(_context42) {
+        return _regeneratorRuntime.wrap(function _callee2$(_context44) {
           while (1) {
-            switch (_context42.prev = _context42.next) {
+            switch (_context44.prev = _context44.next) {
               case 0:
                 if (sorter.column) {
                   _this15.$set(_sortInstanceProperty(_this15.store), sorter.column.field, sorter.order);
@@ -7181,7 +7205,7 @@ var curd = {
 
                 _this15.store.page = page.current;
                 _this15.store.page_size = page.pageSize;
-                _context42.next = 5;
+                _context44.next = 5;
                 return _this15.$nextTick();
 
               case 5:
@@ -7189,7 +7213,7 @@ var curd = {
 
               case 6:
               case "end":
-                return _context42.stop();
+                return _context44.stop();
             }
           }
         }, _callee2);
@@ -7199,28 +7223,28 @@ var curd = {
       var _this16 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3() {
-        var _context43;
+        var _context45;
 
-        return _regeneratorRuntime.wrap(function _callee3$(_context44) {
+        return _regeneratorRuntime.wrap(function _callee3$(_context46) {
           while (1) {
-            switch (_context44.prev = _context44.next) {
+            switch (_context46.prev = _context46.next) {
               case 0:
                 if (!utils.http.responseOk(response)) {
-                  _context44.next = 9;
+                  _context46.next = 9;
                   break;
                 }
 
-                _context44.next = 3;
+                _context46.next = 3;
                 return _this16.fetchTransform(response);
 
               case 3:
-                response = _context44.sent;
-                _this16.store.tableData = _mapInstanceProperty(_context43 = response.data.data).call(_context43, _this16.transformData);
+                response = _context46.sent;
+                _this16.store.tableData = _mapInstanceProperty(_context45 = response.data.data).call(_context45, _this16.transformData);
                 _this16.store.page_count = response.data.total;
 
                 _this16.change(_this16.store.tableData);
 
-                _context44.next = 10;
+                _context46.next = 10;
                 break;
 
               case 9:
@@ -7228,7 +7252,7 @@ var curd = {
 
               case 10:
               case "end":
-                return _context44.stop();
+                return _context46.stop();
             }
           }
         }, _callee3);
@@ -7269,10 +7293,10 @@ var curd = {
       switch (action.type) {
         case 'relation':
           {
-            var _context45, _context46;
+            var _context47, _context48;
 
             this.$router.push({
-              path: _concatInstanceProperty(_context45 = _concatInstanceProperty(_context46 = "".concat(this.$route.fullPath, "/")).call(_context46, item[action.primaryKey], "/")).call(_context45, action.key)
+              path: _concatInstanceProperty(_context47 = _concatInstanceProperty(_context48 = "".concat(this.$route.fullPath, "/")).call(_context48, item[action.primaryKey], "/")).call(_context47, action.key)
             });
           }
           break;
@@ -7322,21 +7346,21 @@ var curd = {
       return obj;
     },
     autoSet: function autoSet(key, item) {
-      var _context47,
+      var _context49,
           _this18 = this;
 
       var tmp = _objectSpread$1({}, item);
 
       var cdata = _toConsumableArray(this.store.tableData);
 
-      _forEachInstanceProperty(_context47 = this._auto_set).call(_context47, function (s) {
-        var _context48;
+      _forEachInstanceProperty(_context49 = this._auto_set).call(_context49, function (s) {
+        var _context50;
 
         var index = _findIndexInstanceProperty(cdata).call(cdata, function (item) {
           return key === _this18.getRowKey(item);
         });
 
-        tmp[s.option.labelKey] = _this18.$refs[_concatInstanceProperty(_context48 = "edit-ref-".concat(index, "-")).call(_context48, s.field)].getLabel();
+        tmp[s.option.labelKey] = _this18.$refs[_concatInstanceProperty(_context50 = "edit-ref-".concat(index, "-")).call(_context50, s.field)].getLabel();
       });
 
       return tmp;
@@ -7354,7 +7378,7 @@ var curd = {
       var model = this.$refs.ywSettingBase.getModel();
 
       if (this.actionEditRow && model == "edit-row") {
-        var _context49;
+        var _context51;
 
         _Object$assign(data, this.editFilter(this.store.editKey, data));
 
@@ -7364,7 +7388,7 @@ var curd = {
           return _this19.store.editKey === _this19.getRowKey(item);
         })[0];
 
-        _forEachInstanceProperty(_context49 = _Object$keys(data)).call(_context49, function (k) {
+        _forEachInstanceProperty(_context51 = _Object$keys(data)).call(_context51, function (k) {
           target[k] = data[k];
         });
 
@@ -7375,32 +7399,32 @@ var curd = {
       }
     },
     apiDeleteRow: function apiDeleteRow(key) {
-      var _context50,
+      var _context52,
           _this20 = this,
-          _context51;
+          _context53;
 
-      var index = _findIndexInstanceProperty(_context50 = this.store.tableData).call(_context50, function (r) {
+      var index = _findIndexInstanceProperty(_context52 = this.store.tableData).call(_context52, function (r) {
         return _this20.getRowKey(r) === key;
       });
 
-      _spliceInstanceProperty(_context51 = this.store.tableData).call(_context51, index, 1);
+      _spliceInstanceProperty(_context53 = this.store.tableData).call(_context53, index, 1);
 
       this.change(this.store.tableData);
     },
     apiNewRow: function apiNewRow() {
-      var _context52,
-          _context53,
+      var _context54,
+          _context55,
           _this21 = this;
 
       var num = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
       var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
       var cs = {};
 
-      _forEachInstanceProperty(_context52 = this._columns).call(_context52, function (f) {
+      _forEachInstanceProperty(_context54 = this._columns).call(_context54, function (f) {
         f.type && (cs[f.field] = utils.getTypeDefault(f.type, f.default, f.option || {}));
       });
 
-      var index = _findIndexInstanceProperty(_context53 = this.store.tableData).call(_context53, function (r) {
+      var index = _findIndexInstanceProperty(_context55 = this.store.tableData).call(_context55, function (r) {
         return _this21.getRowKey(r) === key;
       });
 
@@ -7408,36 +7432,36 @@ var curd = {
       index = index + 1;
 
       for (var k = 0; k < num; k++) {
-        var _context54;
+        var _context56;
 
-        _spliceInstanceProperty(_context54 = this.store.tableData).call(_context54, index + k, 0, this.transformData(_objectSpread$1({}, cs)));
+        _spliceInstanceProperty(_context56 = this.store.tableData).call(_context56, index + k, 0, this.transformData(_objectSpread$1({}, cs)));
       }
     },
     apiAppend: function apiAppend(item) {
-      var _context55,
+      var _context57,
           _this22 = this,
-          _context56;
+          _context58;
 
       var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
 
-      var index = _findIndexInstanceProperty(_context55 = this.store.tableData).call(_context55, function (r) {
+      var index = _findIndexInstanceProperty(_context57 = this.store.tableData).call(_context57, function (r) {
         return _this22.getRowKey(r) === key;
       });
 
       index = index < 0 ? this.store.tableData.length : index;
       index = index + 1;
 
-      _spliceInstanceProperty(_context56 = this.store.tableData).call(_context56, index > -1 ? index : this.store.tableData.length, 0, this.transformData(_objectSpread$1({}, item)));
+      _spliceInstanceProperty(_context58 = this.store.tableData).call(_context58, index > -1 ? index : this.store.tableData.length, 0, this.transformData(_objectSpread$1({}, item)));
 
       this.change(this.store.tableData);
     },
     apiAppends: function apiAppends(items) {
-      var _context57,
+      var _context59,
           _this23 = this;
 
       var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
 
-      var index = _findIndexInstanceProperty(_context57 = this.store.tableData).call(_context57, function (r) {
+      var index = _findIndexInstanceProperty(_context59 = this.store.tableData).call(_context59, function (r) {
         return _this23.getRowKey(r) === key;
       });
 
@@ -7445,20 +7469,20 @@ var curd = {
       index = index + 1;
 
       _forEachInstanceProperty(items).call(items, function (item, i) {
-        var _context58;
+        var _context60;
 
-        return _spliceInstanceProperty(_context58 = _this23.store.tableData).call(_context58, index + i, 0, _this23.transformData(_objectSpread$1({}, item)));
+        return _spliceInstanceProperty(_context60 = _this23.store.tableData).call(_context60, index + i, 0, _this23.transformData(_objectSpread$1({}, item)));
       });
 
       this.change(this.store.tableData);
     },
     setRowItem: function setRowItem() {
-      var _context59,
+      var _context61,
           _this24 = this;
 
       var item = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var index = _findIndexInstanceProperty(_context59 = this.store.tableData).call(_context59, function (r) {
+      var index = _findIndexInstanceProperty(_context61 = this.store.tableData).call(_context61, function (r) {
         return _this24.getRowKey(r) === _this24.getRowKey(item);
       });
 
@@ -7466,12 +7490,12 @@ var curd = {
       this.change(this.store.tableData);
     },
     setRow: function setRow(key) {
-      var _context60,
+      var _context62,
           _this25 = this;
 
       var item = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      var index = _findIndexInstanceProperty(_context60 = this.store.tableData).call(_context60, function (r) {
+      var index = _findIndexInstanceProperty(_context62 = this.store.tableData).call(_context62, function (r) {
         return _this25.getRowKey(r) === key;
       });
 
@@ -7490,10 +7514,10 @@ var curd = {
       }
     },
     transform: function transform(cb) {
-      var _context61,
+      var _context63,
           _this26 = this;
 
-      this.store.tableData = _mapInstanceProperty(_context61 = this.store.tableData).call(_context61, function (v, i, arr) {
+      this.store.tableData = _mapInstanceProperty(_context63 = this.store.tableData).call(_context63, function (v, i, arr) {
         return _this26.editFilter(_this26.getRowKey(v), cb(v, i, arr));
       });
       this.change(this.store.tableData);
@@ -7502,13 +7526,13 @@ var curd = {
       var _this27 = this;
 
       if (data[this.store.colEditKey] === undefined) {
-        var _context62, _context63;
+        var _context64, _context65;
 
         data[this.store.colEditKey] = {};
 
-        _forEachInstanceProperty(_context62 = _filterInstanceProperty(_context63 = this._format_columns).call(_context63, function (f) {
+        _forEachInstanceProperty(_context64 = _filterInstanceProperty(_context65 = this._format_columns).call(_context65, function (f) {
           return !!f.field;
-        })).call(_context62, function (f) {
+        })).call(_context64, function (f) {
           data[_this27.store.colEditKey][f.field] = false;
         });
       }
@@ -7535,20 +7559,20 @@ var curd = {
       this.$emit('change', v);
     },
     getData: function getData() {
-      var _context64,
+      var _context66,
           _this28 = this;
 
       var withlabel = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      return _mapInstanceProperty(_context64 = this.store.tableData).call(_context64, function (r) {
-        var _context65, _context66;
+      return _mapInstanceProperty(_context66 = this.store.tableData).call(_context66, function (r) {
+        var _context67, _context68;
 
         var tmp = _objectSpread$1({}, r);
 
         _Object$assign(tmp, _this28.autoSet(_this28.getRowKey(tmp), tmp));
 
-        _forEachInstanceProperty(_context65 = _filterInstanceProperty(_context66 = _this28._format_columns).call(_context66, function (f) {
+        _forEachInstanceProperty(_context67 = _filterInstanceProperty(_context68 = _this28._format_columns).call(_context68, function (f) {
           return !!f.field;
-        })).call(_context65, function (f) {
+        })).call(_context67, function (f) {
           if (!withlabel) {
             switch (f.type) {
               case 'select':
@@ -7577,22 +7601,22 @@ var curd = {
       return this.pageSize;
     },
     getPageData: function getPageData() {
-      var _context67,
-          _context68,
+      var _context69,
+          _context70,
           _this29 = this;
 
       var start = (this.store.page - 1) * this.pageSize;
       var end = start + this.pageSize > this.store.tableData.length ? this.store.tableData.length : start + this.pageSize;
-      return _mapInstanceProperty(_context67 = _sliceInstanceProperty(_context68 = this.store.tableData).call(_context68, start, end)).call(_context67, function (r) {
-        var _context69, _context70;
+      return _mapInstanceProperty(_context69 = _sliceInstanceProperty(_context70 = this.store.tableData).call(_context70, start, end)).call(_context69, function (r) {
+        var _context71, _context72;
 
         var tmp = _objectSpread$1({}, r);
 
         _Object$assign(tmp, _this29.autoSet(_this29.getRowKey(tmp), tmp));
 
-        _forEachInstanceProperty(_context69 = _filterInstanceProperty(_context70 = _this29._format_columns).call(_context70, function (f) {
+        _forEachInstanceProperty(_context71 = _filterInstanceProperty(_context72 = _this29._format_columns).call(_context72, function (f) {
           return !!f.field;
-        })).call(_context69, function (f) {
+        })).call(_context71, function (f) {
           tmp[f.field] = r[f.field];
         });
 
