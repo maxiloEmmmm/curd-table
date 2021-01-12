@@ -7,7 +7,7 @@
             <span slot="left">{{ _model_title }}</span>
             <a-space>
                 <a-icon type="setting" @click="onViewShow" v-if="!_edit" style="font-size: 1.2rem;"/>
-                <a-icon :type="store.moreShow ? 'minus' : 'plus'" @click="onMore" v-if="_hasMore" style="font-size: 1.2rem;"/>
+                <a-icon :type="store.moreShow ? 'minus' : 'plus'" @click="onMore" v-if="_hasMore" style="font-size: 1.2rem;border: 1px solid;border-radius: 50%;padding: 4px;"/>
             </a-space>
         </ysz-list-item>
         <a-spin :spinning="loading">
@@ -64,7 +64,7 @@
             <a-space>
                 <a-button @click="cancleHandle" v-if="!view">{{_current_cancel_text}}</a-button>
                 <a-button type="primary" @click="okHandle">{{_current_ok_text}}</a-button>
-                <slot name="ext-button"></slot>
+                <slot name="btn"></slot>
             </a-space>
         </ysz-list-item>
         <a-drawer

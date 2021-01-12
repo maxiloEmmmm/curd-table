@@ -74,6 +74,11 @@ export default {
         value(val){
             this.clear(val)
         },
+        visible(val) {
+            if(val) {
+                this.focus()
+            }
+        }
     },
     computed: {
         _views(){
