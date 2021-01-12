@@ -5,11 +5,15 @@
         :visible="show">
         <ysz-list-item slot="title" :left="true">
             <span slot="left">{{ _model_title }}</span>
-            <a-icon type="setting" @click="onViewShow" v-if="!_edit" style="font-size: 1.2rem;"/>
+            <a-space>
+                <a-icon type="setting" @click="onViewShow" v-if="!_edit" style="font-size: 1.2rem;"/>
+                <a-icon :type="store.moreShow ? 'minus' : 'plus'" @click="onMore" v-if="_hasMore" style="font-size: 1.2rem;"/>
+            </a-space>
         </ysz-list-item>
         <a-spin :spinning="loading">
             <ValidationObserver ref="ob">
-                <ysz-module-widget v-for="layout in _layout" :key="layout.key" :title="layout.title">
+                <a-collapse class="tool-form-panel" :bordered="false" expandIconPosition="right" :activeKey="store.activeKey" @change="this.onCollapseChange">
+                <a-collapse-panel :showArrow="showArrow" v-for="layout in _layout" :key="layout.key" :header="layout.title">
                     <ysz-list :no-p="noP" :no-line="false" :row="true" :group="view && !viewShow ? viewCol : layout.col" :key="layout.key">
                         <ValidationProvider style="width:100%" :key="field.field" v-for="(field) in layout.fields" :name="field.title" :rules="field.validate" v-slot="{ errors, validate }">
                             <ysz-list-item-top>
@@ -17,7 +21,30 @@
                                     <span slot="left" style="font-size: 1rem; font-weight: 400;">{{ `${field.title}${field.type == 'code' ? `(${field.option.language})` : ''}` }}</span>
                                     <a-badge style="border-bottom: 1px solid #faad14;" v-show="errors.length" status="warning" :text="errors[0]" />
                                 </ysz-list-item>
-                                <ysz-list-item-top :no-p="noP" @click="() => onItemClick(field)">
+
+                                <a-popover v-if="singleRequest && singlePop && field.editing" v-model="field.popShow" trigger="click" placement="right">
+                                    <template v-slot:content>
+                                        <ysz-list-item-top>
+                                            <ysz-list-item-top slot="top" :no-p="noP">
+                                                <ysz-list-item no-p left slot="top">
+                                                    <tool-form-item slot="left" :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" editing :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
+                                                </ysz-list-item>
+                                                <tw-alert style="text-align:left" mini left v-if="field.help_msg" :title="field.help_msg" type="info" show-icon />
+                                            </ysz-list-item-top>
+                                            <a-space>
+                                                <a-button type="primary" @click="() => onSinglePopFinish(field)">
+                                                    确认
+                                                </a-button>
+                                                <a-button @click="() => onSinglePopClose(field)">取消</a-button>
+                                            </a-space>
+                                        </ysz-list-item-top>
+                                    </template>
+                                    <ysz-list-item no-p left>
+                                        <tool-form-item slot="left" style="cursor: pointer" :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="false" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
+                                        <a-icon type="right" style="color:#aaa"/>
+                                    </ysz-list-item>
+                                </a-popover>
+                                <ysz-list-item-top v-else :no-p="noP" @click="() => onItemClick(field)">
                                     <ysz-list-item no-p left slot="top" :style="`cursor:${field.editing && singleRequest ? 'pointer' : 'default'}`">
                                         <tool-form-item slot="left" :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="_edit && field.editing && !singleRequest" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
                                         <a-icon type="right" v-if="field.editing && singleRequest" style="color:#aaa"/>
@@ -27,22 +54,24 @@
                             </ysz-list-item-top>
                         </ValidationProvider>
                     </ysz-list>
-                </ysz-module-widget>
+                </a-collapse-panel>
+                </a-collapse>
             </ValidationObserver>
         </a-spin>
         
         
         <ysz-list-item slot="footer" :left="true" v-if="_edit && !this.singleRequest">
             <a-space>
-                <a-button @click="cancleHandle" v-if="!view">取消</a-button>
-                <a-button type="primary" @click="okHandle">提交</a-button>
+                <a-button @click="cancleHandle" v-if="!view">{{_current_cancel_text}}</a-button>
+                <a-button type="primary" @click="okHandle">{{_current_ok_text}}</a-button>
+                <slot name="ext-button"></slot>
             </a-space>
         </ysz-list-item>
         <a-drawer
             placement="right"
             width="100%"
             :closable="true"
-            :visible="singleShow"
+            :visible="_singleShow"
             @close="onSingleClose"
             >
             <a-button slot="title" type="primary" @click="onSingleFinish">完成</a-button>
@@ -56,6 +85,14 @@
         </a-drawer>
     </component>
 </template>
+
+<style lang="scss" scoped>
+    .tool-form-panel {background-color: unset !important;
+        & .ant-collapse-item {
+            border-bottom: unset !important;
+        }
+    }
+</style>
 
 <script>
 import dayjs from "dayjs"
@@ -73,7 +110,9 @@ export default {
                 models: [],
                 model: '',
                 fieldData: {},
-                progress: {}
+                progress: {},
+                activeKey: [],
+                moreShow: false,
             },
             _show: [],
             viewShow: false,
@@ -93,6 +132,10 @@ export default {
             type: Boolean,
             default:false
         },
+        singlePop: {
+            type: Boolean,
+            default:false
+        },
         singleRequestAloneField: {
             type: Boolean,
             default: true
@@ -100,6 +143,18 @@ export default {
         viewEdit: {
             type: Boolean,
             default:false
+        },
+        showArrow: {
+            type: Boolean,
+            default:false
+        },
+        collapseDisabled: {
+            type: Boolean,
+            default: true
+        },
+        collapseOpen: {
+            type: Boolean,
+            default: true
         },
         show: {
             type: Boolean,
@@ -127,11 +182,17 @@ export default {
         validateJustAlert: {
             type: Boolean,
             default: false
-        }
+        },
     },
     computed: {
         _singleTitle(){
             return this.singleField ? this.singleField.title : ""
+        },
+        _mores(){
+            return this.store.fields.filter(field => !!field.more)
+        },
+        _hasMore(){
+            return this._mores.length > 0
         },
         _edit(){
             // 平面模式且(展示或编辑模式)或非阅览模式
@@ -141,24 +202,36 @@ export default {
             return !this.view ? "a-modal" : "div"
         },
         _layout(){
+            let lays = []
             if(this.layout.length == 0) {
-                return [{
+                lays = [{
                     key: "default",
                     col: this._model_layout_group,
-                    fields: this._fields
+                    fields: this._fields,
+                    collapseDisabled: this.collapseDisabled,
+                    collapseOpen: this.collapseOpen
                 }]
             }else {
-                return this.layout.map((lay, index) => {
+                lays = this.layout.map((lay, index) => {
+                    lay.key = lay.key === undefined ? 'default' : lay.key
                     lay.fields = this._fields.filter(field => (!field.layout_key && index == 0) || (field.layout_key == lay.key))
+                    lay.collapseDisabled = lay.collapseDisabled === undefined ? this.collapseDisabled : lay.collapseDisabled
+                    lay.collapseOpen = lay.collapseOpen === undefined ? this.collapseOpen : lay.collapseOpen
                     return lay
                 })
             }
+
+
+            return lays
         },
         _has_option_remote_load(){
             return this.store.fields.some(f => !!f.meta.fetchUrl)
         },
         _hasModel(){
             return !!this._models[this.store.model]
+        },
+        _singleShow(){
+            return !this.singlePop && this.singleShow
         },
         _models(){
             let tmp = {}
@@ -171,6 +244,12 @@ export default {
         },
         _current_model(){
             return this._hasModel ? this._models[this.store.model] : null
+        },
+        _current_ok_text() {
+            return this._hasModel ? this._models[this.store.model].okText : '提交'
+        },
+        _current_cancel_text() {
+            return this._hasModel ? this._models[this.store.model].cancelText : '取消'
         },
         _model_title(){
             return this._hasModel ? this._current_model.title : ''
@@ -245,10 +324,38 @@ export default {
             return ks.length > 0 ? ks[0].form_key : ''
         },
         _fields(){
-            return this.store.fields.filter(v => v.field && !this._model_hide.includes(v.form_key))
+            return this.store.fields.filter(v => {
+                if(v.more && !this.store.moreShow) {
+                    return false
+                }
+                return v.field && !this._model_hide.includes(v.form_key)
+            })
         }
     },
     methods: {
+        onMore(){
+            this.store.moreShow = !this.store.moreShow
+        },
+        onCollapseChange(keys) {
+            keys = Array.isArray(keys) ? keys : [keys]
+            let alwaysOpenKeys = this._layout.filter(layout => !!layout.collapseOpen).map(layout => layout.key)
+            let disKeys = this._layout.filter(layout => !!layout.collapseDisabled).map(layout => layout.key)
+            disKeys.forEach((key, index) => {
+                // 模拟disabled 但不用原生的disabled 因为原生的disabled带有disabled样式
+                if(keys.includes(key)) {
+                    // 如果一开始就关闭 则删掉
+                    if(!alwaysOpenKeys.includes(key)) {
+                        delete keys[index]
+                    }
+                }else {
+                    // 如果一开始就开启 则填充
+                    if(alwaysOpenKeys.includes(key)) {
+                        keys.push(key)
+                    }
+                }
+            })
+            this.store.activeKey = keys
+        },
         async onSingleFinish(){
             if(!await this.$refs.singleOb.validate()) {
                 if(!this.validateJustAlert) {
@@ -259,12 +366,27 @@ export default {
             }
             await this.do()
         },
+        async onSinglePopFinish(field) {
+            this.singleField = field
+            if(!await this.$refs.ob.validate()) {
+                if(!this.validateJustAlert) {
+                    return
+                }else {
+                    this.getNotifyEngine(this._current_model.xhr.notifyEngine).info("信息检测未通过请检查!")
+                }
+            }
+            await this.do()
+            this.onSinglePopClose(field)
+        },
+        onSinglePopClose(field){
+            field.popShow = false
+        },
         onSingleClose(){
             this.singleShow = false
             this.singleField = null
         },
         onItemClick(field){
-            if(this.singleRequest && field.editing) {
+            if(this.singleRequest && field.editing && !this.singlePop) {
                 this.singleField = field
                 this.singleShow = true
                 this.$nextTick(() => {
@@ -281,7 +403,9 @@ export default {
         },
         onChange(value, field, cb){
             this.$set(this.dataform, field, value)
-            cb && cb(value)
+            this.$nextTick(() => {
+                cb && cb(value, this.dataform)
+            })
         },
         upload(file, field){
             let fd = new FormData()
@@ -331,7 +455,9 @@ export default {
                     help_msg: v.help_msg ? v.help_msg : '',
                     key: v.key === undefined ? false : v.key,
                     meta: v,
+                    more: !!v.more,
                     form_key: fk,
+                    popShow: false,
                     form_value_key: v.form_value_key ? v.form_value_key : v.field,
                     layout_key: v.layout_key,
                     placeholder: v.placeholder ? v.placeholder : "",
@@ -367,6 +493,9 @@ export default {
                     v.omit = []
                 }
 
+                v.okText = v.okText ? v.okText : '提交'
+                v.cancelText = v.cancelText ? v.cancelText : '取消'
+
                 return v
             })
 
@@ -385,6 +514,9 @@ export default {
         setModel(model){
             if(this._models[model]) {
                 this.store.model = model
+                this.$nextTick(() => {
+                    this.store.activeKey = this._layout.filter(layout => !!layout.collapseOpen).map(layout => layout.key)
+                })
             }
         },
         getModel(){

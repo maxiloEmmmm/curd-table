@@ -1,17 +1,19 @@
 <template>
     <div style="width:100%; text-align: left">
         <template v-if="editing">
-            <component allow-clear :is="_option.textarea ? 'a-textarea' : 'a-input'" style="width:100%" size="small" v-if="type == 'string'" :value="value" :disabled="disabled" @change="onChange" ref="input"></component>
+            <component :placeholder="emptyLabel" allow-clear :is="_option.textarea ? 'a-textarea' : 'a-input'" style="width:100%" size="small" v-if="type == 'string'" :value="value" :disabled="disabled" @change="onChange" ref="input"></component>
             <tool-select size="small" :value="value" @change="onChange" 
                 :options="_option.selectOptions" v-else-if="type == 'select'" 
                 :disabled="disabled" 
                 ref="input"
                 style="width:100%"
+                :placeholder="emptyLabel"
                 :style="{minWidth: _option.minSelectWidth}" 
                 :filterOption="_option.selectFilter"></tool-select>
             <tool-pick size="small" :value="value" @change="onChange" 
                 :options="_option.pickOptions" v-else-if="type == 'pick'" 
                 :disabled="disabled" 
+                :title="_option.title"
                 ref="input"
                 :searchKey="_option.searchKey"
                 style="width:100%"
@@ -19,7 +21,7 @@
                 <a-button size="small">{{_label}}</a-button>
             </tool-pick>
             <a-switch :checked-children="_option.checkText" :un-checked-children="_option.unCheckText" :disabled="disabled" ref="input" size="small" v-else-if="type == 'switch'" :checked="value" @change="onChange"></a-switch>
-            <a-input-number style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'number'" :value="value" @change="onChange"></a-input-number>
+            <a-input-number :placeholder="emptyLabel" style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'number'" :value="value" @change="onChange"></a-input-number>
             <!-- <emotion :disabled="disabled" v-else-if="type == 'component'" style="width:100%" @click="lanuchComponent"> 请选择</emotion> -->
             <tool-radio :solid="_option.solid" style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'radio'" :value="value" @change="onChange" :options="_option.radioOptions"></tool-radio>
             <tool-datetimepick :showTime="_option.showTime" :format="_option.format" style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'datetimepick'" :value="value" @change="onChange" :options="_option.radioOptions"></tool-datetimepick>
@@ -301,6 +303,9 @@ export default {
                 }break;
                 case 'datetimepick': {
                     return this.value.format(this._option.format)
+                }break;
+                case 'number': {
+                    return this.value ? this.value : this.value === 0 ? 0 : this.emptyLabel
                 }break;
                 default: {
                     return this.value ? this.value : this.emptyLabel

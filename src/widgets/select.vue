@@ -46,6 +46,23 @@ export default {
         value: {
             handler(){
                 this.v = this.value
+                if(this.options && this.options.length > 0) {
+                    let val = this.options.filter(option => option.value == this.v)[0]
+                    if(val === undefined) {
+                        this.v = ""
+                        this.onChange()
+                    }
+                }
+            },
+            deep: true
+        },
+        options: {
+            handler(){
+                let val = this.options.filter(option => option.value == this.v)[0]
+                if(val === undefined) {
+                    this.v = ""
+                    this.onChange()
+                }
             },
             deep: true
         }
