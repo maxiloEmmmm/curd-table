@@ -30,7 +30,7 @@ export default {
     watch: {
         value: {
             handler(){
-                this.v = moment(this.value, this.format)
+                this.v = !this.value ? null : moment(this.value, this.format)
             },
             deep: true
         }

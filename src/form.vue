@@ -136,10 +136,6 @@ export default {
             type: Boolean,
             default:false
         },
-        singleRequestAloneField: {
-            type: Boolean,
-            default: true
-        },
         viewEdit: {
             type: Boolean,
             default:false
@@ -396,7 +392,7 @@ export default {
         },
         filterFormat(field, v){
             if(field.type == "datetimepick") {
-                return v.format(field.option.format)
+                return v ? v.format(field.option.format) : ''
             }else {
                 return v
             }
@@ -548,11 +544,11 @@ export default {
         transform(params, method){
             let tmp = {...params}
             // auto set
-            if(Object.keys(tmp).length > 0) {
-                this.autoSet.forEach(s => {
-                    tmp[s.option.labelKey] = this.$refs[s.field].getLabel()
-                })
-            }
+            // if(Object.keys(tmp).length > 0) {
+            //     this.autoSet.forEach(s => {
+            //         tmp[s.target] = this.$refs[s.src].getLabel()
+            //     })
+            // }
             return tmp
         },
         async request(){

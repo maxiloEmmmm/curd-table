@@ -302,7 +302,7 @@ export default {
                     }
                 }break;
                 case 'datetimepick': {
-                    return this.value.format(this._option.format)
+                    return this.value ? this.value.format(this._option.format) : ''
                 }break;
                 case 'number': {
                     return this.value ? this.value : this.value === 0 ? 0 : this.emptyLabel

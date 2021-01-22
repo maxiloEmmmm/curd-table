@@ -226,7 +226,6 @@ export default {
                                 value: utils.get(item, c.field), 
                                 option: c.option, 
                                 type: c.type,
-                                autoSet: this._auto_set,
                                 item
                             },
                             ref: `edit-ref-${index}-${c.field}`,
