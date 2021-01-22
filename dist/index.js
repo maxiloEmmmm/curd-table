@@ -6757,7 +6757,6 @@ var curd = {
                 value: utils.get(item, c.field),
                 option: c.option,
                 type: c.type,
-                autoSet: _this4._auto_set,
                 item: item
               },
               ref: _concatInstanceProperty(_context21 = "edit-ref-".concat(index, "-")).call(_context21, c.field),
@@ -7628,7 +7627,7 @@ var curd = {
 
 function ownKeys$2(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = _filterInstanceProperty(symbols).call(symbols, function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context27; _forEachInstanceProperty(_context27 = ownKeys$2(Object(source), true)).call(_context27, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context28; _forEachInstanceProperty(_context28 = ownKeys$2(Object(source))).call(_context28, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context36; _forEachInstanceProperty(_context36 = ownKeys$2(Object(source), true)).call(_context36, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context37; _forEachInstanceProperty(_context37 = ownKeys$2(Object(source))).call(_context37, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var form = {
   render: function render() {
     var _vm = this;
@@ -7655,7 +7654,7 @@ var form = {
         "slot": "left"
       },
       slot: "left"
-    }, [_vm._v(_vm._s(_vm._model_title))]), _vm._v(" "), !_vm._edit ? _c('a-icon', {
+    }, [_vm._v(_vm._s(_vm._model_title))]), _vm._v(" "), _c('a-space', [!_vm._edit ? _c('a-icon', {
       staticStyle: {
         "font-size": "1.2rem"
       },
@@ -7665,17 +7664,41 @@ var form = {
       on: {
         "click": _vm.onViewShow
       }
-    }) : _vm._e()], 1), _vm._v(" "), _c('a-spin', {
+    }) : _vm._e(), _vm._v(" "), _vm._hasMore ? _c('a-icon', {
+      staticStyle: {
+        "font-size": "1.2rem",
+        "border": "1px solid",
+        "border-radius": "50%",
+        "padding": "4px"
+      },
+      attrs: {
+        "type": _vm.store.moreShow ? 'minus' : 'plus'
+      },
+      on: {
+        "click": _vm.onMore
+      }
+    }) : _vm._e()], 1)], 1), _vm._v(" "), _c('a-spin', {
       attrs: {
         "spinning": _vm.loading
       }
     }, [_c('ValidationObserver', {
       ref: "ob"
+    }, [_c('a-collapse', {
+      staticClass: "tool-form-panel",
+      attrs: {
+        "bordered": false,
+        "expandIconPosition": "right",
+        "activeKey": _vm.store.activeKey
+      },
+      on: {
+        "change": this.onCollapseChange
+      }
     }, _vm._l(_vm._layout, function (layout) {
-      return _c('ysz-module-widget', {
+      return _c('a-collapse-panel', {
         key: layout.key,
         attrs: {
-          "title": layout.title
+          "showArrow": _vm.showArrow,
+          "header": layout.title
         }
       }, [_c('ysz-list', {
         key: layout.key,
@@ -7698,7 +7721,7 @@ var form = {
           scopedSlots: _vm._u([{
             key: "default",
             fn: function fn(ref) {
-              var _context;
+              var _context2, _context3;
 
               var errors = ref.errors;
               var validate = ref.validate;
@@ -7730,7 +7753,120 @@ var form = {
                   "status": "warning",
                   "text": errors[0]
                 }
-              })], 1), _vm._v(" "), _c('ysz-list-item-top', {
+              })], 1), _vm._v(" "), _vm.singleRequest && _vm.singlePop && field.editing ? _c('a-popover', {
+                attrs: {
+                  "trigger": "click",
+                  "placement": "right"
+                },
+                scopedSlots: _vm._u([{
+                  key: "content",
+                  fn: function fn() {
+                    var _context;
+
+                    return [_c('ysz-list-item-top', [_c('ysz-list-item-top', {
+                      attrs: {
+                        "slot": "top",
+                        "no-p": _vm.noP
+                      },
+                      slot: "top"
+                    }, [_c('ysz-list-item', {
+                      attrs: {
+                        "slot": "top",
+                        "no-p": "",
+                        "left": ""
+                      },
+                      slot: "top"
+                    }, [_c('tool-form-item', {
+                      ref: field.field,
+                      refInFor: true,
+                      attrs: {
+                        "slot": "left",
+                        "emptyLabel": field.placeholder,
+                        "disabled": _includesInstanceProperty(_context = _vm._model_disabled).call(_context, field.field),
+                        "editing": "",
+                        "value": _vm.dataform[field.form_key],
+                        "option": field.option,
+                        "type": field.type,
+                        "item": _vm.dataform
+                      },
+                      on: {
+                        "change": function change(value) {
+                          validate(value), _vm.onChange(value, field.form_key, field.on.change);
+                        }
+                      },
+                      slot: "left"
+                    })], 1), _vm._v(" "), field.help_msg ? _c('tw-alert', {
+                      staticStyle: {
+                        "text-align": "left"
+                      },
+                      attrs: {
+                        "mini": "",
+                        "left": "",
+                        "title": field.help_msg,
+                        "type": "info",
+                        "show-icon": ""
+                      }
+                    }) : _vm._e()], 1), _vm._v(" "), _c('a-space', [_c('a-button', {
+                      attrs: {
+                        "type": "primary"
+                      },
+                      on: {
+                        "click": function click() {
+                          return _vm.onSinglePopFinish(field);
+                        }
+                      }
+                    }, [_vm._v("\n                                                确认\n                                            ")]), _vm._v(" "), _c('a-button', {
+                      on: {
+                        "click": function click() {
+                          return _vm.onSinglePopClose(field);
+                        }
+                      }
+                    }, [_vm._v("取消")])], 1)], 1)];
+                  },
+                  proxy: true
+                }], null, true),
+                model: {
+                  value: field.popShow,
+                  callback: function callback($$v) {
+                    _vm.$set(field, "popShow", $$v);
+                  },
+                  expression: "field.popShow"
+                }
+              }, [_vm._v(" "), _c('ysz-list-item', {
+                attrs: {
+                  "no-p": "",
+                  "left": ""
+                }
+              }, [_c('tool-form-item', {
+                ref: field.field,
+                refInFor: true,
+                staticStyle: {
+                  "cursor": "pointer"
+                },
+                attrs: {
+                  "slot": "left",
+                  "emptyLabel": field.placeholder,
+                  "disabled": _includesInstanceProperty(_context2 = _vm._model_disabled).call(_context2, field.field),
+                  "editing": false,
+                  "value": _vm.dataform[field.form_key],
+                  "option": field.option,
+                  "type": field.type,
+                  "item": _vm.dataform
+                },
+                on: {
+                  "change": function change(value) {
+                    validate(value), _vm.onChange(value, field.form_key, field.on.change);
+                  }
+                },
+                slot: "left"
+              }), _vm._v(" "), _c('a-icon', {
+                staticStyle: {
+                  "color": "#aaa"
+                },
+                attrs: {
+                  "type": "right"
+                }
+              })], 1)], 1) : _c('ysz-list-item-top', {
                 attrs: {
                   "no-p": _vm.noP
                 },
@@ -7753,7 +7889,7 @@ var form = {
                 attrs: {
                   "slot": "left",
                   "emptyLabel": field.placeholder,
-                  "disabled": _includesInstanceProperty(_context = _vm._model_disabled).call(_context, field.field),
+                  "disabled": _includesInstanceProperty(_context3 = _vm._model_disabled).call(_context3, field.field),
                   "editing": _vm._edit && field.editing && !_vm.singleRequest,
                   "value": _vm.dataform[field.form_key],
                   "option": field.option,
@@ -7789,7 +7925,7 @@ var form = {
           }], null, true)
         });
       }), 1)], 1);
-    }), 1)], 1), _vm._v(" "), _vm._edit && !this.singleRequest ? _c('ysz-list-item', {
+    }), 1)], 1)], 1), _vm._v(" "), _vm._edit && !this.singleRequest ? _c('ysz-list-item', {
       attrs: {
         "slot": "footer",
         "left": true
@@ -7799,19 +7935,19 @@ var form = {
       on: {
         "click": _vm.cancleHandle
       }
-    }, [_vm._v("取消")]) : _vm._e(), _vm._v(" "), _c('a-button', {
+    }, [_vm._v(_vm._s(_vm._current_cancel_text))]) : _vm._e(), _vm._v(" "), _c('a-button', {
       attrs: {
         "type": "primary"
       },
       on: {
         "click": _vm.okHandle
       }
-    }, [_vm._v("提交")])], 1)], 1) : _vm._e(), _vm._v(" "), _c('a-drawer', {
+    }, [_vm._v(_vm._s(_vm._current_ok_text))]), _vm._v(" "), _vm._t("btn")], 2)], 1) : _vm._e(), _vm._v(" "), _c('a-drawer', {
       attrs: {
         "placement": "right",
         "width": "100%",
         "closable": true,
-        "visible": _vm.singleShow
+        "visible": _vm._singleShow
       },
       on: {
         "close": _vm.onSingleClose
@@ -7842,7 +7978,7 @@ var form = {
       scopedSlots: _vm._u([{
         key: "default",
         fn: function fn(ref) {
-          var _context2;
+          var _context4;
 
           var errors = ref.errors;
           var validate = ref.validate;
@@ -7850,7 +7986,7 @@ var form = {
             ref: "singleFormItem",
             attrs: {
               "slot": "top",
-              "disabled": _includesInstanceProperty(_context2 = _vm._model_disabled).call(_context2, _vm.singleField.field),
+              "disabled": _includesInstanceProperty(_context4 = _vm._model_disabled).call(_context4, _vm.singleField.field),
               "editing": "",
               "value": _vm.dataform[_vm.singleField.form_key],
               "option": _vm.singleField.option,
@@ -7880,7 +8016,9 @@ var form = {
         models: [],
         model: '',
         fieldData: {},
-        progress: {}
+        progress: {},
+        activeKey: [],
+        moreShow: false
       },
       _show: [],
       viewShow: false,
@@ -7900,13 +8038,25 @@ var form = {
       type: Boolean,
       default: false
     },
-    singleRequestAloneField: {
+    singlePop: {
       type: Boolean,
-      default: true
+      default: false
     },
     viewEdit: {
       type: Boolean,
       default: false
+    },
+    showArrow: {
+      type: Boolean,
+      default: false
+    },
+    collapseDisabled: {
+      type: Boolean,
+      default: true
+    },
+    collapseOpen: {
+      type: Boolean,
+      default: true
     },
     show: {
       type: Boolean,
@@ -7947,6 +8097,16 @@ var form = {
     _singleTitle: function _singleTitle() {
       return this.singleField ? this.singleField.title : "";
     },
+    _mores: function _mores() {
+      var _context5;
+
+      return _filterInstanceProperty(_context5 = this.store.fields).call(_context5, function (field) {
+        return !!field.more;
+      });
+    },
+    _hasMore: function _hasMore() {
+      return this._mores.length > 0;
+    },
     _edit: function _edit() {
       // 平面模式且(展示或编辑模式)或非阅览模式
       return this.view && (this.viewShow || this.viewEdit) || !this.view;
@@ -7957,41 +8117,53 @@ var form = {
     _layout: function _layout() {
       var _this = this;
 
+      var lays = [];
+
       if (this.layout.length == 0) {
-        return [{
+        lays = [{
           key: "default",
           col: this._model_layout_group,
-          fields: this._fields
+          fields: this._fields,
+          collapseDisabled: this.collapseDisabled,
+          collapseOpen: this.collapseOpen
         }];
       } else {
-        var _context3;
+        var _context6;
 
-        return _mapInstanceProperty(_context3 = this.layout).call(_context3, function (lay, index) {
-          var _context4;
+        lays = _mapInstanceProperty(_context6 = this.layout).call(_context6, function (lay, index) {
+          var _context7;
 
-          lay.fields = _filterInstanceProperty(_context4 = _this._fields).call(_context4, function (field) {
+          lay.key = lay.key === undefined ? 'default' : lay.key;
+          lay.fields = _filterInstanceProperty(_context7 = _this._fields).call(_context7, function (field) {
             return !field.layout_key && index == 0 || field.layout_key == lay.key;
           });
+          lay.collapseDisabled = lay.collapseDisabled === undefined ? _this.collapseDisabled : lay.collapseDisabled;
+          lay.collapseOpen = lay.collapseOpen === undefined ? _this.collapseOpen : lay.collapseOpen;
           return lay;
         });
       }
+
+      return lays;
     },
     _has_option_remote_load: function _has_option_remote_load() {
-      var _context5;
+      var _context8;
 
-      return _someInstanceProperty(_context5 = this.store.fields).call(_context5, function (f) {
+      return _someInstanceProperty(_context8 = this.store.fields).call(_context8, function (f) {
         return !!f.meta.fetchUrl;
       });
     },
     _hasModel: function _hasModel() {
       return !!this._models[this.store.model];
     },
+    _singleShow: function _singleShow() {
+      return !this.singlePop && this.singleShow;
+    },
     _models: function _models() {
-      var _context6;
+      var _context9;
 
       var tmp = {};
 
-      _forEachInstanceProperty(_context6 = this.store.models).call(_context6, function (v) {
+      _forEachInstanceProperty(_context9 = this.store.models).call(_context9, function (v) {
         tmp[v.key] = v;
       });
 
@@ -7999,6 +8171,12 @@ var form = {
     },
     _current_model: function _current_model() {
       return this._hasModel ? this._models[this.store.model] : null;
+    },
+    _current_ok_text: function _current_ok_text() {
+      return this._hasModel ? this._models[this.store.model].okText : '提交';
+    },
+    _current_cancel_text: function _current_cancel_text() {
+      return this._hasModel ? this._models[this.store.model].cancelText : '取消';
     },
     _model_title: function _model_title() {
       return this._hasModel ? this._current_model.title : '';
@@ -8018,10 +8196,10 @@ var form = {
         if (this._current_model.hide.length != 0) {
           return !_Array$isArray(this._current_model.hide) && this._current_model.hide == '*' ? _Object$keys(this.dataform) : utils.getArrayFunction(this._current_model.hide, [this._current_model, this.dataform]);
         } else {
-          var _context7;
+          var _context10;
 
           var show = utils.getArrayFunction(this._current_model.show, [this._current_model, this.dataform]);
-          return show.length == 0 ? [] : _filterInstanceProperty(_context7 = _Object$keys(this.dataform)).call(_context7, function (v) {
+          return show.length == 0 ? [] : _filterInstanceProperty(_context10 = _Object$keys(this.dataform)).call(_context10, function (v) {
             return !_includesInstanceProperty(show).call(show, v);
           });
         }
@@ -8067,11 +8245,11 @@ var form = {
       }
     },
     _fieldMap: function _fieldMap() {
-      var _context8;
+      var _context11;
 
       var tmp = {};
 
-      _forEachInstanceProperty(_context8 = this.store.fields).call(_context8, function (v) {
+      _forEachInstanceProperty(_context11 = this.store.fields).call(_context11, function (v) {
         tmp[v.field] = v;
       });
 
@@ -8081,140 +8259,231 @@ var form = {
       return this._hasModel && !!this._current_model.xhr.url;
     },
     _key: function _key() {
-      var _context9;
+      var _context12;
 
-      var ks = _filterInstanceProperty(_context9 = this.store.fields).call(_context9, function (field) {
+      var ks = _filterInstanceProperty(_context12 = this.store.fields).call(_context12, function (field) {
         return field.key;
       });
 
       return ks.length > 0 ? ks[0].form_key : '';
     },
     _fields: function _fields() {
-      var _context10,
+      var _context13,
           _this3 = this;
 
-      return _filterInstanceProperty(_context10 = this.store.fields).call(_context10, function (v) {
-        var _context11;
+      return _filterInstanceProperty(_context13 = this.store.fields).call(_context13, function (v) {
+        var _context14;
 
-        return v.field && !_includesInstanceProperty(_context11 = _this3._model_hide).call(_context11, v.form_key);
+        if (v.more && !_this3.store.moreShow) {
+          return false;
+        }
+
+        return v.field && !_includesInstanceProperty(_context14 = _this3._model_hide).call(_context14, v.form_key);
       });
     }
   },
   methods: {
+    onMore: function onMore() {
+      this.store.moreShow = !this.store.moreShow;
+    },
+    onCollapseChange: function onCollapseChange(keys) {
+      var _context15, _context16, _context17, _context18;
+
+      keys = _Array$isArray(keys) ? keys : [keys];
+
+      var alwaysOpenKeys = _mapInstanceProperty(_context15 = _filterInstanceProperty(_context16 = this._layout).call(_context16, function (layout) {
+        return !!layout.collapseOpen;
+      })).call(_context15, function (layout) {
+        return layout.key;
+      });
+
+      var disKeys = _mapInstanceProperty(_context17 = _filterInstanceProperty(_context18 = this._layout).call(_context18, function (layout) {
+        return !!layout.collapseDisabled;
+      })).call(_context17, function (layout) {
+        return layout.key;
+      });
+
+      _forEachInstanceProperty(disKeys).call(disKeys, function (key, index) {
+        // 模拟disabled 但不用原生的disabled 因为原生的disabled带有disabled样式
+        if (_includesInstanceProperty(keys).call(keys, key)) {
+          // 如果一开始就关闭 则删掉
+          if (!_includesInstanceProperty(alwaysOpenKeys).call(alwaysOpenKeys, key)) {
+            delete keys[index];
+          }
+        } else {
+          // 如果一开始就开启 则填充
+          if (_includesInstanceProperty(alwaysOpenKeys).call(alwaysOpenKeys, key)) {
+            keys.push(key);
+          }
+        }
+      });
+
+      this.store.activeKey = keys;
+    },
     onSingleFinish: function onSingleFinish() {
       var _this4 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee() {
-        return _regeneratorRuntime.wrap(function _callee$(_context12) {
+        return _regeneratorRuntime.wrap(function _callee$(_context19) {
           while (1) {
-            switch (_context12.prev = _context12.next) {
+            switch (_context19.prev = _context19.next) {
               case 0:
-                _context12.next = 2;
+                _context19.next = 2;
                 return _this4.$refs.singleOb.validate();
 
               case 2:
-                if (_context12.sent) {
-                  _context12.next = 8;
+                if (_context19.sent) {
+                  _context19.next = 8;
                   break;
                 }
 
                 if (_this4.validateJustAlert) {
-                  _context12.next = 7;
+                  _context19.next = 7;
                   break;
                 }
 
-                return _context12.abrupt("return");
+                return _context19.abrupt("return");
 
               case 7:
                 _this4.getNotifyEngine(_this4._current_model.xhr.notifyEngine).info("信息检测未通过请检查!");
 
               case 8:
-                _context12.next = 10;
+                _context19.next = 10;
                 return _this4.do();
 
               case 10:
               case "end":
-                return _context12.stop();
+                return _context19.stop();
             }
           }
         }, _callee);
       }))();
+    },
+    onSinglePopFinish: function onSinglePopFinish(field) {
+      var _this5 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2() {
+        return _regeneratorRuntime.wrap(function _callee2$(_context20) {
+          while (1) {
+            switch (_context20.prev = _context20.next) {
+              case 0:
+                _this5.singleField = field;
+                _context20.next = 3;
+                return _this5.$refs.ob.validate();
+
+              case 3:
+                if (_context20.sent) {
+                  _context20.next = 9;
+                  break;
+                }
+
+                if (_this5.validateJustAlert) {
+                  _context20.next = 8;
+                  break;
+                }
+
+                return _context20.abrupt("return");
+
+              case 8:
+                _this5.getNotifyEngine(_this5._current_model.xhr.notifyEngine).info("信息检测未通过请检查!");
+
+              case 9:
+                _context20.next = 11;
+                return _this5.do();
+
+              case 11:
+                _this5.onSinglePopClose(field);
+
+              case 12:
+              case "end":
+                return _context20.stop();
+            }
+          }
+        }, _callee2);
+      }))();
+    },
+    onSinglePopClose: function onSinglePopClose(field) {
+      field.popShow = false;
     },
     onSingleClose: function onSingleClose() {
       this.singleShow = false;
       this.singleField = null;
     },
     onItemClick: function onItemClick(field) {
-      var _this5 = this;
+      var _this6 = this;
 
-      if (this.singleRequest && field.editing) {
+      if (this.singleRequest && field.editing && !this.singlePop) {
         this.singleField = field;
         this.singleShow = true;
         this.$nextTick(function () {
-          _this5.$refs.singleFormItem.focus();
+          _this6.$refs.singleFormItem.focus();
         });
       }
     },
     filterFormat: function filterFormat(field, v) {
       if (field.type == "datetimepick") {
-        return v.format(field.option.format);
+        return v ? v.format(field.option.format) : '';
       } else {
         return v;
       }
     },
     onChange: function onChange(value, field, cb) {
+      var _this7 = this;
+
       this.$set(this.dataform, field, value);
-      cb && cb(value);
+      this.$nextTick(function () {
+        cb && cb(value, _this7.dataform);
+      });
     },
     upload: function upload(file, field) {
-      var _this6 = this;
+      var _this8 = this;
 
       var fd = new FormData();
       fd.append('file', file);
       return new _Promise( /*#__PURE__*/function () {
-        var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2(ok) {
+        var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3(ok) {
           var response;
-          return _regeneratorRuntime.wrap(function _callee2$(_context13) {
+          return _regeneratorRuntime.wrap(function _callee3$(_context21) {
             while (1) {
-              switch (_context13.prev = _context13.next) {
+              switch (_context21.prev = _context21.next) {
                 case 0:
-                  _this6.loading = true;
-                  _context13.prev = 1;
-                  _context13.next = 4;
-                  return _this6.$http.post(_this6._current_model.xhr.url + '/' + field.option.uploadApi, fd, {
+                  _this8.loading = true;
+                  _context21.prev = 1;
+                  _context21.next = 4;
+                  return _this8.$http.post(_this8._current_model.xhr.url + '/' + field.option.uploadApi, fd, {
                     'Content-Type': 'multipart/form-data',
                     onUploadProgress: function onUploadProgress(progressEvent) {
-                      _this6.$set(_this6.store.progress, field.field, progressEvent.loaded / progressEvent.total * 100 | 0);
+                      _this8.$set(_this8.store.progress, field.field, progressEvent.loaded / progressEvent.total * 100 | 0);
                     }
                   });
 
                 case 4:
-                  response = _context13.sent;
-                  _this6.loading = false;
+                  response = _context21.sent;
+                  _this8.loading = false;
 
                   if (utils.http.responseOk(response)) {
-                    _this6.$set(_this6.dataform[field.field], 0, response.data.path);
+                    _this8.$set(_this8.dataform[field.field], 0, response.data.path);
 
                     ok([response.data.path]);
                   } else {
                     ok('');
                   }
 
-                  _context13.next = 13;
+                  _context21.next = 13;
                   break;
 
                 case 9:
-                  _context13.prev = 9;
-                  _context13.t0 = _context13["catch"](1);
-                  _this6.loading = false;
+                  _context21.prev = 9;
+                  _context21.t0 = _context21["catch"](1);
+                  _this8.loading = false;
                   ok('');
 
                 case 13:
                 case "end":
-                  return _context13.stop();
+                  return _context21.stop();
               }
             }
-          }, _callee2, null, [[1, 9]]);
+          }, _callee3, null, [[1, 9]]);
         }));
 
         return function (_x) {
@@ -8223,19 +8492,19 @@ var form = {
       }());
     },
     setFields: function setFields() {
-      var _this7 = this;
+      var _this9 = this;
 
       var fields = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var tmp = [];
 
       _forEachInstanceProperty(fields).call(fields, function (v) {
-        var _context14;
+        var _context22;
 
-        var type = _this7.filterType(v.type);
+        var type = _this9.filterType(v.type);
 
         var option = v.option ? v.option : {};
 
-        if (_includesInstanceProperty(_context14 = ['select', 'radio']).call(_context14, v.type)) {
+        if (_includesInstanceProperty(_context22 = ['select', 'radio']).call(_context22, v.type)) {
           option.valueKey = option.valueKey ? option.valueKey : 'value';
           option.titleKey = option.titleKey ? option.titleKey : 'label';
         }
@@ -8244,7 +8513,7 @@ var form = {
 
         var _default = utils.getTypeDefault(type, v.default, option);
 
-        _this7.$set(_this7.dataform, fk, _default);
+        _this9.$set(_this9.dataform, fk, _default);
 
         tmp.push({
           type: type,
@@ -8257,7 +8526,9 @@ var form = {
           help_msg: v.help_msg ? v.help_msg : '',
           key: v.key === undefined ? false : v.key,
           meta: v,
+          more: !!v.more,
           form_key: fk,
+          popShow: false,
           form_value_key: v.form_value_key ? v.form_value_key : v.field,
           layout_key: v.layout_key,
           placeholder: v.placeholder ? v.placeholder : "",
@@ -8271,20 +8542,20 @@ var form = {
     },
     setModels: function setModels() {
       var _arguments = arguments,
-          _this8 = this;
+          _this10 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3() {
-        var _context15, _context16, _this8$store$models;
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee4() {
+        var _context23, _context24, _this10$store$models;
 
         var models, tmp;
-        return _regeneratorRuntime.wrap(function _callee3$(_context17) {
+        return _regeneratorRuntime.wrap(function _callee4$(_context25) {
           while (1) {
-            switch (_context17.prev = _context17.next) {
+            switch (_context25.prev = _context25.next) {
               case 0:
                 models = _arguments.length > 0 && _arguments[0] !== undefined ? _arguments[0] : [];
-                _this8.store.models = _mapInstanceProperty(_context15 = _filterInstanceProperty(models).call(models, function (v) {
+                _this10.store.models = _mapInstanceProperty(_context23 = _filterInstanceProperty(models).call(models, function (v) {
                   return !v.extend;
-                })).call(_context15, function (v) {
+                })).call(_context23, function (v) {
                   if (!v.disabled || !_Array$isArray(v.disabled)) {
                     v.disabled = [];
                   }
@@ -8315,62 +8586,75 @@ var form = {
                     v.omit = [];
                   }
 
+                  v.okText = v.okText ? v.okText : '提交';
+                  v.cancelText = v.cancelText ? v.cancelText : '取消';
                   return v;
                 });
-                _context17.next = 4;
-                return _this8.$nextTick();
+                _context25.next = 4;
+                return _this10.$nextTick();
 
               case 4:
-                tmp = _mapInstanceProperty(_context16 = _filterInstanceProperty(models).call(models, function (v) {
-                  return !!v.extend && _this8._models[v.extend] != undefined;
-                })).call(_context16, function (v) {
+                tmp = _mapInstanceProperty(_context24 = _filterInstanceProperty(models).call(models, function (v) {
+                  return !!v.extend && _this10._models[v.extend] != undefined;
+                })).call(_context24, function (v) {
                   if (v.extendResolve) {
-                    return v.extendResolve({}, _this8._models[v.extend], v);
+                    return v.extendResolve({}, _this10._models[v.extend], v);
                   } else {
-                    return _Object$assign({}, _this8._models[v.extend], v);
+                    return _Object$assign({}, _this10._models[v.extend], v);
                   }
                 });
 
-                (_this8$store$models = _this8.store.models).push.apply(_this8$store$models, _toConsumableArray(tmp));
+                (_this10$store$models = _this10.store.models).push.apply(_this10$store$models, _toConsumableArray(tmp));
 
               case 6:
               case "end":
-                return _context17.stop();
+                return _context25.stop();
             }
           }
-        }, _callee3);
+        }, _callee4);
       }))();
     },
     setModel: function setModel(model) {
+      var _this11 = this;
+
       if (this._models[model]) {
         this.store.model = model;
+        this.$nextTick(function () {
+          var _context26, _context27;
+
+          _this11.store.activeKey = _mapInstanceProperty(_context26 = _filterInstanceProperty(_context27 = _this11._layout).call(_context27, function (layout) {
+            return !!layout.collapseOpen;
+          })).call(_context26, function (layout) {
+            return layout.key;
+          });
+        });
       }
     },
     getModel: function getModel() {
       return this.store.model;
     },
     setData: function setData(data) {
-      var _context18,
-          _this9 = this;
+      var _context28,
+          _this12 = this;
 
       var validate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-      _forEachInstanceProperty(_context18 = this.store.fields).call(_context18, function (field) {
+      _forEachInstanceProperty(_context28 = this.store.fields).call(_context28, function (field) {
         // 只根据field.field获取数据
         // dataform key 根据_mode_data 注释设置
-        _this9.$set(_this9.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.field, field.default), field.option));
+        _this12.$set(_this12.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.field, field.default), field.option));
       });
 
       if (validate) {
         this.$nextTick(function () {
-          _this9.$refs.ob.validate();
+          _this12.$refs.ob.validate();
         });
       }
     },
     filterType: function filterType(type) {
-      var _context19;
+      var _context29;
 
-      return _includesInstanceProperty(_context19 = ["datetimepick", "checkbox", 'radio', 'string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer', 'pick']).call(_context19, type) ? type : 'string';
+      return _includesInstanceProperty(_context29 = ["datetimepick", "checkbox", 'radio', 'string', 'switch', 'date', 'select', 'param', 'file', 'number', 'code', 'map', 'tag', 'customer', 'pick']).call(_context29, type) ? type : 'string';
     },
     getNotifyEngine: function getNotifyEngine(type) {
       switch (type) {
@@ -8382,118 +8666,113 @@ var form = {
       }
     },
     transform: function transform(params, method) {
-      var _this10 = this;
-
       var tmp = _objectSpread$2({}, params); // auto set
+      // if(Object.keys(tmp).length > 0) {
+      //     this.autoSet.forEach(s => {
+      //         tmp[s.target] = this.$refs[s.src].getLabel()
+      //     })
+      // }
 
-
-      if (_Object$keys(tmp).length > 0) {
-        var _context20;
-
-        _forEachInstanceProperty(_context20 = this.autoSet).call(_context20, function (s) {
-          tmp[s.option.labelKey] = _this10.$refs[s.field].getLabel();
-        });
-      }
 
       return tmp;
     },
     request: function request() {
-      var _this11 = this;
+      var _this13 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee4() {
-        var param, _context21, sub, _context22, ks, hkObj, response;
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee5() {
+        var param, _context30, sub, _context31, ks, hkObj, response;
 
-        return _regeneratorRuntime.wrap(function _callee4$(_context23) {
+        return _regeneratorRuntime.wrap(function _callee5$(_context32) {
           while (1) {
-            switch (_context23.prev = _context23.next) {
+            switch (_context32.prev = _context32.next) {
               case 0:
-                param = _this11._current_model.xhr.method == 'get' ? {
-                  params: _this11._model_data
+                param = _this13._current_model.xhr.method == 'get' ? {
+                  params: _this13._model_data
                 } : {
-                  payload: _this11._model_data
+                  payload: _this13._model_data
                 };
-                _context23.prev = 1;
+                _context32.prev = 1;
                 sub = ''; // put not include
                 // put include key to body
 
-                if (_includesInstanceProperty(_context21 = ['delete', 'patch']).call(_context21, _this11._current_model.xhr.method)) {
-                  ks = _filterInstanceProperty(_context22 = _this11.store.fields).call(_context22, function (field) {
+                if (_includesInstanceProperty(_context30 = ['delete', 'patch']).call(_context30, _this13._current_model.xhr.method)) {
+                  ks = _filterInstanceProperty(_context31 = _this13.store.fields).call(_context31, function (field) {
                     return field.key;
                   });
 
                   if (ks.length > 0) {
-                    sub = "/".concat(_this11.dataform[_this11._key]);
+                    sub = "/".concat(_this13.dataform[_this13._key]);
                   }
                 }
 
-                _this11.loading = true;
-                hkObj = Http.getEngine(_this11._current_model.xhr.httpKey ? _this11._current_model.xhr.httpKey : _this11.httpKey);
-                _context23.next = 8;
-                return hkObj.engine[_this11._current_model.xhr.method](_this11._current_model.xhr.url + sub, _this11.paramTransform(_this11.transform(param)));
+                _this13.loading = true;
+                hkObj = Http.getEngine(_this13._current_model.xhr.httpKey ? _this13._current_model.xhr.httpKey : _this13.httpKey);
+                _context32.next = 8;
+                return hkObj.engine[_this13._current_model.xhr.method](_this13._current_model.xhr.url + sub, _this13.paramTransform(_this13.transform(param)));
 
               case 8:
-                response = _context23.sent;
-                _this11.loading = false;
+                response = _context32.sent;
+                _this13.loading = false;
 
                 if (utils.http.responseOk(response)) {
-                  _this11.getNotifyEngine(_this11._current_model.xhr.notifyEngine).success(_this11._current_model.xhr.okMsg);
+                  _this13.getNotifyEngine(_this13._current_model.xhr.notifyEngine).success(_this13._current_model.xhr.okMsg);
 
-                  _this11.$emit('opearFinish', response);
+                  _this13.$emit('opearFinish', response);
 
-                  if (_this11._current_model.xhr.autoClose) {
-                    _this11.close();
+                  if (_this13._current_model.xhr.autoClose) {
+                    _this13.close();
                   }
                 } else {
-                  _this11.getNotifyEngine(_this11._current_model.xhr.notifyEngine).info(hkObj.errorMsgAdapter({
+                  _this13.getNotifyEngine(_this13._current_model.xhr.notifyEngine).info(hkObj.errorMsgAdapter({
                     response: response
                   }));
                 }
 
-                return _context23.abrupt("return", response);
+                return _context32.abrupt("return", response);
 
               case 14:
-                _context23.prev = 14;
-                _context23.t0 = _context23["catch"](1);
+                _context32.prev = 14;
+                _context32.t0 = _context32["catch"](1);
 
-                if (_context23.t0.response && _context23.t0.response.status == 422) {
-                  _this11.getNotifyEngine(_this11._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context23.t0));
+                if (_context32.t0.response && _context32.t0.response.status == 422) {
+                  _this13.getNotifyEngine(_this13._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context32.t0));
                 } else {
-                  _this11.getNotifyEngine(_this11._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context23.t0));
+                  _this13.getNotifyEngine(_this13._current_model.xhr.notifyEngine).error(Http.errorMsgAdapter(_context32.t0));
                 }
 
-                _this11.loading = false;
-                return _context23.abrupt("return", _context23.t0);
+                _this13.loading = false;
+                return _context32.abrupt("return", _context32.t0);
 
               case 19:
               case "end":
-                return _context23.stop();
+                return _context32.stop();
             }
           }
-        }, _callee4, null, [[1, 14]]);
+        }, _callee5, null, [[1, 14]]);
       }))();
     },
     do: function _do() {
-      var _this12 = this;
+      var _this14 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee5() {
-        return _regeneratorRuntime.wrap(function _callee5$(_context24) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee6() {
+        return _regeneratorRuntime.wrap(function _callee6$(_context33) {
           while (1) {
-            switch (_context24.prev = _context24.next) {
+            switch (_context33.prev = _context33.next) {
               case 0:
-                if (!_this12._has_xhr) {
-                  _context24.next = 12;
+                if (!_this14._has_xhr) {
+                  _context33.next = 12;
                   break;
                 }
 
-                if (!_this12._current_model.xhr.confirm) {
-                  _context24.next = 5;
+                if (!_this14._current_model.xhr.confirm) {
+                  _context33.next = 5;
                   break;
                 }
 
-                _this12.$confirm({
-                  title: _this12._current_model.xhr.confirmMsg ? _this12._current_model.xhr.confirmMsg : '确认?',
+                _this14.$confirm({
+                  title: _this14._current_model.xhr.confirmMsg ? _this14._current_model.xhr.confirmMsg : '确认?',
                   onOk: function onOk() {
-                    _this12.request();
+                    _this14.request();
                   },
                   onCancel: function onCancel() {//todo
                   },
@@ -8501,75 +8780,75 @@ var form = {
                   cancelText: '取消'
                 });
 
-                _context24.next = 10;
+                _context33.next = 10;
                 break;
 
               case 5:
-                _context24.t0 = _this12;
-                _context24.next = 8;
-                return _this12.request();
+                _context33.t0 = _this14;
+                _context33.next = 8;
+                return _this14.request();
 
               case 8:
-                _context24.t1 = _context24.sent;
+                _context33.t1 = _context33.sent;
 
-                _context24.t0.$emit.call(_context24.t0, 'opearFinish', _context24.t1);
+                _context33.t0.$emit.call(_context33.t0, 'opearFinish', _context33.t1);
 
               case 10:
-                _context24.next = 13;
+                _context33.next = 13;
                 break;
 
               case 12:
-                _this12.$emit('done', _this12._model_data);
+                _this14.$emit('done', _this14._model_data);
 
               case 13:
               case "end":
-                return _context24.stop();
+                return _context33.stop();
             }
           }
-        }, _callee5);
+        }, _callee6);
       }))();
     },
     okHandle: function okHandle() {
-      var _this13 = this;
+      var _this15 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee6() {
-        return _regeneratorRuntime.wrap(function _callee6$(_context25) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee7() {
+        return _regeneratorRuntime.wrap(function _callee7$(_context34) {
           while (1) {
-            switch (_context25.prev = _context25.next) {
+            switch (_context34.prev = _context34.next) {
               case 0:
-                _context25.next = 2;
-                return _this13.$refs.ob.validate();
+                _context34.next = 2;
+                return _this15.$refs.ob.validate();
 
               case 2:
-                if (_context25.sent) {
-                  _context25.next = 6;
+                if (_context34.sent) {
+                  _context34.next = 6;
                   break;
                 }
 
-                _this13.getNotifyEngine(_this13._current_model.xhr.notifyEngine).info("信息检测未通过请检查!");
+                _this15.getNotifyEngine(_this15._current_model.xhr.notifyEngine).info("信息检测未通过请检查!");
 
-                if (_this13.validateJustAlert) {
-                  _context25.next = 6;
+                if (_this15.validateJustAlert) {
+                  _context34.next = 6;
                   break;
                 }
 
-                return _context25.abrupt("return");
+                return _context34.abrupt("return");
 
               case 6:
-                _context25.next = 8;
-                return _this13.do();
+                _context34.next = 8;
+                return _this15.do();
 
               case 8:
-                if (_this13._current_model.xhr.autoClose) {
-                  _this13.cancleHandle();
+                if (_this15._current_model.xhr.autoClose) {
+                  _this15.cancleHandle();
                 }
 
               case 9:
               case "end":
-                return _context25.stop();
+                return _context34.stop();
             }
           }
-        }, _callee6);
+        }, _callee7);
       }))();
     },
     cancleHandle: function cancleHandle() {
@@ -8634,11 +8913,11 @@ var form = {
       }
     },
     clean: function clean() {
-      var _context26,
-          _this14 = this;
+      var _context35,
+          _this16 = this;
 
-      _forEachInstanceProperty(_context26 = this.store.fields).call(_context26, function (field) {
-        _this14.$set(_this14.dataform, field.form_key, field.default);
+      _forEachInstanceProperty(_context35 = this.store.fields).call(_context35, function (field) {
+        _this16.$set(_this16.dataform, field.form_key, field.default);
       });
     }
   }
@@ -8669,6 +8948,7 @@ var formItem = {
         "width": "100%"
       },
       attrs: {
+        "placeholder": _vm.emptyLabel,
         "allow-clear": "",
         "size": "small",
         "value": _vm.value,
@@ -8690,6 +8970,7 @@ var formItem = {
         "value": _vm.value,
         "options": _vm._option.selectOptions,
         "disabled": _vm.disabled,
+        "placeholder": _vm.emptyLabel,
         "filterOption": _vm._option.selectFilter
       },
       on: {
@@ -8708,6 +8989,7 @@ var formItem = {
         "value": _vm.value,
         "options": _vm._option.pickOptions,
         "disabled": _vm.disabled,
+        "title": _vm._option.title,
         "searchKey": _vm._option.searchKey
       },
       on: {
@@ -8735,6 +9017,7 @@ var formItem = {
         "width": "100%"
       },
       attrs: {
+        "placeholder": _vm.emptyLabel,
         "disabled": _vm.disabled,
         "size": "small",
         "value": _vm.value
@@ -9216,7 +9499,12 @@ var formItem = {
 
         case 'datetimepick':
           {
-            return this.value.format(this._option.format);
+            return this.value ? this.value.format(this._option.format) : '';
+          }
+
+        case 'number':
+          {
+            return this.value ? this.value : this.value === 0 ? 0 : this.emptyLabel;
           }
 
         default:
@@ -9513,6 +9801,11 @@ var pick = {
   watch: {
     value: function value(val) {
       this.clear(val);
+    },
+    visible: function visible(val) {
+      if (val) {
+        this.focus();
+      }
     }
   },
   computed: {
@@ -9616,7 +9909,7 @@ var pick = {
 
 function ownKeys$4(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = _filterInstanceProperty(symbols).call(symbols, function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context; _forEachInstanceProperty(_context = ownKeys$4(Object(source), true)).call(_context, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context2; _forEachInstanceProperty(_context2 = ownKeys$4(Object(source))).call(_context2, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context3; _forEachInstanceProperty(_context3 = ownKeys$4(Object(source), true)).call(_context3, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context4; _forEachInstanceProperty(_context4 = ownKeys$4(Object(source))).call(_context4, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var select = {
   render: function render() {
     var _vm = this;
@@ -9697,7 +9990,38 @@ var select = {
   watch: {
     value: {
       handler: function handler() {
+        var _this = this;
+
         this.v = this.value;
+
+        if (this.options && this.options.length > 0) {
+          var _context;
+
+          var val = _filterInstanceProperty(_context = this.options).call(_context, function (option) {
+            return option.value == _this.v;
+          })[0];
+
+          if (val === undefined) {
+            this.v = "";
+            this.onChange();
+          }
+        }
+      },
+      deep: true
+    },
+    options: {
+      handler: function handler() {
+        var _context2,
+            _this2 = this;
+
+        var val = _filterInstanceProperty(_context2 = this.options).call(_context2, function (option) {
+          return option.value == _this2.v;
+        })[0];
+
+        if (val === undefined) {
+          this.v = "";
+          this.onChange();
+        }
       },
       deep: true
     }
@@ -10240,7 +10564,7 @@ var datetimepick = {
   watch: {
     value: {
       handler: function handler() {
-        this.v = moment(this.value, this.format);
+        this.v = !this.value ? null : moment(this.value, this.format);
       },
       deep: true
     }
