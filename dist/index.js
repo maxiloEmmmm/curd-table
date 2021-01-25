@@ -8990,7 +8990,8 @@ var formItem = {
         "options": _vm._option.pickOptions,
         "disabled": _vm.disabled,
         "title": _vm._option.title,
-        "searchKey": _vm._option.searchKey
+        "searchKey": _vm._option.searchKey,
+        "placeholder": _vm.emptyLabel
       },
       on: {
         "change": _vm.onChange
@@ -9786,6 +9787,7 @@ var pick = {
       default: 4,
       type: Number
     },
+    placeholder: '',
     value: '',
     emptyValue: _defineProperty({
       default: Function
@@ -9806,6 +9808,9 @@ var pick = {
       if (val) {
         this.focus();
       }
+    },
+    options: function options() {
+      this.clear(this.pick);
     }
   },
   computed: {
@@ -9879,9 +9884,13 @@ var pick = {
 
       var tmp = _filterInstanceProperty(_context8 = this._options).call(_context8, function (c) {
         return c.value === value;
-      })[0];
+      })[0]; // 防止option懒加载 没有对应值问题
 
-      this.$emit('change', tmp ? tmp : this.emptyValue());
+
+      this.$emit('change', tmp ? tmp : {
+        value: value,
+        label: this.placeholder
+      });
     },
     clear: function clear() {
       var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';

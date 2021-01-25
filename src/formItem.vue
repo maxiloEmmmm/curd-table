@@ -17,6 +17,7 @@
                 ref="input"
                 :searchKey="_option.searchKey"
                 style="width:100%"
+                :placeholder="emptyLabel"
                 :style="{minWidth: _option.minpickWidth}">
                 <a-button size="small">{{_label}}</a-button>
             </tool-pick>

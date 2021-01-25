@@ -57,6 +57,7 @@ export default {
             default: 4,
             type: Number
         },
+        placeholder: '',
         value: '',
         emptyValue: {
             default: Function,
@@ -78,6 +79,9 @@ export default {
             if(val) {
                 this.focus()
             }
+        },
+        options() {
+            this.clear(this.pick)
         }
     },
     computed: {
@@ -130,7 +134,8 @@ export default {
         setValue(value){
             this.pick = value
             let tmp = this._options.filter(c => c.value === value)[0]
-            this.$emit('change', tmp ? tmp : this.emptyValue())
+            // 防止option懒加载 没有对应值问题
+            this.$emit('change', tmp ? tmp : {value, label: this.placeholder})
         },
         clear(value = ''){
             this.search = ''
