@@ -8938,8 +8938,10 @@ var formItem = {
 
     return _c('div', {
       staticStyle: {
-        "width": "100%",
-        "text-align": "left"
+        "width": "100%"
+      },
+      style: {
+        textAlign: _vm.align
       }
     }, [_vm.editing ? [_vm.type == 'string' ? _c(_vm._option.textarea ? 'a-textarea' : 'a-input', {
       ref: "input",
@@ -9210,6 +9212,10 @@ var formItem = {
     },
     value: {
       default: ''
+    },
+    align: {
+      type: String,
+      default: "left"
     },
     option: {
       type: Object,

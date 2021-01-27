@@ -1,5 +1,5 @@
 <template>
-    <div style="width:100%; text-align: left">
+    <div style="width:100%" :style="{textAlign: align}">
         <template v-if="editing">
             <component :placeholder="emptyLabel" allow-clear :is="_option.textarea ? 'a-textarea' : 'a-input'" style="width:100%" size="small" v-if="type == 'string'" :value="value" :disabled="disabled" @change="onChange" ref="input"></component>
             <tool-select size="small" :value="value" @change="onChange" 
@@ -97,6 +97,10 @@ export default {
         },
         value: {
             default: '',
+        },
+        align: {
+            type: String,
+            default: "left"
         },
         option: {
             type: Object,
