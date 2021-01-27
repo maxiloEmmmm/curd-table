@@ -10579,7 +10579,7 @@ var datetimepick = {
     }
   },
   data: function data() {
-    var value = utils.getType(this.$props.value) === 'Undefined' ? moment(date(), this.format) : moment(this.$props.value, this.format); // format time, force change
+    var value = !this.$props.value ? null : moment(this.$props.value, this.format); // format time, force change
 
     this.$emit('change', value);
     return {

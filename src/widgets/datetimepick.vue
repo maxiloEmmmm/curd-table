@@ -36,7 +36,7 @@ export default {
         }
     },
     data(){
-        const value = utils.getType(this.$props.value) === 'Undefined' ? moment(date(), this.format) : moment(this.$props.value, this.format);
+        const value = !this.$props.value ? null : moment(this.$props.value, this.format);
         // format time, force change
         this.$emit('change', value)
         return {v: value}
