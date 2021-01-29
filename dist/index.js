@@ -8214,7 +8214,7 @@ var form = {
       // dataform 只存储path => value
       // _model_data: {a: {b: 1}}
       // dataform: {'a.b': 1}
-      var fields = this.singleRequest && this.singleRequestAloneField && this.singleField ? [this.singleField] : this.store.fields;
+      var fields = this.singleRequest && this.singleField ? [this.singleField] : this.store.fields;
 
       if (this._hasModel) {
         if (_Array$isArray(this._current_model.pick) && this._current_model.pick.length != 0) {
