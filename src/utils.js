@@ -233,7 +233,7 @@ import moment from "moment"
 const getTypeDefault = function(type, _d, option) {
     switch(type){
         case 'datetimepick': {
-            return _d ? moment(_d) : moment()
+            return !_d ? null : moment(_d)
         }break;
         case 'customer': {
             return _d

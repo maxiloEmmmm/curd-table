@@ -6031,7 +6031,7 @@ var getTypeDefault = function getTypeDefault(type, _d, option) {
   switch (type) {
     case 'datetimepick':
       {
-        return _d ? moment(_d) : moment();
+        return !_d ? null : moment(_d);
       }
 
     case 'customer':
