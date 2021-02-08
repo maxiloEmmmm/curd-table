@@ -224,6 +224,12 @@ export default {
                         option.checkboxOptions = utils.getType(option.checkboxOptions) == 'Function'
                                 ? option.checkboxOptions(this.item) : []
                     }
+                    if(option.autoFillEmpty === undefined) {
+                        option.autoFillEmpty = true
+                    }
+                    if(option.autoFillEmpty) {
+                        option.checkboxOptions = [{label: option.defaultOptionLabel ? option.defaultOptionLabel : "全部", value: option.defaultOptionValue ? option.defaultOptionValue : ""}, ...option.checkboxOptions]
+                    }
                 };break
                 case 'switch': {
                     if(option.checkText === undefined) {

@@ -8925,7 +8925,7 @@ var form = {
 
 function ownKeys$3(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = _filterInstanceProperty(symbols).call(symbols, function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context17; _forEachInstanceProperty(_context17 = ownKeys$3(Object(source), true)).call(_context17, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context18; _forEachInstanceProperty(_context18 = ownKeys$3(Object(source))).call(_context18, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { var _context18; _forEachInstanceProperty(_context18 = ownKeys$3(Object(source), true)).call(_context18, function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { var _context19; _forEachInstanceProperty(_context19 = ownKeys$3(Object(source))).call(_context19, function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var formItem = {
   render: function render() {
     var _context, _context2;
@@ -9378,6 +9378,19 @@ var formItem = {
             if (option.checkboxOptions === undefined || !_Array$isArray(option.checkboxOptions)) {
               option.checkboxOptions = utils.getType(option.checkboxOptions) == 'Function' ? option.checkboxOptions(this.item) : [];
             }
+
+            if (option.autoFillEmpty === undefined) {
+              option.autoFillEmpty = true;
+            }
+
+            if (option.autoFillEmpty) {
+              var _context9;
+
+              option.checkboxOptions = _concatInstanceProperty(_context9 = [{
+                label: option.defaultOptionLabel ? option.defaultOptionLabel : "全部",
+                value: option.defaultOptionValue ? option.defaultOptionValue : ""
+              }]).call(_context9, _toConsumableArray(option.checkboxOptions));
+            }
           }
           break;
 
@@ -9397,9 +9410,9 @@ var formItem = {
       return option;
     },
     _normal_view: function _normal_view() {
-      var _context9;
+      var _context10;
 
-      return _includesInstanceProperty(_context9 = ['datetimepick', 'string', 'date', 'check', 'radio', 'number', 'select', 'pick']).call(_context9, this.type);
+      return _includesInstanceProperty(_context10 = ['datetimepick', 'string', 'date', 'check', 'radio', 'number', 'select', 'pick']).call(_context10, this.type);
     },
     _map_checkbox: function _map_checkbox() {
       return this.type == 'checkbox';
@@ -9428,9 +9441,9 @@ var formItem = {
       switch (this.type) {
         case 'select':
           {
-            var _context10;
+            var _context11;
 
-            var option = _filterInstanceProperty(_context10 = this._option.selectOptions).call(_context10, function (r) {
+            var option = _filterInstanceProperty(_context11 = this._option.selectOptions).call(_context11, function (r) {
               return r.value === _this.value;
             })[0];
 
@@ -9443,9 +9456,9 @@ var formItem = {
 
         case 'pick':
           {
-            var _context11;
+            var _context12;
 
-            var _option2 = _filterInstanceProperty(_context11 = this._option.pickOptions).call(_context11, function (r) {
+            var _option2 = _filterInstanceProperty(_context12 = this._option.pickOptions).call(_context12, function (r) {
               return r.value === _this.value;
             })[0];
 
@@ -9458,9 +9471,9 @@ var formItem = {
 
         case 'radio':
           {
-            var _context12;
+            var _context13;
 
-            var _option3 = _filterInstanceProperty(_context12 = this._option.radioOptions).call(_context12, function (r) {
+            var _option3 = _filterInstanceProperty(_context13 = this._option.radioOptions).call(_context13, function (r) {
               return r.value === _this.value;
             })[0];
 
@@ -9474,13 +9487,13 @@ var formItem = {
         case 'checkbox':
           {
             if (_Array$isArray(this.value)) {
-              var _context13, _context14;
+              var _context14, _context15;
 
-              var options = _mapInstanceProperty(_context13 = _filterInstanceProperty(_context14 = this._option.checkboxOptions).call(_context14, function (r) {
-                var _context15;
+              var options = _mapInstanceProperty(_context14 = _filterInstanceProperty(_context15 = this._option.checkboxOptions).call(_context15, function (r) {
+                var _context16;
 
-                return _includesInstanceProperty(_context15 = _this.value).call(_context15, r.value);
-              })).call(_context13, function (r) {
+                return _includesInstanceProperty(_context16 = _this.value).call(_context16, r.value);
+              })).call(_context14, function (r) {
                 return r.label;
               });
 
@@ -9490,9 +9503,9 @@ var formItem = {
 
               return options;
             } else {
-              var _context16;
+              var _context17;
 
-              var _option4 = _filterInstanceProperty(_context16 = this._option.checkboxOptions).call(_context16, function (r) {
+              var _option4 = _filterInstanceProperty(_context17 = this._option.checkboxOptions).call(_context17, function (r) {
                 return r.value === _this.value;
               })[0];
 

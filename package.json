@@ -1,6 +1,6 @@
 {
   "name": "antd-vue-tool",
-  "version": "1.0.12-beta6",
+  "version": "1.0.12-beta7",
   "description": "vue antd tool",
   "main": "./dist/index.js",
   "scripts": {
