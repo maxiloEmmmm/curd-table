@@ -13,7 +13,7 @@ const bind = function _bind(struct, data) {
             }
 
             let stype =  Object.prototype.toString.call(struct[k])
-            let val = data[destK]
+            let val = data[sourceK]
             if(stype == '[object Array]') {
                 let s = struct[k][0]
                 if(Object.prototype.toString.call(val) == '[object Array]') {
@@ -56,7 +56,7 @@ const cloneDeep = function _cloneDeep(data){
             data.forEach(item => {
                 items.push(_cloneDeep(item))
             })
-            return item
+            return items
         }else {
             let obj = {...data}
             let _obj = {}
@@ -80,7 +80,7 @@ const has = function (
     pathInfo.forEach(v => {
         if (/\[/.test(v)) {
             //find [a]b[c] | b[a]c | [a][b]c => a.b.c
-            let arrayPathInfo = v.match(/(\[([^\[\]]+?)\]|[^\[\]]+)+?/g)
+            let arrayPathInfo = v.match(/(\[([^\[\]]+?)\]|[^\[\]]+)+?/g)// eslint-disable-line
             if (arrayPathInfo !== null) {
                 arrayPathInfo.forEach(q => {
                     x.push(q.replace('[', '').replace(']', ''))
@@ -167,10 +167,6 @@ const resize = function(el, cb, _c) {
     };
 }
 
-let stopPropagation = function (e) {
-    window.event ? window.event.cancelBubble = true : e.stopPropagation()
-};
-
 let slotDeepClone = (vnodes, createElement) => {
     function cloneVNode(vnode) {
         const clonedChildren = vnode.children && vnode.children.map(vnode => cloneVNode(vnode))
@@ -230,42 +226,42 @@ const http = {
 }
 
 import moment from "moment"
-const getTypeDefault = function(type, _d, option) {
+const getTypeDefault = function(type, _d) {
     switch(type){
         case 'datetimepick': {
             return !_d ? null : moment(_d)
-        }break;
+        }
         case 'customer': {
             return _d
-        }break;
+        }
         case 'map': {
             return getType(_d) == 'Object' ? _d : {}
-        }break;
+        }
         case 'date': {
             return _d === undefined ? moment() : moment(_d)
-        }break;
+        }
         case 'switch': {
             return !!_d
-        }break;
+        }
         case 'radio': {
             return _d
-        }break;
+        }
         case 'tag':
         case 'checkbox': {
             return _d ? (Array.isArray(_d) ? _d : [_d]) : []
-        }break;
+        }
         case 'param': {
             return Array.isArray(_d) ? _d : []
-        }break;
+        }
         case 'file': {
             return Array.isArray(_d) ? _d : (getType(_d) == 'String' && !!_d ? [_d] : [])
-        }break;
+        }
         case 'number': {
             return _d ? number(_d) : null
-        }break;
+        }
         case 'select': {
             return _d === undefined || _d === null ? '' : _d
-        }break;
+        }
         case 'string':
         default: {
             return getType(_d) == 'String' ? _d : (_d === undefined || _d === null 
@@ -373,12 +369,9 @@ const bytesToSize = (bytes) => {
 
     var k = 1024;
 
-    sizes = ['B','KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    var sizes = ['B','KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
-    i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    
-
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
     var num = bytes / Math.pow(k, i);
     return num.toPrecision(3) + ' ' + sizes[i];
 }

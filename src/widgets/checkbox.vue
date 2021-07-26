@@ -2,7 +2,7 @@
     <a-checkbox-group :options="options" ref="core" :disabled="disabled" size="small" style="width:100%" v-model="v" @change="onChange"/>
 </template>
 
-<script>
+<script lang="jsx">
 import utils from "../utils"
 export default {
     name: 'toolCheckbox',
@@ -41,7 +41,7 @@ export default {
         return {v: value}
     },
     methods: {
-        onChange(v){
+        onChange(){
             this.$emit('change', this.v)
         },
         focus(){

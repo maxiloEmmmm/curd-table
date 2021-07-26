@@ -33,7 +33,7 @@
     }
 </style>
 
-<script>
+<script lang="jsx">
 export default {
     name: 'tool-pick',
     props: {

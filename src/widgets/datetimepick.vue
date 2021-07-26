@@ -3,13 +3,12 @@
     </a-date-picker>
 </template>
 
-<script>
-import utils from "../utils"
+<script lang="jsx">
 import moment from "moment"
 export default {
     name: 'toolDatetimepick',
     props: {
-        value: "",
+        value: String,
         format: {
             default: "YYYY-MM-DD HH:mm:ss",
             type: String
@@ -42,7 +41,7 @@ export default {
         return {v: value}
     },
     methods: {
-        onChange(v){
+        onChange(){
             this.$emit('change', this.v)
         },
         focus(){

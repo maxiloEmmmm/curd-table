@@ -1,4 +1,4 @@
-<script>
+<script lang="jsx">
 export default {
     name: "tool-map",
     render(){
@@ -30,13 +30,13 @@ export default {
             this.newKey = ''
             this.$confirm({
                 title: '请键入新key',
-                content: h => <a-input size={this.size} disabled={this.disabled} vOn:change={e => this.newKey = e.target.value}/>,
+                content: () => <a-input size={this.size} disabled={this.disabled} vOn:change={e => this.newKey = e.target.value}/>,
                 onOk: () => {
                     if(!this.newKey || this.dataset[this.newKey] !== undefined) {
                         this.$message.info('key存在或为空')
                         return 
                     }
-                    this.$set(this.dataset, this.newKey, '')
+                    this.dataset[this.newKey] =  ''
                 },
                 onCancel() { },
             })

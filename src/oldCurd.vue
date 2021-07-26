@@ -1,4 +1,4 @@
-<script>
+<script lang="jsx">
 import utils from './utils'
 export default {
     name: 'toolCurd',
@@ -298,7 +298,7 @@ export default {
             console.log(e)
         },
         onFilter(value, field){
-            this.$set(this.store.filter, field, value)
+            this.store.filter[field] =  value
         },
         editNextCell(){
             let fieldIndex = this._format_columns.findIndex(f => f.field == this.store.edit.field)

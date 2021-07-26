@@ -1,9 +1,9 @@
-<script>
+<script lang="jsx">
 export default {
     name: "toolState",
     props: {
         promise: {type: Promise},
-        message: {type: Function, default: r => ""}
+        message: {type: Function, default: () => ""}
     },
     render(){
         return <ysz-list-item>

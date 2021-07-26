@@ -1,4 +1,4 @@
-<script>
+<script lang="jsx">
 import CodeMirror from 'codemirror'
 
 import 'codemirror/addon/hint/show-hint'
@@ -15,12 +15,12 @@ export default {
         value: {type: String, default: ""}
     },
     render(){
-        return <div ref="code" style="text-align:left"></div>
+        return <div ref="code" style="text-align:left"/>
     },
     watch: {
         value(val){
             if(this.handler) {
-                if(val != this.handler.getValue()) {
+                if(val !== this.handler.getValue()) {
                     const scrollInfo = this.handler.getScrollInfo()
                     this.handler.setValue(val)
                     this.handler.scrollTo(scrollInfo.left, scrollInfo.top)
@@ -28,7 +28,7 @@ export default {
             }
         }
     },
-    data(){return {handler: null}},
+    handler: null,
     methods: {
         focus(){
             this.handler.focus()
@@ -37,7 +37,7 @@ export default {
     async mounted(){
         this.handler = CodeMirror(this.$refs.code, {
             lineNumbers:true,
-            theme:"seti",
+            theme: "seti",
             mode: this.language,
             matchBrackets:true,
             smartIndent: false,
@@ -51,7 +51,7 @@ export default {
 </script>
 
 <style lang="scss">
-    @import '~codemirror/theme/seti.css';
-    @import '~codemirror/lib/codemirror.css';
-    @import '~codemirror/addon/hint/show-hint.css';
+    @import 'codemirror/theme/seti.css';
+    @import 'codemirror/lib/codemirror.css';
+    @import 'codemirror/addon/hint/show-hint.css';
 </style>

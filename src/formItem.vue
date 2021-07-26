@@ -30,7 +30,19 @@
             <tool-code :language="_option.language" style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'code'" :value="value" @change="onChange"></tool-code>
             <tool-map style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'map'" :value="value" @change="onChange"></tool-map>
             <tool-tag style="width:100%" :disabled="disabled" ref="input" size="small" v-else-if="type == 'tag'" :value="value" @change="onChange"></tool-tag>
-            <component style="width:100%" :option="_option" :is="_option.customer_form" :disabled="disabled" ref="input" size="small" v-else-if="type == 'customer'" :value="value" @change="onChange" :item="item"></component>
+            <template v-else-if="type == 'customer'">
+                <component :is="_option.customer_form({
+                    style: 'width:100%',
+                    option: _option,
+                    disabled: disabled,
+                    ref: 'input',
+                    size: 'small',
+                    value: value,
+                    change: onChange,
+                    item: item,
+                    edit: true,
+                })"/>
+            </template>
             <span v-else>
                 {{ _label }}
             </span>
@@ -70,11 +82,24 @@
                         title: v
                     }})"></tw-list-item1>
             </span>
+            <div v-else-if="_customer_view">
+                <component :is="_option.customer_form({
+                    style: 'width:100%',
+                    option: _option,
+                    disabled: disabled,
+                    ref: 'input',
+                    size: 'small',
+                    value: value,
+                    change: onChange,
+                    item: item,
+                    edit: false,
+                })"/>
+            </div>
         </template>
     </div>
 </template>
 
-<script>
+<script lang="jsx">
 import utils from "./utils"
 export default {
     name: 'toolFormItem',
@@ -218,7 +243,7 @@ export default {
                     if(option.autoFillEmpty) {
                         option.radioOptions = [{label: option.defaultOptionLabel ? option.defaultOptionLabel : "全部", value: option.defaultOptionValue ? option.defaultOptionValue : ""}, ...option.radioOptions]
                     }
-                };break
+                }break
                 case "checkbox": {
                     if(option.checkboxOptions === undefined || !Array.isArray(option.checkboxOptions)) {
                         option.checkboxOptions = utils.getType(option.checkboxOptions) == 'Function'
@@ -230,7 +255,7 @@ export default {
                     if(option.autoFillEmpty) {
                         option.checkboxOptions = [{label: option.defaultOptionLabel ? option.defaultOptionLabel : "全部", value: option.defaultOptionValue ? option.defaultOptionValue : ""}, ...option.checkboxOptions]
                     }
-                };break
+                }break
                 case 'switch': {
                     if(option.checkText === undefined) {
                         option.checkText = '开'
@@ -246,7 +271,7 @@ export default {
             return option
         },
         _normal_view(){
-            return ['datetimepick', 'string', 'date', 'check', 'radio', 'number', 'select', 'pick'].includes(this.type)
+            return ['datetimepick', 'string', 'date', 'check', 'radio', 'number', 'select', 'pick', 'code'].includes(this.type)
         },
         _map_checkbox(){
             return this.type == 'checkbox'
@@ -324,6 +349,7 @@ export default {
             }
         }
     },
+    emits: ['change'],
     methods: {
         focus(){
             this.$refs.input.focus && this.$refs.input.focus()

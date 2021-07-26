@@ -1,10 +1,10 @@
 <template>
-    <a-select dropdownMatchSelectWidth ref="core" :disabled="disabled" :autoFocus="autoFocus" :show-search="!!filterOption" :filterOption="filterOption" :labelInValue="labelInValue" size="small" style="width:100%" v-model="v" @change="onChange">
+    <a-select dropdownMatchSelectWidth ref="core" :disabled="disabled" :autoFocus="autoFocus" :show-search="!!filterOption" :filterOption="filterOption" :labelInValue="labelInValue" size="small" style="width:100%" v-model:value="v" @change="onChange">
         <a-select-option :value="option.value" :key="option.value" v-for="option in options">{{ option.label }}</a-select-option>
     </a-select>
 </template>
 
-<script>
+<script lang="jsx">
 import utils from "../utils"
 export default {
     name: 'toolSelect',
@@ -38,16 +38,12 @@ export default {
             },
         },
     },
-    model: {
-        prop: 'value',
-        event: 'change'
-    },
     watch: {
         value: {
             handler(){
                 this.v = this.value
                 if(this.options && this.options.length > 0) {
-                    let val = this.options.filter(option => option.value == this.v)[0]
+                    let val = this.options.filter(option => option.value === this.v)[0]
                     if(val === undefined) {
                         this.v = ""
                         this.onChange()
@@ -58,7 +54,7 @@ export default {
         },
         options: {
             handler(){
-                let val = this.options.filter(option => option.value == this.v)[0]
+                let val = this.options.filter(option => option.value === this.v)[0]
                 if(val === undefined) {
                     this.v = ""
                     this.onChange()
@@ -73,6 +69,7 @@ export default {
        
         return {v: value}
     },
+    emits: ['change'],
     methods: {
         onChange(v){
             this.$emit('change', this.labelInValue ? {value: v.key, ...v} : this.v)

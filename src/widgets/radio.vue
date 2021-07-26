@@ -2,12 +2,12 @@
     <a-radio-group :button-style="solid ? 'solid' : 'outline'" :options="options" ref="core" :disabled="disabled" size="small" style="width:100%" v-model="v" @change="onChange"/>
 </template>
 
-<script>
+<script lang="jsx">
 import utils from "../utils"
 export default {
     name: 'toolRadio',
     props: {
-        value: "",
+        value: String,
         solid: {
             default: false,
             type: Boolean
@@ -42,7 +42,7 @@ export default {
         return {v: value}
     },
     methods: {
-        onChange(v){
+        onChange(){
             this.$emit('change', this.v)
         },
         focus(){

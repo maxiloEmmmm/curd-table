@@ -1,41 +1,53 @@
-<script>
+<script lang="jsx">
 import utils from './utils'
 import httpConfig from "./http"
 import config from "./config"
+import {h, resolveComponent} from 'vue'
 export default {
     name: 'toolCurd',
     render(){
-        const {$scopedSlots} = this
+        const {$slots} = this
         
         return <ysz-module-card>
-                <tool-form layout={this.layout} httpKey={this.httpKey} vOn:done={this.opearDone} vOn:opearFinish={this.opearFinish} show={this.show} paramTransform={this.paramTransform} on={{"update:show": v => this.show = v}} ref="ywSettingBase"></tool-form>
-                {this.title || $scopedSlots.title ? <span slot="title">{ this.title ? this.title : $scopedSlots.title()   }</span> : null}
-                {$scopedSlots.top && $scopedSlots.top() }
+                <tool-form layout={this.layout} httpKey={this.httpKey} onDone={this.opearDone} onOpearFinish={this.opearFinish} show={this.show} paramTransform={this.paramTransform} {...{'onUpdate:show': v => this.show = v }} ref="ywSettingBase"/>
+                {this.title || $slots.title ? <span slot="title">{ this.title ? this.title : $slots.title()   }</span> : null}
+                {$slots.top && $slots.top() }
                 {this.fetchUrl && !this.preview
-                    ? <tw-emotion size="small" class="action-btn action-btn__top" vOn:click={e => this.refresh()}>刷新</tw-emotion>
+                    ? <a-button size="small" class="action-btn action-btn__top" onClick={() => this.refresh()}>刷新</a-button>
                     : null}
-                {this._dispatchTop.map((action, index) => <tw-emotion size="small" class="action-btn action-btn__top" vOn:click={ e => this.onTopAction(action)} key={index}>{ action.title }</tw-emotion>)}
+                {this._dispatchTop.map((action, index) => <a-button size="small" class="action-btn action-btn__top" onClick={ () => this.onTopAction(action)} key={index}>{ action.title }</a-button>)}
                 {this._has_filter 
                     ? <ysz-list row>
                         {this._filter.map((filter) => 
-                            <ysz-list-item-top>
-                                <ysz-list-item key={filter.filterKey} class="h-full" slot="top">
-                                    <span slot="left">{ filter.label }</span>
-                                    <tool-form-item value={this.store.filter[filter.filterKey]} editing type={filter.type} vOn:change={value => this.onFilter(value, filter.filterKey)} option={filter.option}></tool-form-item>
-                                </ysz-list-item>
+                            <ysz-list-item-top
+                                v-slots={{
+                                    top: () => <ysz-list-item
+                                        v-slots={{
+                                            left: () => <span>{filter.label}</span>
+                                        }}
+                                        key={filter.filterKey} className="h-full">
+                                        <tool-form-item value={this.store.filter[filter.filterKey]} editing
+                                                        type={filter.type}
+                                                        onChange={value => this.onFilter(value, filter.filterKey)}
+                                                        option={filter.option}/>
+                                    </ysz-list-item>
+                                }}
+                            >
                                 {filter.help_msg ? <tw-alert style="text-align:left" mini left title={filter.help_msg} type="info" show-icon /> : null}
                             </ysz-list-item-top>
                         )}
-                        <ysz-list-item>
-                            <tw-emotion size="small" vOn:click={e => this.refresh()} type="primary" slot="left"> 搜索</tw-emotion>
-                            <tw-emotion size="small" vOn:click={e => this.clearFilter()} type="info"> 重置</tw-emotion>
+                        <ysz-list-item
+                            v-slots={{
+                                left: () => <a-button size="small" onClick={() => this.refresh()} type="primary"> 搜索</a-button>
+                            }}
+                        >
+                            <a-button size="small" onClick={() => this.clearFilter()} type="default"> 重置</a-button>
                         </ysz-list-item>
                     </ysz-list>
                     : null}
-                
                 <div style="display: flex">
                     {this._has_left_view
-                        ? <div style="flex: 0 0 auto">{$scopedSlots.left()}</div>
+                        ? <div style="flex: 0 0 auto">{$slots.left()}</div>
                         : null}
                     <div style="flex: 1 1 auto">
                         <ysz-fetch-wrap engine={this._httpEngine} ref="datawrap" url={this._fetchUrl} errHandler={this.fetchErr} handler={this.render} page={this.store.page} pageKey="page" pageSizeKey={this.pageSizeKey} size={this.store.page_size}>
@@ -43,14 +55,14 @@ export default {
                                 class="curd-core-table" 
                                 rowKey={this.store.rowKey} 
                                 size="small" 
-                                vOn:change={(page, sorter, filter) => this.pageRender(page, sorter, filter)} 
+                                onChange={(page, sorter, filter) => this.pageRender(page, sorter, filter)}
                                 dataSource={this._tdata} 
                                 columns={this._columns} 
                                 bordered={true} 
                                 pagination={this.pagination}
-                                scopedSlots={
+                                slots={
                                     this.expandedRow ? {
-                                        expandedRowRender: (record, index, indent, expanded) => {
+                                        expandedRowRender: (record, index) => {
                                             return <ysz-list>
                                                 {this._expanded_columns.map(col => <ysz-list-item>
                                                     <span style="font-size: 1rem; font-weight: 400;" slot="left">{col.title}</span>
@@ -64,12 +76,12 @@ export default {
                         </ysz-fetch-wrap>
                     </div>
                     {this._has_right_view
-                        ? <div style="flex: 0 0 auto">{$scopedSlots.right()}</div>
+                        ? <div style="flex: 0 0 auto">{$slots.right()}</div>
                         : null}
                 </div>
 
                 {this._has_footer_view
-                    ? <div style="flex: 0 0 auto">{$scopedSlots.footer()}</div>
+                    ? <div style="flex: 0 0 auto">{$slots.footer()}</div>
                     : null}
             </ysz-module-card>
     },
@@ -157,7 +169,7 @@ export default {
             let urlInfo = this.fetchUrl.split("?")
             let path = urlInfo[0], query = urlInfo[1]
             let querys = utils.parseURL(query)
-            let filters = this._filter.filter(f => {
+            this._filter.filter(f => {
                     let tmp = this.store.filter[f.filterKey]
                     if(tmp === undefined) return false
                     if(f.filterWithoutEmpty) {
@@ -216,24 +228,20 @@ export default {
                 c.edit = Object.assign({enable: false}, c.edit)
                 c.dataIndex = c.field
                 c.expanded = c.expanded || false
-                c.customRender = c.customRender ? c.customRender : (text, item, index, a) => {
-                    const h = this.$createElement
+                /*eslint no-unused-vars: ["error", { "args": "none" }]*/
+                c.customRender = c.customRender ? c.customRender : ({text, record, index}) => {
                     return {
-                        children: h('tool-form-item', {
-                            props: {
-                                // editing: item[this.store.colEditKey][c.field], 
-                                editing: !this.preview && c.edit.enable,
-                                value: utils.get(item, c.field), 
-                                option: c.option, 
-                                type: c.type,
-                                item
-                            },
+                        children: h(resolveComponent('tool-form-item'), {
+                            // editing: item[this.store.colEditKey][c.field],
+                            editing: !this.preview && c.edit.enable,
+                            value: utils.get(record, c.field),
+                            option: c.option,
+                            type: c.type,
+                            item: record,
                             ref: `edit-ref-${index}-${c.field}`,
-                            on: {
-                                change: value => {
-                                    if(c.edit.enable) {
-                                        this.saveCell(c.field, this.getRowKey(item), value)
-                                    }
+                            onChange: value => {
+                                if(c.edit.enable) {
+                                    this.saveCell(c.field, this.getRowKey(record), value)
                                 }
                             }
                         })
@@ -264,18 +272,18 @@ export default {
                 c.push({
                     title: '操作',
                     align: 'center',
-                    customRender: (text, item, index) =>
+                    customRender: ({text, record, index}) =>
                         <a-space>
                         {this._dispatchRow.map((row, _i) => 
                             <a-button 
                                 size="small"
-                                v-show={!row.filter || row.filter(item)}
+                                v-show={!row.filter || row.filter(record)}
                                 key={_i}
                                 class={{
                                     'action-btn': true,
-                                    'action-btn__row-relation': row.type == 'relation'
+                                    'action-btn__row-relation': row.type === 'relation'
                                 }}
-                                vOn:click={e => this.onRowAction(row, item, index)}>
+                                onClick={e => this.onRowAction(row, record, index)}>
                                 {row.title}</a-button>
                         )}</a-space>
                 })
@@ -387,7 +395,7 @@ export default {
             this.refresh()
         },
         onFilter(value, field){
-            this.$set(this.store.filter, field, value)
+            this.store.filter[field] =  value
         },
         editNextCell(){
             let fieldIndex = this._format_columns.findIndex(f => f.field == this.store.edit.field)
@@ -396,13 +404,13 @@ export default {
             if(nfi != -1) {
                 this.entryCell(this._format_columns[nfi].field, this.store.edit.key)
             }else {
-                let index = this.store.tableData.findIndex(r => r[this.store.rowKey] == this.store.edit.key)
+                let index = cdata.findIndex(r => r[this.store.rowKey] == this.store.edit.key)
                 index = index + 1
-                if(index > this.store.tableData.length - 1) {
+                if(index > cdata.length - 1) {
                     this.apiNewRow()
                     this.$nextTick(() => {
                         let firstEditField = this._format_columns.filter(f => f.edit.enable && f.field)[0]
-                        this.entryCell(firstEditField.field, this.getRowKey(this.store.tableData[index]))
+                        this.entryCell(firstEditField.field, this.getRowKey(cdata[index]))
                     })
                 }else {
                     let firstEditField = this._format_columns.filter(f => f.edit.enable && f.field)[0]
@@ -423,7 +431,7 @@ export default {
             if(nfi != -1) {
                 this.entryCell(this._format_columns[nfi].field, this.store.edit.key)
             }else {
-                let index = this.store.tableData.findIndex(r => r[this.store.rowKey] == this.store.edit.key)
+                let index = cdata.findIndex(r => r[this.store.rowKey] == this.store.edit.key)
                 index = index - 1
                 if(index < 0) {
                     this.closeEdit(this.store.edit.field, this.store.edit.key)
@@ -493,7 +501,7 @@ export default {
         },
         async pageRender(page, sorter, filter){
             if(sorter.column) {
-                this.$set(this.store.sort, sorter.column.field, sorter.order)
+                this.store.sort[sorter.column.field] =  sorter.order
             }else {
                 this.store.sort = {}
             }

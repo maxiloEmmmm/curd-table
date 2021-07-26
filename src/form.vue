@@ -3,34 +3,45 @@
         width="80%"
         :closable="false"
         :visible="show">
-        <ysz-list-item slot="title" :left="true">
-            <span slot="left">{{ _model_title }}</span>
-            <a-space>
-                <a-icon type="setting" @click="onViewShow" v-if="!_edit" style="font-size: 1.2rem;"/>
-                <a-icon :type="store.moreShow ? 'minus' : 'plus'" @click="onMore" v-if="_hasMore" style="font-size: 1.2rem;border: 1px solid;border-radius: 50%;padding: 4px;"/>
-            </a-space>
-        </ysz-list-item>
+        <template v-slot:title>
+            <ysz-list-item :right="true">
+                <span slot="left">{{ _model_title }}</span>
+                <a-space>
+                    <a-icon type="setting" @click="onViewShow" v-if="!_edit" style="font-size: 1.2rem;"/>
+                    <a-icon :type="store.moreShow ? 'minus' : 'plus'" @click="onMore" v-if="_hasMore" style="font-size: 1.2rem;border: 1px solid;border-radius: 50%;padding: 4px;"/>
+                </a-space>
+            </ysz-list-item>
+        </template>
         <a-spin :spinning="loading">
-            <ValidationObserver ref="ob">
-                <a-collapse class="tool-form-panel" :bordered="false" expandIconPosition="right" :activeKey="store.activeKey" @change="this.onCollapseChange">
+<!--            <ValidationObserver ref="ob">-->
+                <a-collapse class="tool-form-panel" :bordered="false" expandIconPosition="right" :activeKey="store.activeKey" @change="onCollapseChange">
                 <a-collapse-panel :showArrow="showArrow" v-for="layout in _layout" :key="layout.key" :header="layout.title">
                     <ysz-list :no-p="noP" :no-line="false" :row="true" :group="view && !viewShow ? viewCol : layout.col" :key="layout.key">
-                        <ValidationProvider style="width:100%" :key="field.field" v-for="(field) in layout.fields" :name="field.title" :rules="field.validate" v-slot="{ errors, validate }">
-                            <ysz-list-item-top>
-                                <ysz-list-item slot="top">
-                                    <span slot="left" style="font-size: 1rem; font-weight: 400;">{{ `${field.title}${field.type == 'code' ? `(${field.option.language})` : ''}` }}</span>
-                                    <a-badge style="border-bottom: 1px solid #faad14;" v-show="errors.length" status="warning" :text="errors[0]" />
-                                </ysz-list-item>
-
+<!--                        <ValidationProvider style="width:100%" :key="field.field" v-for="(field) in layout.fields" :name="field.title" :rules="field.validate" v-slot="{ errors, validate }">-->
+                            <ysz-list-item-top style="width:100%" :key="field.field" v-for="field in layout.fields">
+                                <template v-slot:top>
+                                    <ysz-list-item>
+                                        <template v-slot:left>
+                                            <span style="font-size: 1rem; font-weight: 400;">{{ `${field.title}${field.type == 'code' ? `(${field.option.language})` : ''}` }}</span>
+                                            <!--                                    <a-badge style="border-bottom: 1px solid #faad14;" v-show="errors.length" status="warning" :text="errors[0]" />-->
+                                        </template>
+                                    </ysz-list-item>
+                                </template>
                                 <a-popover v-if="singleRequest && singlePop && field.editing" v-model="field.popShow" trigger="click" placement="right">
                                     <template v-slot:content>
                                         <ysz-list-item-top>
-                                            <ysz-list-item-top slot="top" :no-p="noP">
-                                                <ysz-list-item no-p left slot="top">
-                                                    <tool-form-item slot="left" :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" editing :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
-                                                </ysz-list-item>
-                                                <tw-alert style="text-align:left" mini left v-if="field.help_msg" :title="field.help_msg" type="info" show-icon />
-                                            </ysz-list-item-top>
+                                            <template v-slot:top>
+                                                <ysz-list-item-top :no-p="noP">
+                                                    <template v-slot:top>
+                                                        <ysz-list-item no-p left>
+                                                            <template v-slot:left>
+                                                                <tool-form-item :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" editing :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {/*validate(value),*/ onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
+                                                            </template>
+                                                        </ysz-list-item>
+                                                    </template>
+                                                    <tw-alert style="text-align:left" mini left v-if="field.help_msg" :title="field.help_msg" type="info" show-icon />
+                                                </ysz-list-item-top>
+                                            </template>
                                             <a-space>
                                                 <a-button type="primary" @click="() => onSinglePopFinish(field)">
                                                     确认
@@ -40,33 +51,42 @@
                                         </ysz-list-item-top>
                                     </template>
                                     <ysz-list-item no-p left>
-                                        <tool-form-item slot="left" style="cursor: pointer" :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="false" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
+                                        <template v-slot:left>
+                                            <tool-form-item style="cursor: pointer" :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="false" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {/*validate(value),*/ onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
+                                        </template>
                                         <a-icon type="right" style="color:#aaa"/>
                                     </ysz-list-item>
                                 </a-popover>
                                 <ysz-list-item-top v-else :no-p="noP" @click="() => onItemClick(field)">
-                                    <ysz-list-item no-p left slot="top" :style="`cursor:${field.editing && singleRequest ? 'pointer' : 'default'}`">
-                                        <tool-form-item slot="left" :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="_edit && field.editing && !singleRequest" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {validate(value), onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
-                                        <a-icon type="right" v-if="field.editing && singleRequest" style="color:#aaa"/>
-                                    </ysz-list-item>
+                                    <template v-slot:top>
+                                        <ysz-list-item no-p left :style="`cursor:${field.editing && singleRequest ? 'pointer' : 'default'}`">
+                                            <template v-slot:left>
+                                                <tool-form-item :emptyLabel="field.placeholder" :ref="field.field" :disabled="_model_disabled.includes(field.field)" :editing="_edit && field.editing && !singleRequest" :value="dataform[field.form_key]" :option="field.option" :type="field.type" @change="(value) => {/*validate(value),*/ onChange(value, field.form_key, field.on.change)}" :item="dataform"></tool-form-item>
+                                            </template>
+                                            <a-icon type="right" v-if="field.editing && singleRequest" style="color:#aaa"/>
+                                        </ysz-list-item>
+                                    </template>
                                     <tw-alert style="text-align:left" mini left v-if="field.help_msg" :title="field.help_msg" type="info" show-icon />
                                 </ysz-list-item-top>
                             </ysz-list-item-top>
-                        </ValidationProvider>
+<!--                        </ValidationProvider>-->
                     </ysz-list>
                 </a-collapse-panel>
                 </a-collapse>
-            </ValidationObserver>
+<!--            </ValidationObserver>-->
         </a-spin>
-        
-        
-        <ysz-list-item slot="footer" :left="true" v-if="_edit && !this.singleRequest">
-            <a-space>
-                <a-button @click="cancleHandle" v-if="!view">{{_current_cancel_text}}</a-button>
-                <a-button type="primary" @click="okHandle">{{_current_ok_text}}</a-button>
-                <slot name="btn"></slot>
-            </a-space>
-        </ysz-list-item>
+
+
+        <template v-slot:footer>
+            <ysz-list-item :left="true" v-if="_edit && !singleRequest">
+                <a-space>
+                    <a-button @click="cancleHandle" v-if="!view">{{_current_cancel_text}}</a-button>
+                    <a-button type="primary" @click="okHandle">{{_current_ok_text}}</a-button>
+                    <slot name="btn"></slot>
+                </a-space>
+            </ysz-list-item>
+        </template>
+
         <a-drawer
             placement="right"
             width="100%"
@@ -76,11 +96,12 @@
             >
             <a-button slot="title" type="primary" @click="onSingleFinish">完成</a-button>
             <ysz-module-widget :title="_singleTitle">
-                <ValidationObserver ref="singleOb" v-if="singleField">
-                    <ValidationProvider style="width:100%" :name="_singleTitle" :rules="singleField.validate" v-slot="{ errors, validate }">
-                        <tool-form-item ref="singleFormItem" slot="top" :disabled="_model_disabled.includes(singleField.field)" editing :value="dataform[singleField.form_key]" :option="singleField.option" :type="singleField.type" @change="(value) => {validate(value), onChange(value, singleField.form_key, singleField.on.change)}" :item="dataform"></tool-form-item>
-                    </ValidationProvider>
-                </ValidationObserver>
+<!--                <ValidationObserver ref="singleOb" v-if="singleField">-->
+<!--                    <ValidationProvider style="width:100%" :name="_singleTitle" :rules="singleField.validate" v-slot="{ errors, validate }">-->
+<!--                        <tool-form-item ref="singleFormItem" slot="top" :disabled="_model_disabled.includes(singleField.field)" editing :value="dataform[singleField.form_key]" :option="singleField.option" :type="singleField.type" @change="(value) => {validate(value), onChange(value, singleField.form_key, singleField.on.change)}" :item="dataform"></tool-form-item>-->
+                <tool-form-item ref="singleFormItem" :disabled="_model_disabled.includes(singleField.field)" editing :value="dataform[singleField.form_key]" :option="singleField.option" :type="singleField.type" @change="(value) => {onChange(value, singleField.form_key, singleField.on.change)}" :item="dataform"></tool-form-item>
+                <!--                    </ValidationProvider>-->
+<!--                </ValidationObserver>-->
             </ysz-module-widget>
         </a-drawer>
     </component>
@@ -94,7 +115,7 @@
     }
 </style>
 
-<script>
+<script lang="jsx">
 import dayjs from "dayjs"
 import utils from "./utils"
 import httpConfig from "./http"
@@ -180,6 +201,7 @@ export default {
             default: false
         },
     },
+    emits: ['done', 'opearFinish', 'update:show', 'change'],
     computed: {
         _singleTitle(){
             return this.singleField ? this.singleField.title : ""
@@ -210,7 +232,7 @@ export default {
             }else {
                 lays = this.layout.map((lay, index) => {
                     lay.key = lay.key === undefined ? 'default' : lay.key
-                    lay.fields = this._fields.filter(field => (!field.layout_key && index == 0) || (field.layout_key == lay.key))
+                    lay.fields = this._fields.filter(field => (!field.layout_key && index === 0) || (field.layout_key === lay.key))
                     lay.collapseDisabled = lay.collapseDisabled === undefined ? this.collapseDisabled : lay.collapseDisabled
                     lay.collapseOpen = lay.collapseOpen === undefined ? this.collapseOpen : lay.collapseOpen
                     return lay
@@ -353,24 +375,24 @@ export default {
             this.store.activeKey = keys
         },
         async onSingleFinish(){
-            if(!await this.$refs.singleOb.validate()) {
-                if(!this.validateJustAlert) {
-                    return
-                }else {
-                    this.getNotifyEngine(this._current_model.xhr.notifyEngine).info("信息检测未通过请检查!")
-                }
-            }
+            // if(!await this.$refs.singleOb.validate()) {
+            //     if(!this.validateJustAlert) {
+            //         return
+            //     }else {
+            //         this.getNotifyEngine(this._current_model.xhr.notifyEngine).info("信息检测未通过请检查!")
+            //     }
+            // }
             await this.do()
         },
         async onSinglePopFinish(field) {
             this.singleField = field
-            if(!await this.$refs.ob.validate()) {
-                if(!this.validateJustAlert) {
-                    return
-                }else {
-                    this.getNotifyEngine(this._current_model.xhr.notifyEngine).info("信息检测未通过请检查!")
-                }
-            }
+            // if(!await this.$refs.ob.validate()) {
+            //     if(!this.validateJustAlert) {
+            //         return
+            //     }else {
+            //         this.getNotifyEngine(this._current_model.xhr.notifyEngine).info("信息检测未通过请检查!")
+            //     }
+            // }
             await this.do()
             this.onSinglePopClose(field)
         },
@@ -398,9 +420,10 @@ export default {
             }
         },
         onChange(value, field, cb){
-            this.$set(this.dataform, field, value)
+            this.dataform[field] =  value
             this.$nextTick(() => {
                 cb && cb(value, this.dataform)
+                this.$emit('change', this.dataform)
             })
         },
         upload(file, field){
@@ -410,11 +433,11 @@ export default {
                 this.loading = true
                 try {
                     let response = await this.$http.post(this._current_model.xhr.url + '/' + field.option.uploadApi, fd, {'Content-Type': 'multipart/form-data', onUploadProgress: progressEvent => {
-                        this.$set(this.store.progress, field.field, (progressEvent.loaded / progressEvent.total * 100 | 0))
+                        this.store.progress[field.field] =  (progressEvent.loaded / progressEvent.total * 100 | 0)
                     }})
                     this.loading = false
                     if(utils.http.responseOk(response)) {
-                        this.$set(this.dataform[field.field], 0, response.data.path)
+                        this.dataform[field.field][0] =  response.data.path
                         ok([response.data.path])
                     }else {
                         ok('')
@@ -438,7 +461,7 @@ export default {
 
                 let fk = v.form_key ? v.form_key : v.field
                 let _default = utils.getTypeDefault(type, v.default, option)
-                this.$set(this.dataform, fk, _default)
+                this.dataform[fk] = _default
 
                 tmp.push({
                     type,
@@ -522,11 +545,11 @@ export default {
             this.store.fields.forEach(field => {
                 // 只根据field.field获取数据
                 // dataform key 根据_mode_data 注释设置
-                this.$set(this.dataform, field.form_key, utils.getTypeDefault(field.type, utils.get(data, field.field, field.default), field.option))
+                this.dataform[field.form_key] = utils.getTypeDefault(field.type, utils.get(data, field.field, field.default), field.option)
             })
             if(validate) {
                 this.$nextTick(() => {
-                    this.$refs.ob.validate()
+                    // this.$refs.ob.validate()
                 })
             }
         },
@@ -614,12 +637,12 @@ export default {
             }
         },
         async okHandle(){
-            if(!await this.$refs.ob.validate()) {
-                this.getNotifyEngine(this._current_model.xhr.notifyEngine).info("信息检测未通过请检查!")
-                if(!this.validateJustAlert) {
-                    return
-                }
-            }
+            // if(!await this.$refs.ob.validate()) {
+            //     this.getNotifyEngine(this._current_model.xhr.notifyEngine).info("信息检测未通过请检查!")
+            //     if(!this.validateJustAlert) {
+            //         return
+            //     }
+            // }
 
             await this.do()
             if(this._current_model.xhr.autoClose) {
@@ -672,7 +695,7 @@ export default {
         },
         clean(){
             this.store.fields.forEach(field => {
-                this.$set(this.dataform, field.form_key, field.default)
+                this.dataform[field.form_key] = field.default
             })
         }
     }
