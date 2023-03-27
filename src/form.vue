@@ -76,8 +76,17 @@
 <!--            </ValidationObserver>-->
         </a-spin>
 
-
-        <template v-slot:footer>
+        <!-- todo: change to jsx -->
+        <template v-if="view">
+            <ysz-list-item :left="true" v-if="_edit && !singleRequest">
+                <a-space>
+                    <a-button @click="cancleHandle" v-if="!view">{{_current_cancel_text}}</a-button>
+                    <a-button type="primary" @click="okHandle">{{_current_ok_text}}</a-button>
+                    <slot name="btn"></slot>
+                </a-space>
+            </ysz-list-item>
+        </template>
+        <template v-else>
             <ysz-list-item :left="true" v-if="_edit && !singleRequest">
                 <a-space>
                     <a-button @click="cancleHandle" v-if="!view">{{_current_cancel_text}}</a-button>
@@ -575,7 +584,7 @@ export default {
             return tmp
         },
         async request(){
-            let param = this._current_model.xhr.method == 'get' ? {params: this._model_data} : {payload: this._model_data}
+            let param = this._current_model.xhr.method == 'get' ? {params: this._model_data} : this._model_data
 
             try {
                 let sub = ''

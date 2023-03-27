@@ -101,7 +101,7 @@ export default {
         httpKey: {type: String, default: 'default'},
         preview: {type: Boolean, default: false},
         useCard: {type: Boolean, default: false},
-        pageSizeKey: {type: String, default: "page_suze"},
+        pageSizeKey: {type: String, default: "page_size"},
         layout: {
             type: Array,
             default: () => []
@@ -660,6 +660,7 @@ export default {
             this.change(this.store.tableData)
         },
         transformData(data) {
+            data = utils.cloneDeep(data)
             if(data[this.store.colEditKey] === undefined) {
                 data[this.store.colEditKey] = {}
                 this._format_columns.filter(f => !!f.field).forEach(f => {

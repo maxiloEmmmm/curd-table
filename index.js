@@ -2,7 +2,7 @@ import components from './src'
 import ant from "./src/ant"
 import state from "./src/state.jsx"
 import http from "./src/http"
-import mvyu from "maxilo-vue-ysz-ui/ysz-ui.js"
+import mvyu from "../maxilo-vue-ysz-ui/ysz-ui.js"
 import config from "./src/config"
 // import { ValidationObserver, ValidationProvider } from 'vee-validate';
 mvyu.config.responsive.cb.push(t => {

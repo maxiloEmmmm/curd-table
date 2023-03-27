@@ -101,6 +101,7 @@
 
 <script lang="jsx">
 import utils from "./utils"
+import moment from "moment"
 export default {
     name: 'toolFormItem',
     data(){
@@ -338,7 +339,7 @@ export default {
                     }
                 }break;
                 case 'datetimepick': {
-                    return this.value ? this.value.format(this._option.format) : ''
+                    return this.value ? moment(this.value).format(this._option.format) : ''
                 }break;
                 case 'number': {
                     return this.value ? this.value : this.value === 0 ? 0 : this.emptyLabel
@@ -367,6 +368,9 @@ export default {
             switch (this.type) {
                 case 'string': {
                     value = value.target.value
+                }break;
+                case 'number': {
+                    value = Number(value.target.value)
                 }break;
                 case 'pick': {
                     value = value.value

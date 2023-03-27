@@ -1,5 +1,5 @@
 <template>
-    <a-date-picker :showTime="showTime" inputReadOnly :format="format" ref="core" :disabled="disabled" size="small" style="width:100%" v-model="v" @change="onChange">
+    <a-date-picker :showTime="showTime" inputReadOnly :format="format" ref="core" :disabled="disabled" size="small" style="width:100%" v-model:value="v" @change="onChange">
     </a-date-picker>
 </template>
 
